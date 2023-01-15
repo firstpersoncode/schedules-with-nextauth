@@ -3,7 +3,7 @@ import {
   Box,
   Button,
   Card,
-  Container,
+  Dialog as MuiDialog,
   Grid,
   IconButton,
   InputAdornment,
@@ -13,15 +13,11 @@ import {
 import { useRef, useState } from "react";
 import axios from "axios";
 import validateEmail from "utils/validateEmail";
-import { useRouter } from "next/router";
 import Image from "next/image";
-import Link from "next/link";
 import validatePassword from "utils/validatePassword";
-import { getSession } from "next-auth/react";
 import Dialog, { useDialog } from "components/dialog";
 
-export default function Signup() {
-  const { push } = useRouter();
+export default function Signup({ open, onClose }) {
   const timeoutRef = useRef();
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
@@ -86,12 +82,13 @@ export default function Signup() {
       });
       if (!res?.data?.message) throw res;
       handleOpenDialog(
-        "<strong>Signed up!</strong><p>Check your inbox to verify your email</p><p>You'll be redirected back to login page.</p><a href='/auth/signin'>Or click this if nothing happen.</a>",
+        "<strong>Signed up!</strong><p>Check your inbox to verify your email</p>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        push("/auth/signin");
+        handleCloseDialog();
+        onClose();
       }, 3000);
     } catch (err) {
       // console.error(err?.response?.data || err?.error || err);
@@ -101,20 +98,9 @@ export default function Signup() {
   }
 
   return (
-    <Container maxWidth="md">
-      <Box
-        sx={{
-          display: { xs: "block", lg: "flex" },
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          overflowY: "auto",
-          width: "100%",
-          height: "100vh",
-        }}
-      >
-        <h1>Sign up</h1>
-        <Card sx={{ backgroundColor: "#EEE", mt: 2, width: "100%" }}>
+    <>
+      <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+        <Card sx={{ backgroundColor: "#EEE", width: "100%" }}>
           {loading && <LinearProgress />}
           <Grid container>
             <Grid item xs={12} lg={6} sx={{ display: "flex" }}>
@@ -234,29 +220,13 @@ export default function Signup() {
                     Create Account
                   </Button>
                 </form>
-                <Box sx={{ textAlign: "right" }}>
-                  <Link href="/auth/signin">Sign in</Link>
-                </Box>
               </Box>
             </Grid>
           </Grid>
         </Card>
-      </Box>
+      </MuiDialog>
+
       <Dialog dialog={dialog} onClose={handleCloseDialog} />
-    </Container>
+    </>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (session) {
-    context.res.writeHead(302, {
-      Location: "/schedule",
-    });
-    context.res.end();
-  }
-
-  return {
-    props: {},
-  };
 }

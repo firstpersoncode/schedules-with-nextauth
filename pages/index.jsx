@@ -7,7 +7,7 @@ export default function Home({ session }) {
     <Container maxWidth="md">
       <h1>App Schedule</h1>
       {!Boolean(session) ? (
-        <Link href="/auth/signin">
+        <Link href="/auth">
           <Button>Sign in</Button>
         </Link>
       ) : (

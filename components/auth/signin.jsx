@@ -12,12 +12,13 @@ import {
   TextField,
 } from "@mui/material";
 import Dialog, { useDialog } from "components/dialog";
-import { getSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import validateEmail from "utils/validateEmail";
+import Signup from "./signup";
 
 export default function Signin() {
   const { push } = useRouter();
@@ -99,6 +100,14 @@ export default function Signin() {
       console.error(err);
     }
     setLoading(false);
+  }
+
+  const [openSignUpDialog, setOpenSignUpDialog] = useState(false);
+  function handleOpenSignUpDialog() {
+    setOpenSignUpDialog(true);
+  }
+  function handleCloseSignUpDialog() {
+    setOpenSignUpDialog(false);
   }
 
   return (
@@ -191,7 +200,9 @@ export default function Signin() {
                   </Button>
                 </form>
                 <Box sx={{ textAlign: "right" }}>
-                  <Link href="/auth/signup">Create account</Link>
+                  <Button onClick={handleOpenSignUpDialog}>
+                    Create account
+                  </Button>
                 </Box>
                 <Divider sx={{ my: 2 }}>or</Divider>
                 <Button
@@ -233,20 +244,7 @@ export default function Signin() {
       </Box>
 
       <Dialog dialog={dialog} onClose={handleCloseDialog} />
+      <Signup open={openSignUpDialog} onClose={handleCloseSignUpDialog} />
     </Container>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (session) {
-    context.res.writeHead(302, {
-      Location: "/schedule",
-    });
-    context.res.end();
-  }
-
-  return {
-    props: {},
-  };
 }
