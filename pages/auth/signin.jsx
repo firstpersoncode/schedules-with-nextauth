@@ -1,11 +1,9 @@
 import { Visibility, VisibilityOff, Google } from "@mui/icons-material";
 import {
-  Alert,
   Box,
   Button,
   Card,
   Container,
-  Dialog,
   Divider,
   Grid,
   IconButton,
@@ -13,6 +11,7 @@ import {
   LinearProgress,
   TextField,
 } from "@mui/material";
+import Dialog, { useDialog } from "components/dialog";
 import { getSession, signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +22,7 @@ import validateEmail from "utils/validateEmail";
 export default function Signin() {
   const { push } = useRouter();
   const timeoutRef = useRef();
+  const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
   const [form, setForm] = useState({
     email: "",
@@ -35,21 +35,7 @@ export default function Signin() {
     password: false,
   });
 
-  const [dialog, setDialog] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
   const [loading, setLoading] = useState(false);
-
-  function handleOpenDialog(message, severity) {
-    setDialog((v) => ({ ...v, open: true, message, severity }));
-  }
-
-  function handleCloseDialog() {
-    setDialog((v) => ({ ...v, open: false, message: "" }));
-  }
 
   function handleSetForm(field) {
     return function (e) {
@@ -88,7 +74,7 @@ export default function Signin() {
       });
       if (!res.ok) throw res;
       handleOpenDialog(
-        "<strong>Signed in!</strong><p>You'll be redirected back in a moment.</p><a href='/schedule'>Or click this if nothing happen.</a>",
+        "<strong>Signed in!</strong><p>You'll be redirected to your schedule.</p><a href='/schedule'>Or click this if nothing happen.</a>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -96,7 +82,7 @@ export default function Signin() {
         push("/schedule");
       }, 3000);
     } catch (err) {
-      console.error(err?.response?.data || err?.error || err);
+      // console.error(err?.response?.data || err?.error || err);
       handleOpenDialog(err?.response?.data || err?.error || err, "error");
     }
     setLoading(false);
@@ -246,11 +232,7 @@ export default function Signin() {
         </Card>
       </Box>
 
-      <Dialog open={dialog.open} onClose={handleCloseDialog}>
-        <Alert severity={dialog.severity}>
-          <div dangerouslySetInnerHTML={{ __html: dialog.message }} />
-        </Alert>
-      </Dialog>
+      <Dialog dialog={dialog} onClose={handleCloseDialog} />
     </Container>
   );
 }

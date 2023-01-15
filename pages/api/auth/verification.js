@@ -17,7 +17,7 @@ export default async function verification(req, res) {
 
     res.status(200).json({ message: "User email verified successfully!" });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     res.status(500).send(err.toString());
   }
 }

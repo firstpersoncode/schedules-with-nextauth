@@ -1,26 +1,14 @@
-import { Alert, Dialog } from "@mui/material";
 import axios from "axios";
+import Dialog, { useDialog } from "components/dialog";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Verification() {
   const { query, push } = useRouter();
   const timeoutRef = useRef();
 
-  const [dialog, setDialog] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
-  function handleOpenDialog(message, severity) {
-    setDialog((v) => ({ ...v, open: true, message, severity }));
-  }
-
-  function handleCloseDialog() {
-    setDialog((v) => ({ ...v, open: false, message: "" }));
-  }
+  const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
   useEffect(() => {
     if (query.verificationId) {
@@ -39,7 +27,7 @@ export default function Verification() {
             push("/auth/signin");
           }, 3000);
         } catch (err) {
-          console.error(err?.response?.data || err?.error || err);
+          // console.error(err?.response?.data || err?.error || err);
           handleOpenDialog(err?.response?.data || err?.error || err, "error");
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
           timeoutRef.current = setTimeout(() => {
@@ -52,13 +40,7 @@ export default function Verification() {
     }
   }, [query.verificationId]);
 
-  return (
-    <Dialog open={dialog.open} onClose={handleCloseDialog}>
-      <Alert severity={dialog.severity}>
-        <div dangerouslySetInnerHTML={{ __html: dialog.message }} />
-      </Alert>
-    </Dialog>
-  );
+  return <Dialog dialog={dialog} onClose={handleCloseDialog} />;
 }
 
 export async function getServerSideProps(context) {

@@ -1,11 +1,9 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
-  Alert,
   Box,
   Button,
   Card,
   Container,
-  Dialog,
   Grid,
   IconButton,
   InputAdornment,
@@ -20,10 +18,12 @@ import Image from "next/image";
 import Link from "next/link";
 import validatePassword from "utils/validatePassword";
 import { getSession } from "next-auth/react";
+import Dialog, { useDialog } from "components/dialog";
 
 export default function Signup() {
   const { push } = useRouter();
   const timeoutRef = useRef();
+  const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
   const [form, setForm] = useState({
     name: "",
@@ -39,21 +39,7 @@ export default function Signup() {
     retypePassword: false,
   });
 
-  const [dialog, setDialog] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
   const [loading, setLoading] = useState(false);
-
-  function handleOpenDialog(message, severity) {
-    setDialog((v) => ({ ...v, open: true, message, severity }));
-  }
-
-  function handleCloseDialog() {
-    setDialog((v) => ({ ...v, open: false, message: "" }));
-  }
 
   function handleSetForm(field) {
     return function (e) {
@@ -108,7 +94,7 @@ export default function Signup() {
         push("/auth/signin");
       }, 3000);
     } catch (err) {
-      console.error(err?.response?.data || err?.error || err);
+      // console.error(err?.response?.data || err?.error || err);
       handleOpenDialog(err?.response?.data || err?.error || err, "error");
     }
     setLoading(false);
@@ -256,12 +242,7 @@ export default function Signup() {
           </Grid>
         </Card>
       </Box>
-
-      <Dialog open={dialog.open} onClose={handleCloseDialog}>
-        <Alert severity={dialog.severity}>
-          <div dangerouslySetInnerHTML={{ __html: dialog.message }} />
-        </Alert>
-      </Dialog>
+      <Dialog dialog={dialog} onClose={handleCloseDialog} />
     </Container>
   );
 }
