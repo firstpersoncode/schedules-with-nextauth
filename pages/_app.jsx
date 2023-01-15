@@ -7,12 +7,40 @@ import "@fontsource/roboto/700.css";
 import "styles/globals.scss";
 
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import TagManager from "react-gtm-module";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Box, LinearProgress } from "@mui/material";
 
 export default function _App({ Component, pageProps }) {
-  const { asPath } = useRouter();
+  const { locale, asPath, events: RouterEvents } = useRouter();
+
+  const [loading, setLoading] = useState(false);
+
+  const timeoutRef = useRef();
+
+  useEffect(() => {
+    const handleStart = (url) => {
+      url !== `/${locale}${asPath}` && setLoading(true);
+    };
+
+    const handleComplete = () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    };
+
+    RouterEvents.on("routeChangeStart", handleStart);
+    RouterEvents.on("routeChangeComplete", handleComplete);
+    RouterEvents.on("routeChangeError", handleComplete);
+
+    return () => {
+      RouterEvents.off("routeChangeStart", handleStart);
+      RouterEvents.off("routeChangeComplete", handleComplete);
+      RouterEvents.off("routeChangeError", handleComplete);
+    };
+  }, [locale, asPath]);
 
   useEffect(() => {
     if (process.env.GTM_ID && !window.GTM_INITIALIZED) {
@@ -38,6 +66,11 @@ export default function _App({ Component, pageProps }) {
         // },
       })}
     >
+      {loading && (
+        <Box sx={{ position: "fixed", width: "100%", left: 0, top: 0 }}>
+          <LinearProgress />
+        </Box>
+      )}
       <Component {...pageProps} key={asPath} />
     </ThemeProvider>
   );

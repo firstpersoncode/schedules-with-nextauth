@@ -19,6 +19,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import validatePassword from "utils/validatePassword";
+import { getSession } from "next-auth/react";
 
 export default function Signup() {
   const { push } = useRouter();
@@ -115,125 +116,146 @@ export default function Signup() {
 
   return (
     <Container maxWidth="md">
-      <Card sx={{ mt: 2 }}>
-        <Grid container>
-          <Grid item xs={12} lg={6} sx={{ display: "flex" }}>
-            <Box
-              sx={{
-                position: "relative",
-                width: "100%",
-                height: { xs: "150px", lg: "100%" },
-                pointerEvents: "none",
-              }}
-            >
-              <Image src="/signup.webp" alt="Signup" fill objectFit="cover" />
-            </Box>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ p: 2 }}>
-              {loading && <LinearProgress />}
-              <form onSubmit={handleSubmit}>
-                <TextField
-                  fullWidth
-                  required
-                  type="text"
-                  name="name"
-                  placeholder="Full Name"
-                  value={form.name}
-                  onChange={handleSetForm("name")}
-                  error={Boolean(errors.name)}
-                  helperText={errors.name}
-                  margin="normal"
-                />
-
-                <TextField
-                  fullWidth
-                  required
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  value={form.email}
-                  onChange={handleSetForm("email")}
-                  error={Boolean(errors.email)}
-                  helperText={errors.email}
-                  margin="normal"
-                />
-
-                <TextField
-                  fullWidth
-                  required
-                  type={visible.password ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={handleSetForm("password")}
-                  error={Boolean(errors.password)}
-                  helperText={errors.password}
-                  margin="normal"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={toggleVisible("password")}
-                          // onMouseDown={handleMouseDownPassword}
-                        >
-                          {visible.password ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  required
-                  type={visible.retypePassword ? "text" : "password"}
-                  name="retypePassword"
-                  placeholder="Retype Password"
-                  value={form.retypePassword}
-                  onChange={handleSetForm("retypePassword")}
-                  error={Boolean(errors.retypePassword)}
-                  helperText={errors.retypePassword}
-                  margin="normal"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={toggleVisible("retypePassword")}
-                          // onMouseDown={handleMouseDownPassword}
-                        >
-                          {visible.retypePassword ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <Button
-                  type="submit"
-                  onClick={handleSubmit}
-                  fullWidth
-                  variant="contained"
-                  disabled={loading}
-                  sx={{ p: 2, my: 2 }}
-                >
-                  Create Account
-                </Button>
-              </form>
-              <Box sx={{ textAlign: "right" }}>
-                <Link href="/auth/signin">Sign in</Link>
+      <Box
+        sx={{
+          display: { xs: "block", lg: "flex" },
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          overflowY: "auto",
+          width: "100%",
+          height: "100vh",
+        }}
+      >
+        <h1>Sign up</h1>
+        <Card sx={{ backgroundColor: "#EEE", mt: 2, width: "100%" }}>
+          {loading && <LinearProgress />}
+          <Grid container>
+            <Grid item xs={12} lg={6} sx={{ display: "flex" }}>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: { xs: "150px", lg: "100%" },
+                  pointerEvents: "none",
+                }}
+              >
+                <Image src="/signup.webp" alt="Signup" fill objectFit="cover" />
               </Box>
-            </Box>
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <Box sx={{ p: 2 }}>
+                <form onSubmit={handleSubmit}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={form.name}
+                    onChange={handleSetForm("name")}
+                    error={Boolean(errors.name)}
+                    helperText={errors.name}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    required
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={form.email}
+                    onChange={handleSetForm("email")}
+                    error={Boolean(errors.email)}
+                    helperText={errors.email}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    required
+                    type={visible.password ? "text" : "password"}
+                    name="password"
+                    placeholder="Password"
+                    value={form.password}
+                    onChange={handleSetForm("password")}
+                    error={Boolean(errors.password)}
+                    helperText={errors.password}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={toggleVisible("password")}
+                            // onMouseDown={handleMouseDownPassword}
+                          >
+                            {visible.password ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    required
+                    type={visible.retypePassword ? "text" : "password"}
+                    name="retypePassword"
+                    placeholder="Retype Password"
+                    value={form.retypePassword}
+                    onChange={handleSetForm("retypePassword")}
+                    error={Boolean(errors.retypePassword)}
+                    helperText={errors.retypePassword}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={toggleVisible("retypePassword")}
+                            // onMouseDown={handleMouseDownPassword}
+                          >
+                            {visible.retypePassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <Button
+                    type="submit"
+                    onClick={handleSubmit}
+                    fullWidth
+                    variant="contained"
+                    disabled={loading}
+                    sx={{ p: 2, my: 2 }}
+                  >
+                    Create Account
+                  </Button>
+                </form>
+                <Box sx={{ textAlign: "right" }}>
+                  <Link href="/auth/signin">Sign in</Link>
+                </Box>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Card>
+        </Card>
+      </Box>
 
       <Dialog open={dialog.open} onClose={handleCloseDialog}>
         <Alert severity={dialog.severity}>
@@ -242,4 +264,18 @@ export default function Signup() {
       </Dialog>
     </Container>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (session) {
+    context.res.writeHead(302, {
+      Location: "/schedule",
+    });
+    context.res.end();
+  }
+
+  return {
+    props: {},
+  };
 }

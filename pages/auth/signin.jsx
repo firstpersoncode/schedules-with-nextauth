@@ -13,7 +13,7 @@ import {
   LinearProgress,
   TextField,
 } from "@mui/material";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -88,12 +88,12 @@ export default function Signin() {
       });
       if (!res.ok) throw res;
       handleOpenDialog(
-        "<strong>Signed in!</strong><p>You'll be redirected back in a moment.</p><a href='/'>Or click this if nothing happen.</a>",
+        "<strong>Signed in!</strong><p>You'll be redirected back in a moment.</p><a href='/schedule'>Or click this if nothing happen.</a>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        push("/");
+        push("/schedule");
       }, 3000);
     } catch (err) {
       console.error(err?.response?.data || err?.error || err);
@@ -107,7 +107,7 @@ export default function Signin() {
     try {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        signIn("google", { callbackUrl: "http://localhost:3000/" });
+        signIn("google", { callbackUrl: "http://localhost:3000/schedule" });
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -117,121 +117,134 @@ export default function Signin() {
 
   return (
     <Container maxWidth="md">
-      <Card sx={{ backgroundColor: "#EEE", mt: 2 }}>
-        <Grid container>
-          <Grid item xs={12} lg={6} sx={{ display: "flex" }}>
-            <Box
-              sx={{
-                position: "relative",
-                width: "100%",
-                height: { xs: "150px", lg: "100%" },
-                pointerEvents: "none",
-              }}
-            >
-              <Image src="/signin.webp" alt="Signin" fill objectFit="cover" />
-            </Box>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            {loading && <LinearProgress />}
-            <Box sx={{ p: 2 }}>
-              <form onSubmit={handleSubmit}>
-                <TextField
-                  fullWidth
-                  required
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  value={form.email}
-                  onChange={handleSetForm("email")}
-                  error={Boolean(errors.email)}
-                  helperText={errors.email}
-                  margin="normal"
-                  InputProps={{
-                    sx: { backgroundColor: "#FFF" },
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  required
-                  type={visible.password ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={handleSetForm("password")}
-                  error={Boolean(errors.password)}
-                  helperText={errors.password}
-                  margin="normal"
-                  InputProps={{
-                    sx: { backgroundColor: "#FFF" },
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={toggleVisible("password")}
-                          // onMouseDown={handleMouseDownPassword}
-                        >
-                          {visible.password ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <Button
-                  type="submit"
-                  onClick={handleSubmit}
-                  fullWidth
-                  variant="contained"
-                  disabled={loading}
-                  sx={{ p: 2, my: 2 }}
-                >
-                  Sign in
-                </Button>
-              </form>
-              <Box sx={{ textAlign: "right" }}>
-                <Link href="/auth/signup">Create account</Link>
-              </Box>
-              <Divider sx={{ my: 2 }}>or</Divider>
-              <Button
-                fullWidth
-                onClick={handleGoogleLogin}
-                variant="contained"
-                disabled={loading}
+      <Box
+        sx={{
+          display: { xs: "block", lg: "flex" },
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          overflowY: "auto",
+          width: "100%",
+          height: "100vh",
+        }}
+      >
+        <h1>Sign in</h1>
+        <Card sx={{ backgroundColor: "#EEE", mt: 2, width: "100%" }}>
+          {loading && <LinearProgress />}
+          <Grid container>
+            <Grid item xs={12} lg={6} sx={{ display: "flex" }}>
+              <Box
                 sx={{
-                  p: 2,
-                  my: 2,
-                  backgroundColor: "#FFF",
-                  color: "black",
-                  "&:hover": {
-                    color: "white",
-                  },
+                  position: "relative",
+                  width: "100%",
+                  height: { xs: "150px", lg: "100%" },
+                  pointerEvents: "none",
                 }}
               >
-                <Box
+                <Image src="/signin.webp" alt="Signin" fill objectFit="cover" />
+              </Box>
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <Box sx={{ p: 2 }}>
+                <form onSubmit={handleSubmit}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={form.email}
+                    onChange={handleSetForm("email")}
+                    error={Boolean(errors.email)}
+                    helperText={errors.email}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    required
+                    type={visible.password ? "text" : "password"}
+                    name="password"
+                    placeholder="Password"
+                    value={form.password}
+                    onChange={handleSetForm("password")}
+                    error={Boolean(errors.password)}
+                    helperText={errors.password}
+                    margin="normal"
+                    InputProps={{
+                      sx: { backgroundColor: "#FFF" },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={toggleVisible("password")}
+                            // onMouseDown={handleMouseDownPassword}
+                          >
+                            {visible.password ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Button
+                    type="submit"
+                    onClick={handleSubmit}
+                    fullWidth
+                    variant="contained"
+                    disabled={loading}
+                    sx={{ p: 2, my: 2 }}
+                  >
+                    Sign in
+                  </Button>
+                </form>
+                <Box sx={{ textAlign: "right" }}>
+                  <Link href="/auth/signup">Create account</Link>
+                </Box>
+                <Divider sx={{ my: 2 }}>or</Divider>
+                <Button
+                  fullWidth
+                  onClick={handleGoogleLogin}
+                  variant="contained"
+                  disabled={loading}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    textTransform: "none",
+                    p: 2,
+                    my: 2,
+                    backgroundColor: "#FFF",
+                    color: "black",
+                    "&:hover": {
+                      color: "white",
+                    },
                   }}
                 >
-                  <Image
-                    src="/google.png"
-                    alt="Google"
-                    width={30}
-                    height={30}
-                  />
-                  <span>Sign in with Google</span>
-                </Box>
-              </Button>
-            </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      textTransform: "none",
+                    }}
+                  >
+                    <Image
+                      src="/google.png"
+                      alt="Google"
+                      width={30}
+                      height={30}
+                    />
+                    <span>Sign in with Google</span>
+                  </Box>
+                </Button>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Card>
+        </Card>
+      </Box>
 
       <Dialog open={dialog.open} onClose={handleCloseDialog}>
         <Alert severity={dialog.severity}>
@@ -240,4 +253,18 @@ export default function Signin() {
       </Dialog>
     </Container>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (session) {
+    context.res.writeHead(302, {
+      Location: "/schedule",
+    });
+    context.res.end();
+  }
+
+  return {
+    props: {},
+  };
 }

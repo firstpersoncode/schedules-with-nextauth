@@ -1,7 +1,6 @@
 import { Alert, Dialog } from "@mui/material";
 import axios from "axios";
-import { signOut, getSession } from "next-auth/react";
-import Link from "next/link";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
@@ -44,7 +43,7 @@ export default function Verification() {
           handleOpenDialog(err?.response?.data || err?.error || err, "error");
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
           timeoutRef.current = setTimeout(() => {
-            push("/");
+            push("/schedule");
           }, 3000);
         }
       }
@@ -62,12 +61,16 @@ export default function Verification() {
   );
 }
 
-// export async function getServerSideProps(context) {
-//   const session = await getSession(context);
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (session) {
+    context.res.writeHead(302, {
+      Location: "/schedule",
+    });
+    context.res.end();
+  }
 
-//   return {
-//     props: {
-//       session,
-//     },
-//   };
-// }
+  return {
+    props: {},
+  };
+}
