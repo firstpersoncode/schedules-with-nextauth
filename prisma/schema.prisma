@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -51,9 +48,11 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  calendars Calendar[]
   accounts      Account[]
   sessions      Session[]
+
+  projects Project[] @relation(fields: [projectIds], references: [id])
+  projectIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,46 +72,96 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-model Calendar {
+model Project {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  startTime DateTime
-  endTime DateTime?
-  
-  schedules Schedule[]
+  title      String
+  description String?
 
-  user User @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
+  agendas Agenda[]
+  labels Label[]
+
+  users User[] @relation(fields: [userIds], references: [id])
+  userIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
  archived Boolean @default(false)
 
- @@map("calendars")
+ @@map("projects")
 }
 
-enum ScheduleType {
+model Agenda {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  start DateTime
+  end DateTime?
+  description String?
+  
+  events Event[]
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+ archived Boolean @default(false)
+
+ @@map("agendas")
+}
+
+model Label {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+
+  events Event[] @relation(fields: [eventIds], references: [id])
+  eventIds String[] @db.ObjectId
+ 
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String @db.ObjectId
+
+  @@map("labels")
+}
+
+enum EventType {
   TASK
   UNAVAILABILITY
 }
 
-model Schedule {
-  id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  startTime DateTime
-  endTime DateTime
-  status String
-  categories String[]
-  type ScheduleType
+enum EventStatus {
+  TODO
+  INPROGRESS
+  COMPLETED
+}
 
-  calendar Calendar @relation(fields: [calendarId], references: [id])
-  calendarId String @db.ObjectId
+model Event {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  start DateTime
+  end DateTime
+  description String?
+  
+  status EventStatus
+  type EventType
+
+  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId String @db.ObjectId
+
+  parent Event? @relation("ParentEvent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId String? @db.ObjectId
+  subEvents Event[] @relation("ParentEvent")
+
+  labels Label[] @relation(fields: [labelIds], references: [id])
+  labelIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
  archived Boolean @default(false)
 
- @@map("schedules")
+ @@map("events")
 }
+
+
+

@@ -3,8 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
-import db from "prisma/db";
-import { getUser } from "prisma/users";
+import { makeDBConnection } from "prisma/db";
 
 export default NextAuth({
   adapter: PrismaAdapter(db),
@@ -26,7 +25,13 @@ export default NextAuth({
       type: "credentials",
       async authorize(credentials) {
         const { email, password } = credentials;
-        const user = await getUser({ email });
+        const user = await makeDBConnection(async (db) => {
+          return await db.user.findUnique({
+            where: {
+              email,
+            },
+          });
+        });
         if (!user) throw new Error("User not found");
         if (!user.emailVerified)
           throw new Error(
@@ -52,6 +57,18 @@ export default NextAuth({
       }
 
       return true;
+    },
+    async jwt({ token, user }) {
+      return { ...token, ...user };
+    },
+    async session({ session, token }) {
+      session.user = {
+        id: token.sub,
+        name: token.name,
+        email: token.email,
+        image: token.image || token.picture,
+      };
+      return session;
     },
   },
 });

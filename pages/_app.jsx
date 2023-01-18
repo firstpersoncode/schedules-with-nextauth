@@ -1,15 +1,11 @@
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
 // import "slick-carousel/slick/slick.css";
 // import "slick-carousel/slick/slick-theme.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import "styles/globals.scss";
 
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import TagManager from "react-gtm-module";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Box, LinearProgress } from "@mui/material";
 
 export default function _App({ Component, pageProps }) {
@@ -40,7 +36,7 @@ export default function _App({ Component, pageProps }) {
       RouterEvents.off("routeChangeComplete", handleComplete);
       RouterEvents.off("routeChangeError", handleComplete);
     };
-  }, [locale, asPath]);
+  });
 
   useEffect(() => {
     if (process.env.GTM_ID && !window.GTM_INITIALIZED) {
@@ -50,28 +46,13 @@ export default function _App({ Component, pageProps }) {
   }, []);
 
   return (
-    <ThemeProvider
-      theme={createTheme({
-        // palette: {
-        //   primary: {
-        //     light: "#edf6ff",
-        //     main: "#0084ff",
-        //     dark: "#0c004a",
-        //   },
-        //   secondary: {
-        //     light: "#fffde8",
-        //     main: "#bdad00",
-        //     dark: "#544d00",
-        //   },
-        // },
-      })}
-    >
+    <>
       {loading && (
         <Box sx={{ position: "fixed", width: "100%", left: 0, top: 0 }}>
           <LinearProgress />
         </Box>
       )}
       <Component {...pageProps} key={asPath} />
-    </ThemeProvider>
+    </>
   );
 }

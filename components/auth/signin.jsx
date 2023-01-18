@@ -1,4 +1,4 @@
-import { Visibility, VisibilityOff, Google } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,7 +14,6 @@ import {
 import Dialog, { useDialog } from "components/dialog";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import validateEmail from "utils/validateEmail";
@@ -75,12 +74,12 @@ export default function Signin() {
       });
       if (!res.ok) throw res;
       handleOpenDialog(
-        "<strong>Signed in!</strong><p>You'll be redirected to your schedule.</p><a href='/schedule'>Or click this if nothing happen.</a>",
+        "<strong>Signed in!</strong><p>You'll be redirected to your project.</p><a href='/project'>Or click this if nothing happen.</a>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        push("/schedule");
+        push("/project");
       }, 3000);
     } catch (err) {
       // console.error(err?.response?.data || err?.error || err);
@@ -94,7 +93,7 @@ export default function Signin() {
     try {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        signIn("google", { callbackUrl: "http://localhost:3000/schedule" });
+        signIn("google", { callbackUrl: "http://localhost:3000/project" });
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -124,7 +123,10 @@ export default function Signin() {
         }}
       >
         <h1>Sign in</h1>
-        <Card sx={{ backgroundColor: "#EEE", mt: 2, width: "100%" }}>
+        <Card
+          variant="outlined"
+          sx={{ backgroundColor: "#ddd", mt: 2, width: "100%" }}
+        >
           {loading && <LinearProgress />}
           <Grid container>
             <Grid item xs={12} lg={6} sx={{ display: "flex" }}>

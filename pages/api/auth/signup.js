@@ -1,5 +1,5 @@
 import { genSalt, hash } from "bcrypt";
-import { createUser, getUser } from "prisma/users";
+import { makeDBConnection } from "prisma/db";
 import transporter from "services/transporter";
 import validateEmail from "utils/validateEmail";
 import validatePassword from "utils/validatePassword";
@@ -14,18 +14,31 @@ export default async function signup(req, res) {
         "Password must contain at least 1 lowercase, 1 uppercase, 1 numeric character, 1 special character, and minimum of 8 characters long"
       );
 
-    const user = await getUser({ email });
+    const user = await makeDBConnection(async (db) => {
+      return await db.user.findUnique({
+        where: {
+          email,
+        },
+      });
+    });
+
     if (user)
       throw new Error(
         `User with email <strong>${email}</strong> already exists`
       );
+
     const salt = await genSalt(10);
     const encryptedPassword = await hash(password, salt);
-    const newUser = await createUser({
-      name,
-      email,
-      password: encryptedPassword,
+    const newUser = await makeDBConnection(async (db) => {
+      return await db.user.create({
+        data: {
+          name,
+          email,
+          password: encryptedPassword,
+        },
+      });
     });
+
     await transporter.sendMail({
       from: process.env.NODEMAILER_TRANSPORTER,
       to: email,

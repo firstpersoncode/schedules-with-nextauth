@@ -1,15 +1,19 @@
-import Schedule from "components/schedule";
-import ScheduleContextProvider from "context/schedule";
+import Meta from "components/meta";
+import Project from "components/project";
+import ProjectContextProvider from "context/project";
 import SessionContextProvider from "context/session";
 import { getSession } from "next-auth/react";
 
-export default function SchedulePage({ session }) {
+export default function ProjectPage({ session }) {
   return (
-    <SessionContextProvider context={session}>
-      <ScheduleContextProvider context={{}}>
-        <Schedule />
-      </ScheduleContextProvider>
-    </SessionContextProvider>
+    <>
+      <Meta title="Project" index={false} />
+      <SessionContextProvider context={session}>
+        <ProjectContextProvider>
+          <Project />
+        </ProjectContextProvider>
+      </SessionContextProvider>
+    </>
   );
 }
 

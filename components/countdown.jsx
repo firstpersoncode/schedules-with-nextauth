@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 
 function calculateTimeLeft(targetDate) {
   const difference = +new Date(targetDate) - +new Date();
-  let timeLeft = {};
+  let timeLeft = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  };
 
   if (difference > 0) {
     timeLeft = {
@@ -28,8 +33,8 @@ export default function Countdown({ targetDate }) {
 
   return (
     <span>
-      {timeLeft.days} {timeLeft.days > 1 ? "days" : "day"}, {timeLeft.hours}:
-      {timeLeft.minutes}.{timeLeft.seconds}
+      {String(timeLeft.days)} {timeLeft.days > 1 ? "days" : "day"},{" "}
+      {timeLeft.hours}:{timeLeft.minutes}.{timeLeft.seconds}
     </span>
   );
 }

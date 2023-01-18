@@ -100,7 +100,10 @@ export default function Signup({ open, onClose }) {
   return (
     <>
       <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
-        <Card sx={{ backgroundColor: "#EEE", width: "100%" }}>
+        <Card
+          variant="outlined"
+          sx={{ backgroundColor: "#aaa", width: "100%" }}
+        >
           {loading && <LinearProgress />}
           <Grid container>
             <Grid item xs={12} lg={6} sx={{ display: "flex" }}>

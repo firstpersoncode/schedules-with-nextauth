@@ -1,19 +1,28 @@
 import { Button, Container } from "@mui/material";
+import Meta from "components/meta";
 import { getSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function Home({ session }) {
   return (
-    <Container maxWidth="md">
-      <h1>App Schedule</h1>
-      {!Boolean(session) ? (
-        <Link href="/auth">
-          <Button>Sign in</Button>
-        </Link>
-      ) : (
-        <Button onClick={() => signOut()}>Sign out</Button>
-      )}
-    </Container>
+    <>
+      <Meta title="Home" index={false} />
+      <Container maxWidth="md">
+        <h1>App Schedule</h1>
+        {!Boolean(session) ? (
+          <Link href="/auth">
+            <Button>Sign in</Button>
+          </Link>
+        ) : (
+          <>
+            <Link href="/project">
+              <Button>Project</Button>
+            </Link>
+            <Button onClick={() => signOut()}>Sign out</Button>
+          </>
+        )}
+      </Container>
+    </>
   );
 }
 

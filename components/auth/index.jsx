@@ -12,7 +12,7 @@ export default function Auth() {
 
   useEffect(() => {
     if (query.verificationId) {
-      async function verifyEmail() {
+      (async () => {
         try {
           const res = await axios.get(
             `/api/auth/verification?verificationId=${query.verificationId}`
@@ -30,9 +30,7 @@ export default function Auth() {
           // console.error(err?.response?.data || err?.error || err);
           handleOpenDialog(err?.response?.data || err?.error || err, "error");
         }
-      }
-
-      verifyEmail();
+      })();
     }
   }, [query.verificationId]);
 
