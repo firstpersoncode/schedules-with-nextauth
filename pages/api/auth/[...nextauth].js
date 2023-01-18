@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
-import { makeDBConnection } from "prisma/db";
+import db, { makeDBConnection } from "prisma/db";
 
 export default NextAuth({
   adapter: PrismaAdapter(db),
