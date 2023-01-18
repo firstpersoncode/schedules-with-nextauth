@@ -7,22 +7,20 @@ export default async function verification(req, res) {
     const { verificationId } = req.query;
     if (!verificationId) throw new Error("Verification ID required");
 
-    const user = await makeDBConnection(async (db) => {
-      return await db.user.findUnique({
+    await makeDBConnection(async (db) => {
+      const user = await db.user.findUnique({
         where: {
           id: verificationId,
         },
       });
-    });
 
-    if (!user) throw new Error(`User not found`);
-    if (user.emailVerified)
-      return res
-        .status(200)
-        .json({ message: "User email already verified successfully!" });
+      if (!user) throw new Error(`User not found`);
+      if (user.emailVerified)
+        return res
+          .status(200)
+          .json({ message: "User email already verified successfully!" });
 
-    await makeDBConnection(async (db) => {
-      return await db.user.update({
+      await db.user.update({
         where: {
           id: verificationId,
         },

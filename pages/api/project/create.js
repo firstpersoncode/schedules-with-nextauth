@@ -11,29 +11,29 @@ export default async function create(req, res) {
     const { title, description, labels } = req.body;
 
     const newProject = await makeDBConnection(async (db) => {
-      return await db.project.create({
+      const res = await db.project.create({
         data: {
           title,
           description,
           userIds: [userId],
         },
       });
-    });
 
-    if (labels.length) {
-      await makeDBConnection(async (db) => {
-        return await db.label.createMany({
+      if (labels.length) {
+        await db.label.createMany({
           data: labels.map((l) => ({
             ...l,
-            projectId: newProject.id,
+            projectId: res.id,
           })),
         });
-      });
-    }
+      }
+
+      return res;
+    });
 
     res.status(200).json({
       message: "Project created successfully!",
-      project: { ...newProject, labels },
+      project: newProject.id,
     });
   } catch (err) {
     res.status(500).send(err.toString());

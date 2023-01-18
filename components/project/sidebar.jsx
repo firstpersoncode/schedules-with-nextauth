@@ -16,13 +16,16 @@ import {
   IconButton,
 } from "@mui/material";
 import { useProjectContext } from "context/project";
+import { useEffect } from "react";
 
 function Menu() {
   const {
+    events,
+    loadingEvent,
     projects,
     project,
     selectProject,
-    toggleDialogNewProject,
+    toggleProjectDialog,
     labels,
     agendas,
     agenda,
@@ -67,17 +70,16 @@ function Menu() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               disabled={!project?.id}
-              onClick={toggleDialogNewProject}
+              onClick={toggleProjectDialog}
               startIcon={<Edit />}
               fullWidth
               variant="contained"
               size="small"
-              color="secondary"
             >
               Edit
             </Button>
             <Button
-              onClick={toggleDialogNewProject}
+              onClick={toggleProjectDialog}
               startIcon={<Add />}
               fullWidth
               variant="contained"
@@ -116,7 +118,6 @@ function Menu() {
               fullWidth
               variant="contained"
               size="small"
-              color="secondary"
             >
               Edit
             </Button>
@@ -133,7 +134,7 @@ function Menu() {
           </Box>
         </Box>
 
-        {project?.id && labels.length && (
+        {project?.id && labels.length > 0 && (
           <>
             <Divider>Labels</Divider>
             <Box sx={{ p: 2 }}>
@@ -150,7 +151,7 @@ function Menu() {
           </>
         )}
 
-        {agenda?.id && (
+        {agenda?.id && !loadingEvent && events.length > 0 && (
           <>
             <Divider>Statuses</Divider>
             <Box sx={{ p: 2 }}>
@@ -179,6 +180,10 @@ function Menu() {
 const drawerWidth = "20vw";
 
 export default function SideBar({ labels, open, onClose, onOpen }) {
+  const { agenda } = useProjectContext();
+  useEffect(() => {
+    if (!agenda?.id) onOpen();
+  }, [agenda, onOpen]);
   return (
     <>
       <SwipeableDrawer

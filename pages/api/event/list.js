@@ -13,13 +13,7 @@ export default async function list(req, res) {
         where: {
           agendaId,
         },
-        select: {
-          id: true,
-          title: true,
-          start: true,
-          end: true,
-          status: true,
-          type: true,
+        include: {
           labels: true,
         },
       });

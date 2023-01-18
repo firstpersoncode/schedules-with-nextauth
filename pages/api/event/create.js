@@ -27,7 +27,7 @@ export default async function create(req, res) {
 
     res
       .status(200)
-      .json({ message: "Event created successfully!", event: newEvent });
+      .json({ message: "Event created successfully!", event: newEvent.id });
   } catch (err) {
     res.status(500).send(err.toString());
   }

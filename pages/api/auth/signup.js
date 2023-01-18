@@ -14,22 +14,20 @@ export default async function signup(req, res) {
         "Password must contain at least 1 lowercase, 1 uppercase, 1 numeric character, 1 special character, and minimum of 8 characters long"
       );
 
-    const user = await makeDBConnection(async (db) => {
-      return await db.user.findUnique({
+    const newUser = await makeDBConnection(async (db) => {
+      const user = await db.user.findUnique({
         where: {
           email,
         },
       });
-    });
 
-    if (user)
-      throw new Error(
-        `User with email <strong>${email}</strong> already exists`
-      );
+      if (user)
+        throw new Error(
+          `User with email <strong>${email}</strong> already exists`
+        );
 
-    const salt = await genSalt(10);
-    const encryptedPassword = await hash(password, salt);
-    const newUser = await makeDBConnection(async (db) => {
+      const salt = await genSalt(10);
+      const encryptedPassword = await hash(password, salt);
       return await db.user.create({
         data: {
           name,

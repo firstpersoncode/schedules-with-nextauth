@@ -13,9 +13,7 @@ export default async function list(req, res) {
         where: {
           userIds: { has: userId },
         },
-        select: {
-          id: true,
-          title: true,
+        include: {
           labels: true,
         },
       });

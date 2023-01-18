@@ -24,7 +24,7 @@ export default async function create(req, res) {
 
     res
       .status(200)
-      .json({ message: "Agenda created successfully!", agenda: newAgenda });
+      .json({ message: "Agenda created successfully!", agenda: newAgenda.id });
   } catch (err) {
     res.status(500).send(err.toString());
   }

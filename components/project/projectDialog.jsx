@@ -12,13 +12,18 @@ import {
   Divider,
   ListItemButton,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useProjectContext } from "context/project";
 import { Add, Delete } from "@mui/icons-material";
 
-export default function AddProject() {
-  const { dialogNewProject, toggleDialogNewProject, addProject } =
-    useProjectContext();
+export default function ProjectDialog() {
+  const {
+    project,
+    projectDialog,
+    toggleProjectDialog,
+    addProject,
+    updateProject,
+  } = useProjectContext();
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -27,13 +32,25 @@ export default function AddProject() {
     description: "",
     labels: [],
   });
+  const [isEditing, setIsEditing] = useState(false);
 
-  const open = dialogNewProject;
+  const open = projectDialog;
+
+  useEffect(() => {
+    if (project?.id) {
+      setState({
+        title: project.title,
+        description: project.description,
+        labels: project.labels,
+      });
+      setIsEditing(true);
+    }
+  }, [open, project]);
 
   function onClose() {
     if (loading) return;
     setErrors({});
-    toggleDialogNewProject();
+    toggleProjectDialog();
   }
 
   function addLabel() {
@@ -74,6 +91,9 @@ export default function AddProject() {
   function validateForm() {
     let errors = {};
     if (!state.title) errors.title = "Required";
+    // if (state.labels) {
+    //   state.labels.forEach
+    // }
 
     setErrors(errors);
     return errors;
@@ -86,11 +106,20 @@ export default function AddProject() {
     setLoading(true);
 
     try {
-      await addProject({
-        title: state.title,
-        description: state.description,
-        labels: state.labels,
-      });
+      if (isEditing) {
+        await updateProject({
+          id: project.id,
+          title: state.title,
+          description: state.description,
+          labels: state.labels,
+        });
+      } else {
+        await addProject({
+          title: state.title,
+          description: state.description,
+          labels: state.labels,
+        });
+      }
 
       onClose();
       setState({

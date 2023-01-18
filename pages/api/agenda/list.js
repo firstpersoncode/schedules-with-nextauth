@@ -13,10 +13,9 @@ export default async function list(req, res) {
         where: {
           projectId,
         },
-        select: {
-          id: true,
-          title: true,
-        },
+        // include: {
+        //   events: true,
+        // },
       });
     });
 
