@@ -6,15 +6,22 @@ import {
   TextField,
   LinearProgress,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useProjectContext } from "context/project";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { isAfter } from "date-fns";
 
-export default function AddAgenda() {
-  const { dialogNewAgenda, toggleDialogNewAgenda, addAgenda } =
-    useProjectContext();
+export default function AgendaDialog() {
+  const {
+    setIsEditingAgenda,
+    isEditingAgenda,
+    agenda,
+    agendaDialog,
+    toggleAgendaDialog,
+    addAgenda,
+    updateAgenda,
+  } = useProjectContext();
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -25,12 +32,30 @@ export default function AddAgenda() {
     end: null,
   });
 
-  const open = dialogNewAgenda;
+  const open = agendaDialog;
+
+  useEffect(() => {
+    if (isEditingAgenda && agenda?.id) {
+      setState({
+        title: agenda.title,
+        description: agenda.description,
+        start: new Date(agenda.start),
+        end: agenda.end && new Date(agenda.end),
+      });
+    }
+  }, [isEditingAgenda, agenda]);
 
   function onClose() {
     if (loading) return;
+    toggleAgendaDialog();
+    setIsEditingAgenda(false);
     setErrors({});
-    toggleDialogNewAgenda();
+    setState({
+      title: "",
+      description: "",
+      start: new Date(),
+      end: null,
+    });
   }
 
   function handleChange(name) {
@@ -72,25 +97,28 @@ export default function AddAgenda() {
   async function handleSubmit(e) {
     e.preventDefault();
     const hasError = Object.keys(validateForm()).length;
-    console.log(hasError);
     if (hasError) return;
     setLoading(true);
 
     try {
-      await addAgenda({
-        title: state.title,
-        description: state.description,
-        start: state.start,
-        end: state.end,
-      });
+      if (isEditingAgenda) {
+        await updateAgenda({
+          id: agenda.id,
+          title: state.title,
+          description: state.description,
+          start: state.start,
+          end: state.end,
+        });
+      } else {
+        await addAgenda({
+          title: state.title,
+          description: state.description,
+          start: state.start,
+          end: state.end,
+        });
+      }
 
       onClose();
-      setState({
-        title: "",
-        description: "",
-        start: new Date(),
-        end: null,
-      });
     } catch (err) {}
     setLoading(false);
   }

@@ -14,7 +14,7 @@ import Report from "./report";
 import Agenda from "./agenda";
 import AddEvent from "./addEvent";
 import ProjectDialog from "./projectDialog";
-import AddAgenda from "./addAgenda";
+import AddAgenda from "./agendaDialog";
 import { useProjectContext } from "context/project";
 
 export default function Project() {

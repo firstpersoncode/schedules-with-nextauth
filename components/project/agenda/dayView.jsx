@@ -10,6 +10,8 @@ import {
   sub,
   isAfter,
   isBefore,
+  endOfDay,
+  startOfDay,
 } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
@@ -28,19 +30,23 @@ const localizer = dateFnsLocalizer({
 });
 
 export default function WeekAndMonthView({}) {
-  const { selectedDate, events, setSelectedDate, setSelectedCell } =
+  const { agenda, selectedDate, events, setSelectedDate, setSelectedCell } =
     useProjectContext();
 
   function handleBackDay() {
-    const min = sub(new Date(), { months: 1 });
     const d = sub(new Date(selectedDate), { days: 1 });
+    const min = startOfDay(new Date(agenda.start));
     if (isAfter(d, min)) setSelectedDate(d);
+    else setSelectedDate(min);
   }
 
   function handleNextDay() {
-    const max = add(new Date(), { months: 1 });
     const d = add(new Date(selectedDate), { days: 1 });
-    if (isBefore(d, max)) setSelectedDate(d);
+    if (agenda.end) {
+      const max = endOfDay(new Date(agenda.end));
+      if (isBefore(d, max)) setSelectedDate(d);
+      else setSelectedDate(max);
+    } else setSelectedDate(d);
   }
 
   function handleSetToday() {

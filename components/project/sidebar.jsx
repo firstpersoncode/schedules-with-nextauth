@@ -26,23 +26,50 @@ function Menu() {
     project,
     selectProject,
     toggleProjectDialog,
+    toggleProjectLabels,
+    setIsEditingProject,
     labels,
+    statuses,
+    toggleEventStatuses,
     agendas,
     agenda,
     selectAgenda,
-    toggleDialogNewAgenda,
+    toggleAgendaDialog,
+    setIsEditingAgenda,
     loadingAgenda,
     loadingProject,
   } = useProjectContext();
 
-  function handleSelectProject(_, v) {
+  async function handleSelectProject(_, v) {
     const selectedProject = projects.find((p) => p.id === v.value);
-    selectProject(selectedProject);
+    await selectProject(selectedProject);
   }
 
-  function handleSelectAgenda(_, v) {
+  function handleClickEditProject() {
+    setIsEditingProject(true);
+    toggleProjectDialog();
+  }
+
+  async function handleSelectAgenda(_, v) {
     const selectedAgenda = agendas.find((p) => p.id === v.value);
-    selectAgenda(selectedAgenda);
+    await selectAgenda(selectedAgenda);
+  }
+
+  function handleClickEditAgenda() {
+    setIsEditingAgenda(true);
+    toggleAgendaDialog();
+  }
+
+  function handleCheckedLabel(label) {
+    return function (_, checked) {
+      toggleProjectLabels(label, checked);
+    };
+  }
+
+  function handleCheckedStatus(status) {
+    return function (_, checked) {
+      toggleEventStatuses(status, checked);
+    };
   }
 
   return (
@@ -54,9 +81,17 @@ function Menu() {
 
           <Autocomplete
             options={projects.map((p) => ({ label: p.title, value: p.id }))}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.value}>
+                  {option.label}
+                </li>
+              );
+            }}
             disableClearable
             blurOnSelect
-            value={project?.title || ""}
+            value={project?.title || null}
+            isOptionEqualToValue={(o, v) => o.label === v}
             onChange={handleSelectProject}
             renderInput={(params) => (
               <TextField
@@ -70,7 +105,7 @@ function Menu() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               disabled={!project?.id}
-              onClick={toggleProjectDialog}
+              onClick={handleClickEditProject}
               startIcon={<Edit />}
               fullWidth
               variant="contained"
@@ -95,10 +130,18 @@ function Menu() {
 
           <Autocomplete
             disabled={loadingAgenda || !project?.id}
-            options={agendas.map((p) => ({ label: p.title, value: p.id }))}
+            options={agendas.map((p, i) => ({ label: p.title, value: p.id }))}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.value}>
+                  {option.label}
+                </li>
+              );
+            }}
             disableClearable
             blurOnSelect
-            value={agenda?.title || ""}
+            value={agenda?.title || null}
+            isOptionEqualToValue={(o, v) => o.label === v}
             onChange={handleSelectAgenda}
             renderInput={(params) => (
               <TextField
@@ -113,7 +156,7 @@ function Menu() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               disabled={!agenda?.id}
-              onClick={toggleDialogNewAgenda}
+              onClick={handleClickEditAgenda}
               startIcon={<Edit />}
               fullWidth
               variant="contained"
@@ -123,7 +166,7 @@ function Menu() {
             </Button>
             <Button
               disabled={!project?.id}
-              onClick={toggleDialogNewAgenda}
+              onClick={toggleAgendaDialog}
               startIcon={<Add />}
               fullWidth
               variant="contained"
@@ -142,7 +185,8 @@ function Menu() {
                 {labels.map((label, i) => (
                   <FormControlLabel
                     key={i}
-                    control={<Checkbox defaultChecked />}
+                    onChange={handleCheckedLabel(label)}
+                    control={<Checkbox checked={label.checked} />}
                     label={label.title}
                   />
                 ))}
@@ -151,23 +195,19 @@ function Menu() {
           </>
         )}
 
-        {agenda?.id && !loadingEvent && events.length > 0 && (
+        {agenda?.id && !loadingEvent && (
           <>
             <Divider>Statuses</Divider>
             <Box sx={{ p: 2 }}>
               <FormGroup>
-                <FormControlLabel
-                  control={<Checkbox defaultChecked />}
-                  label="To Do"
-                />
-                <FormControlLabel
-                  control={<Checkbox defaultChecked />}
-                  label="In Progress"
-                />
-                <FormControlLabel
-                  control={<Checkbox defaultChecked />}
-                  label="Completed"
-                />
+                {statuses.map((status, i) => (
+                  <FormControlLabel
+                    key={i}
+                    onChange={handleCheckedStatus(status)}
+                    control={<Checkbox checked={status.checked} />}
+                    label={status.title}
+                  />
+                ))}
               </FormGroup>
             </Box>
           </>

@@ -8,9 +8,7 @@ import {
   List,
   ListItem,
   IconButton,
-  ListItemText,
   Divider,
-  ListItemButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useProjectContext } from "context/project";
@@ -18,6 +16,8 @@ import { Add, Delete } from "@mui/icons-material";
 
 export default function ProjectDialog() {
   const {
+    setIsEditingProject,
+    isEditingProject,
     project,
     projectDialog,
     toggleProjectDialog,
@@ -32,25 +32,29 @@ export default function ProjectDialog() {
     description: "",
     labels: [],
   });
-  const [isEditing, setIsEditing] = useState(false);
 
   const open = projectDialog;
 
   useEffect(() => {
-    if (project?.id) {
+    if (isEditingProject && project?.id) {
       setState({
         title: project.title,
         description: project.description,
         labels: project.labels,
       });
-      setIsEditing(true);
     }
-  }, [open, project]);
+  }, [isEditingProject, project]);
 
   function onClose() {
     if (loading) return;
-    setErrors({});
     toggleProjectDialog();
+    setIsEditingProject(false);
+    setErrors({});
+    setState({
+      title: "",
+      description: "",
+      labels: [],
+    });
   }
 
   function addLabel() {
@@ -91,9 +95,6 @@ export default function ProjectDialog() {
   function validateForm() {
     let errors = {};
     if (!state.title) errors.title = "Required";
-    // if (state.labels) {
-    //   state.labels.forEach
-    // }
 
     setErrors(errors);
     return errors;
@@ -106,7 +107,7 @@ export default function ProjectDialog() {
     setLoading(true);
 
     try {
-      if (isEditing) {
+      if (isEditingProject) {
         await updateProject({
           id: project.id,
           title: state.title,
@@ -122,11 +123,6 @@ export default function ProjectDialog() {
       }
 
       onClose();
-      setState({
-        title: "",
-        description: "",
-        labels: [],
-      });
     } catch (err) {}
     setLoading(false);
   }
@@ -162,13 +158,13 @@ export default function ProjectDialog() {
             {state.labels.map((label, i) => (
               <ListItem
                 key={i}
+                sx={{ pl: 0 }}
                 secondaryAction={
                   <IconButton edge="end" onClick={deleteLabel(i)}>
                     <Delete />
                   </IconButton>
                 }
               >
-                {/* <ListItemText primary={label.title} /> */}
                 <TextField
                   label="Label"
                   sx={{ mb: 2 }}
@@ -179,17 +175,9 @@ export default function ProjectDialog() {
               </ListItem>
             ))}
 
-            <ListItemButton onClick={addLabel}>
-              <ListItem
-                secondaryAction={
-                  <IconButton edge="end">
-                    <Add />
-                  </IconButton>
-                }
-              >
-                <ListItemText secondary="Add Label" />
-              </ListItem>
-            </ListItemButton>
+            <Button onClick={addLabel} variant="contained" startIcon={<Add />}>
+              Label
+            </Button>
           </List>
         </Box>
       </Box>

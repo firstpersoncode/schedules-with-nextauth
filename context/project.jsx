@@ -8,11 +8,13 @@ const projectContext = {
   ready: false,
   loadingProject: false,
   projectDialog: false,
+  isEditingProject: false,
   projects: [],
   project: null,
   labels: [],
   loadingAgenda: false,
-  dialogNewAgenda: false,
+  agendaDialog: false,
+  isEditingAgenda: false,
   agendas: [],
   agenda: {
     start: sub(new Date(), { months: 1 }),
@@ -20,7 +22,13 @@ const projectContext = {
   },
   loadingEvent: false,
   events: [],
+  eventIds: [],
   event: null,
+  statuses: [
+    { title: "To Do", value: "TODO", checked: true },
+    { title: "In Progress", value: "INPROGRESS", checked: true },
+    { title: "Completed", value: "COMPLETED", checked: true },
+  ],
   view: Views.MONTH,
   isTable: false,
   selectedDate: new Date(),
@@ -32,48 +40,59 @@ const ProjectContext = createContext(projectContext);
 const useContextController = (initialContext) => {
   const [ctx, setContext] = useState(initialContext);
 
-  // useEffect(() => {
-  //   let persistCtx = localStorage.getItem("ctx");
-  //   if (persistCtx) persistCtx = JSON.parse(persistCtx);
-  //   let { agendas, agenda, events, event } = persistCtx;
-  //   if (agendas?.length) {
-  //     agendas = agendas.map((a) => ({
-  //       ...a,
-  //       start: new Date(a.start),
-  //       ...(a.end && { end: new Date(a.end) }),
-  //     }));
-  //   }
+  useEffect(() => {
+    let persistCtx = localStorage.getItem("ctx");
+    if (persistCtx) {
+      persistCtx = JSON.parse(persistCtx);
+      let { agendas, agenda, events, eventIds, event } = persistCtx;
+      if (agendas?.length) {
+        agendas = agendas.map((a) => ({
+          ...a,
+          start: new Date(a.start),
+          ...(a.end && { end: new Date(a.end) }),
+        }));
+      }
 
-  //   if (agenda) {
-  //     agenda.start = new Date(agenda.start);
-  //     if (agenda.end) agenda.end = new Date(agenda.end);
-  //   }
+      if (agenda) {
+        agenda.start = new Date(agenda.start);
+        if (agenda.end) agenda.end = new Date(agenda.end);
+      }
 
-  //   if (events?.length) {
-  //     events = events.map((a) => ({
-  //       ...a,
-  //       start: new Date(a.start),
-  //       ...(a.end && { end: new Date(a.end) }),
-  //     }));
-  //   }
+      if (events?.length) {
+        events = events.map((a) => ({
+          ...a,
+          start: new Date(a.start),
+          ...(a.end && { end: new Date(a.end) }),
+        }));
+      }
 
-  //   if (event) {
-  //     event.start = new Date(event.start);
-  //     if (event.end) event.end = new Date(event.end);
-  //   }
+      if (eventIds?.length) {
+        eventIds = eventIds.map((a) => ({
+          ...a,
+          start: new Date(a.start),
+          ...(a.end && { end: new Date(a.end) }),
+        }));
+      }
 
-  //   persistCtx.agendas = agendas;
-  //   persistCtx.agenda = agenda;
-  //   persistCtx.events = events;
-  //   persistCtx.event = event;
-  //   persistCtx.selectedDate = new Date();
+      if (event) {
+        event.start = new Date(event.start);
+        if (event.end) event.end = new Date(event.end);
+      }
 
-  //   setContext(persistCtx);
-  // }, []);
+      persistCtx.agendas = agendas;
+      persistCtx.agenda = agenda;
+      persistCtx.events = events;
+      persistCtx.eventIds = eventIds;
+      persistCtx.event = event;
+      persistCtx.selectedDate = new Date();
 
-  // useEffect(() => {
-  //   localStorage.setItem("ctx", JSON.stringify(ctx));
-  // }, [ctx]);
+      setContext(persistCtx);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ctx", JSON.stringify(ctx));
+  }, [ctx]);
 
   function setSelectedDate(selectedDate) {
     setContext((v) => ({ ...v, selectedDate }));
@@ -97,8 +116,43 @@ const useContextController = (initialContext) => {
     setContext((v) => ({ ...v, projectDialog: !v.projectDialog }));
   }
 
+  function setIsEditingProject(val) {
+    setContext((v) => ({ ...v, isEditingProject: val }));
+  }
+
+  async function selectProject(project, isChangeProject = true) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingProject: true,
+      }));
+
+      const res = await axios.get(`/api/project/get?projectId=${project.id}`);
+      const selectedProject = res.data?.project;
+
+      setContext((v) => ({
+        ...v,
+        project: selectedProject,
+        labels: selectedProject.labels.map((l) => ({ ...l, checked: true })),
+        agenda: isChangeProject ? null : v.agenda,
+        loadingProject: false,
+      }));
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingProject: false,
+      }));
+    }
+  }
+
   async function addProject(project) {
     try {
+      setContext((v) => ({
+        ...v,
+        loadingProject: true,
+      }));
+
       const res = await axios.post("/api/project/create", project);
       const projectId = res.data?.project;
       const newProject = {
@@ -109,16 +163,26 @@ const useContextController = (initialContext) => {
       setContext((v) => ({
         ...v,
         projects: [...v.projects, newProject],
-        project: newProject,
-        labels: newProject.labels,
+        loadingProject: false,
       }));
+
+      await selectProject(newProject);
     } catch (err) {
       console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingProject: false,
+      }));
     }
   }
 
   async function updateProject(project) {
     try {
+      setContext((v) => ({
+        ...v,
+        loadingProject: true,
+      }));
+
       await axios.put("/api/project/update", project);
       const currProjects = ctx.projects;
       currProjects.forEach((p) => {
@@ -127,30 +191,74 @@ const useContextController = (initialContext) => {
       setContext((v) => ({
         ...v,
         projects: currProjects,
-        project,
-        labels: project.labels,
+        loadingProject: false,
       }));
+
+      await selectProject(project, false);
     } catch (err) {
       console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingProject: false,
+      }));
     }
   }
 
-  async function selectProject(project) {
-    setContext((v) => ({
-      ...v,
-      project,
-      agenda: null,
-      labels: project.labels,
-    }));
+  function toggleProjectLabels(label, checked) {
+    const currLabels = ctx.labels.map((l) => {
+      if (l.id === label.id) {
+        l.checked = checked;
+      }
+
+      return l;
+    });
+
+    setContext((v) => ({ ...v, labels: currLabels }));
   }
 
-  function toggleDialogNewAgenda() {
-    setContext((v) => ({ ...v, dialogNewAgenda: !v.dialogNewAgenda }));
+  function toggleAgendaDialog() {
+    setContext((v) => ({ ...v, agendaDialog: !v.agendaDialog }));
+  }
+
+  function setIsEditingAgenda(val) {
+    setContext((v) => ({ ...v, isEditingAgenda: val }));
+  }
+
+  async function selectAgenda(agenda, isChangeAgenda = true) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: true,
+      }));
+
+      const res = await axios.get(`/api/agenda/get?agendaId=${agenda.id}`);
+      const selectedAgenda = res.data?.agenda;
+
+      setContext((v) => ({
+        ...v,
+        agenda: selectedAgenda,
+        events: isChangeAgenda ? [] : v.events,
+        eventIds: isChangeAgenda ? [] : v.eventIds,
+        event: isChangeAgenda ? [] : v.event,
+        loadingAgenda: false,
+      }));
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: false,
+      }));
+    }
   }
 
   async function addAgenda(agenda) {
     if (ctx.project?.id)
       try {
+        setContext((v) => ({
+          ...v,
+          loadingAgenda: true,
+        }));
+
         const res = await axios.post("/api/agenda/create", {
           ...agenda,
           projectId: ctx.project.id,
@@ -165,18 +273,46 @@ const useContextController = (initialContext) => {
         setContext((v) => ({
           ...v,
           agendas: [...v.agendas, newAgenda],
-          agenda: newAgenda,
+          loadingAgenda: false,
         }));
+
+        await selectAgenda(newAgenda);
       } catch (err) {
         console.error(err);
+        setContext((v) => ({
+          ...v,
+          loadingAgenda: false,
+        }));
       }
   }
 
-  function selectAgenda(agenda) {
-    setContext((v) => ({
-      ...v,
-      agenda,
-    }));
+  async function updateAgenda(agenda) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: true,
+      }));
+
+      await axios.put("/api/agenda/update", agenda);
+      const currAgendas = ctx.agendas;
+      currAgendas.forEach((p) => {
+        if (p.id === agenda.id) p = agenda;
+      });
+
+      setContext((v) => ({
+        ...v,
+        agendas: currAgendas,
+        loadingAgenda: false,
+      }));
+
+      await selectAgenda(agenda, false);
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: false,
+      }));
+    }
   }
 
   async function addEvent(event) {
@@ -196,6 +332,7 @@ const useContextController = (initialContext) => {
         setContext((v) => ({
           ...v,
           events: [...v.events, newEvent],
+          eventIds: [...v.eventIds, newEvent],
           event: newEvent,
         }));
       } catch (err) {
@@ -208,6 +345,18 @@ const useContextController = (initialContext) => {
       ...v,
       event,
     }));
+  }
+
+  function toggleEventStatuses(status, checked) {
+    const currStatuses = ctx.statuses.map((l) => {
+      if (l.value === status.value) {
+        l.checked = checked;
+      }
+
+      return l;
+    });
+
+    setContext((v) => ({ ...v, statuses: currStatuses }));
   }
 
   useEffect(() => {
@@ -243,8 +392,6 @@ const useContextController = (initialContext) => {
         setContext((v) => ({
           ...v,
           loadingAgenda: true,
-          agendas: [],
-          agenda: null,
         }));
 
         try {
@@ -279,8 +426,6 @@ const useContextController = (initialContext) => {
         setContext((v) => ({
           ...v,
           loadingEvent: true,
-          events: [],
-          event: null,
         }));
 
         try {
@@ -295,6 +440,7 @@ const useContextController = (initialContext) => {
           setContext((v) => ({
             ...v,
             events,
+            eventIds: events,
             loadingEvent: false,
           }));
         } catch (err) {
@@ -307,6 +453,19 @@ const useContextController = (initialContext) => {
       })();
   }, [ctx.agenda?.id, prevAgendaId]);
 
+  useEffect(() => {
+    const checkedLabels = ctx.labels.filter((l) => l.checked);
+    const checkedStatuses = ctx.statuses.filter((l) => l.checked);
+    const currEvents = ctx.eventIds
+      .filter(
+        (e) =>
+          !e.labels.length ||
+          checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
+      )
+      .filter((e) => checkedStatuses.find((l) => e.status === l.value));
+    setContext((v) => ({ ...v, events: currEvents }));
+  }, [ctx.labels, ctx.statuses, ctx.eventIds]);
+
   return {
     ...ctx,
     setContext,
@@ -315,14 +474,19 @@ const useContextController = (initialContext) => {
     setView,
     toggleIsTable,
     toggleProjectDialog,
+    setIsEditingProject,
     addProject,
     updateProject,
     selectProject,
-    toggleDialogNewAgenda,
+    toggleProjectLabels,
+    toggleAgendaDialog,
+    setIsEditingAgenda,
     addAgenda,
+    updateAgenda,
     selectAgenda,
     addEvent,
     selectEvent,
+    toggleEventStatuses,
   };
 };
 

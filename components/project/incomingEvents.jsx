@@ -35,7 +35,7 @@ export default function IncomingEvents() {
         if (!inComingEvent) setInComingEvent(event);
         else if (inComingEvent.id !== event.id) setInComingEvent(event);
       }
-    }, 1000 * 60);
+    }, 1000);
 
     return () => clearInterval(intervalId.current);
   }, [events, inComingEvent]);

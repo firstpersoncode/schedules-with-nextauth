@@ -11,6 +11,7 @@ import {
   sub,
   isAfter,
   isBefore,
+  endOfDay,
 } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
@@ -31,6 +32,7 @@ const localizer = dateFnsLocalizer({
 
 export default function WeekAndMonthView() {
   const {
+    agenda,
     events,
     selectedDate,
     view,
@@ -41,22 +43,28 @@ export default function WeekAndMonthView() {
   } = useProjectContext();
 
   function handleBackDate() {
-    const min = sub(new Date(), { months: 1 });
     const d = sub(new Date(selectedDate), { [`${view}s`]: 1 });
+    const min = startOfDay(new Date(agenda.start));
     if (isAfter(d, min)) setSelectedDate(d);
+    else setSelectedDate(min);
   }
 
   function handleNextDate() {
-    const max = add(new Date(), { months: 1 });
     const d = add(new Date(selectedDate), { [`${view}s`]: 1 });
-    if (isBefore(d, max)) setSelectedDate(d);
+    if (agenda.end) {
+      const max = endOfDay(new Date(agenda.end));
+      if (isBefore(d, max)) setSelectedDate(d);
+      else setSelectedDate(max);
+    } else setSelectedDate(d);
   }
 
   const onSelectSlot = (cell) => {
-    const min = sub(new Date(), { months: 1 });
-    const max = add(new Date(), { months: 1 });
+    const min = startOfDay(new Date(agenda.start));
     const d = cell.start;
-    const availableDate = isAfter(d, min) && isBefore(d, max);
+    const availableDate = agenda.end
+      ? isAfter(d, min) && isBefore(d, endOfDay(new Date(agenda.end)))
+      : isAfter(d, min);
+
     if (availableDate) setSelectedDate(cell.start);
   };
 
@@ -78,6 +86,18 @@ export default function WeekAndMonthView() {
       ) && {
         backgroundColor: "rgba(255, 238, 0, 0.1)",
       }),
+
+      ...(isBefore(
+        startOfDay(new Date(d)),
+        startOfDay(new Date(agenda.start))
+      ) && {
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+      }),
+
+      ...(agenda.end &&
+        isAfter(startOfDay(new Date(d)), startOfDay(new Date(agenda.end))) && {
+          backgroundColor: "rgba(0, 0, 0, 0.1)",
+        }),
     },
   });
 

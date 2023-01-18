@@ -36,7 +36,7 @@ export default memo(function Agenda() {
           value={activeTab}
           onChange={handleSetActiveTab}
         >
-          <Tab label="Day" />
+          <Tab label="Schedule" />
           <Tab label="Calendar" />
         </Tabs>
 
