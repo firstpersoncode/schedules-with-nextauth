@@ -99,7 +99,13 @@ export default function Signup({ open, onClose }) {
 
   return (
     <>
-      <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+      <MuiDialog
+        fullWidth
+        maxWidth="md"
+        open={open}
+        onClose={onClose}
+        scroll="body"
+      >
         <Card
           variant="outlined"
           sx={{ backgroundColor: "#aaa", width: "100%" }}
