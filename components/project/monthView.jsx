@@ -32,6 +32,8 @@ export default function MonthView() {
     events,
     selectedDate,
     setSelectedDate,
+    views,
+    selectView,
     selectEvent,
     setSelectedCell,
     setIsEditingEvent,
@@ -50,6 +52,8 @@ export default function MonthView() {
       setSelectedCell(cell);
       setIsEditingEvent(false);
       toggleEventDialog();
+      const selectedView = views.find((p) => p.value === Views.DAY);
+      selectView(selectedView);
     }
   };
 

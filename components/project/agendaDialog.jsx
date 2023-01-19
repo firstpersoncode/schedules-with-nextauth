@@ -154,7 +154,7 @@ export default function AgendaDialog() {
             label="Title"
             value={state.title}
             onChange={handleChange("title")}
-            error={errors.title}
+            error={Boolean(errors.title)}
             helperText={errors.title}
             fullWidth
           />
