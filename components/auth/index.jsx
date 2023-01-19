@@ -32,6 +32,8 @@ export default function Auth() {
         }
       })();
     }
+
+    return () => timeoutRef.current && clearTimeout(timeoutRef.current);
   }, [query.verificationId]);
 
   return (

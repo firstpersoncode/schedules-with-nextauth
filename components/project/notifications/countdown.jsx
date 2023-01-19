@@ -27,6 +27,7 @@ export default function Countdown({ targetDate }) {
   const intervalId = useRef();
 
   useEffect(() => {
+    if (intervalId.current) clearInterval(intervalId.current);
     intervalId.current = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
