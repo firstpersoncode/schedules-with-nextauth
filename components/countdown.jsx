@@ -34,7 +34,9 @@ export default function Countdown({ targetDate }) {
   return (
     <span>
       {String(timeLeft.days)} {timeLeft.days > 1 ? "days" : "day"},{" "}
-      {timeLeft.hours}:{timeLeft.minutes}.{timeLeft.seconds}
+      {timeLeft.hours} {timeLeft.hours > 1 ? "hours" : "hour"},{" "}
+      {timeLeft.minutes} {timeLeft.minutes > 1 ? "minutes" : "minute"},{" "}
+      {timeLeft.seconds} {timeLeft.seconds > 1 ? "seconds" : "second"}
     </span>
   );
 }
