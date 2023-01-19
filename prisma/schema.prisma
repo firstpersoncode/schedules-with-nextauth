@@ -114,6 +114,7 @@ model Agenda {
 model Label {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
   title String
+  color String
 
   events Event[] @relation(fields: [eventIds], references: [id])
   eventIds String[] @db.ObjectId
