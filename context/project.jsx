@@ -11,7 +11,6 @@ const projectContext = {
   isEditingProject: false,
   projects: [],
   project: null,
-  labels: [],
   loadingAgenda: false,
   agendaDialog: false,
   isEditingAgenda: false,
@@ -23,6 +22,7 @@ const projectContext = {
   events: [],
   eventIds: [],
   event: null,
+  labels: [],
   statuses: [
     { title: "To Do", value: "TODO", checked: true },
     { title: "In Progress", value: "INPROGRESS", checked: true },
@@ -33,8 +33,9 @@ const projectContext = {
     { title: "Week", value: Views.WEEK },
     { title: "Month", value: Views.MONTH },
   ],
-  view: { title: "Month", value: Views.MONTH },
+  view: { title: "Day", value: Views.DAY },
   isTable: false,
+  isReport: false,
   selectedDate: new Date(),
   selectedCell: null,
 };
@@ -44,60 +45,6 @@ const ProjectContext = createContext(projectContext);
 const useContextController = (initialContext) => {
   const [ctx, setContext] = useState(initialContext);
 
-  useEffect(() => {
-    let persistCtx = localStorage.getItem("ctx");
-    if (persistCtx) {
-      persistCtx = JSON.parse(persistCtx);
-      let { agendas, agenda, events, eventIds, event } = persistCtx;
-      if (agendas?.length) {
-        agendas = agendas.map((a) => ({
-          ...a,
-          start: new Date(a.start),
-          ...(a.end && { end: new Date(a.end) }),
-        }));
-      }
-
-      if (agenda) {
-        agenda.start = new Date(agenda.start);
-        if (agenda.end) agenda.end = new Date(agenda.end);
-      }
-
-      if (events?.length) {
-        events = events.map((a) => ({
-          ...a,
-          start: new Date(a.start),
-          ...(a.end && { end: new Date(a.end) }),
-        }));
-      }
-
-      if (eventIds?.length) {
-        eventIds = eventIds.map((a) => ({
-          ...a,
-          start: new Date(a.start),
-          ...(a.end && { end: new Date(a.end) }),
-        }));
-      }
-
-      if (event) {
-        event.start = new Date(event.start);
-        if (event.end) event.end = new Date(event.end);
-      }
-
-      persistCtx.agendas = agendas;
-      persistCtx.agenda = agenda;
-      persistCtx.events = events;
-      persistCtx.eventIds = eventIds;
-      persistCtx.event = event;
-      persistCtx.selectedDate = new Date();
-
-      setContext(persistCtx);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("ctx", JSON.stringify(ctx));
-  }, [ctx]);
-
   function setSelectedDate(selectedDate) {
     setContext((v) => ({ ...v, selectedDate }));
   }
@@ -106,18 +53,16 @@ const useContextController = (initialContext) => {
     setContext((v) => ({ ...v, selectedCell }));
   }
 
-  function setView(view) {
-    return function () {
-      setContext((v) => ({ ...v, view }));
-    };
-  }
-
   function selectView(view) {
     setContext((v) => ({ ...v, view }));
   }
 
   function toggleIsTable() {
     setContext((v) => ({ ...v, isTable: !v.isTable }));
+  }
+
+  function toggleReport() {
+    setContext((v) => ({ ...v, isReport: !v.isReport }));
   }
 
   function toggleProjectDialog() {
@@ -545,7 +490,7 @@ const useContextController = (initialContext) => {
   const prevProjectId = usePrevious(ctx.project?.id);
 
   useEffect(() => {
-    if (ctx.project?.id !== prevProjectId)
+    if (ctx.project?.id && ctx.project.id !== prevProjectId)
       (async () => {
         setContext((v) => ({
           ...v,
@@ -579,7 +524,7 @@ const useContextController = (initialContext) => {
   const prevAgendaId = usePrevious(ctx.agenda?.id);
 
   useEffect(() => {
-    if (ctx.agenda?.id !== prevAgendaId)
+    if (ctx.agenda?.id && ctx.agenda.id !== prevAgendaId)
       (async () => {
         setContext((v) => ({
           ...v,
@@ -624,14 +569,72 @@ const useContextController = (initialContext) => {
     setContext((v) => ({ ...v, events: currEvents }));
   }, [ctx.labels, ctx.statuses, ctx.eventIds]);
 
+  useEffect(() => {
+    let persistCtx = localStorage.getItem("ctx");
+    if (persistCtx) {
+      (async () => {
+        setContext((v) => ({
+          ...v,
+          ready: false,
+        }));
+
+        persistCtx = JSON.parse(persistCtx);
+        let { agenda, project, isTable, isReport, labels, statuses, view } =
+          persistCtx;
+        if (project) await selectProject(project);
+        if (agenda) {
+          agenda.start = new Date(agenda.start);
+          if (agenda.end) agenda.end = new Date(agenda.end);
+          await selectAgenda(agenda);
+        }
+
+        setContext((v) => ({
+          ...v,
+          isTable,
+          isReport,
+          labels,
+          statuses,
+          view,
+          ready: true,
+        }));
+      })();
+    } else {
+      setContext((v) => ({
+        ...v,
+        ready: true,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    const persistCtx = {
+      project: ctx.project,
+      agenda: ctx.agenda,
+      labels: ctx.labels,
+      statuses: ctx.statuses,
+      view: ctx.view,
+      isTable: ctx.isTable,
+      isReport: ctx.isReport,
+    };
+    localStorage.setItem("ctx", JSON.stringify(persistCtx));
+  }, [
+    ctx.project,
+    ctx.agenda,
+    ctx.labels,
+    ctx.statuses,
+    ctx.view,
+    ctx.isTable,
+    ctx.isReport,
+  ]);
+
   return {
     ...ctx,
     setContext,
     setSelectedDate,
     setSelectedCell,
-    setView,
     selectView,
     toggleIsTable,
+    toggleReport,
     toggleProjectDialog,
     setIsEditingProject,
     addProject,
