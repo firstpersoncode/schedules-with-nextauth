@@ -3,10 +3,10 @@ import {
   TextField,
   IconButton,
   Button,
-  Collapse,
   Card,
   MenuItem,
   LinearProgress,
+  Collapse,
 } from "@mui/material";
 import { useProjectContext } from "context/project";
 import {
@@ -31,10 +31,11 @@ import {
   startOfDay,
   sub,
 } from "date-fns";
+import Notifications from "../notifications";
+import Report from "../report";
+import { useState } from "react";
 
-import Report from "./report";
-
-export default function StickyToolbar() {
+export default function Toolbar() {
   const {
     agenda,
     views,
@@ -45,9 +46,13 @@ export default function StickyToolbar() {
     selectedDate,
     setSelectedDate,
     loadingEvent,
-    isReport,
-    toggleReport,
   } = useProjectContext();
+
+  const [openInfo, setOpenInfo] = useState(false);
+
+  function toggleInfo() {
+    setOpenInfo(!openInfo);
+  }
 
   function handleBackDate() {
     const d = sub(new Date(selectedDate), { [`${view.value}s`]: 1 });
@@ -138,13 +143,20 @@ export default function StickyToolbar() {
           <IconButton onClick={toggleIsTable}>
             {isTable ? <Event /> : <Toc />}
           </IconButton>
-          <IconButton onClick={toggleReport}>
-            {isReport ? <ExpandLess /> : <Info />}
+
+          <IconButton onClick={toggleInfo}>
+            {openInfo ? <ExpandLess /> : <Info />}
           </IconButton>
         </Box>
       </Box>
       {loadingEvent && <LinearProgress />}
-      <Report />
+
+      <Collapse in={openInfo}>
+        <Box sx={{ maxHeight: "50vh", overflowY: "auto" }}>
+          <Notifications />
+          <Report />
+        </Box>
+      </Collapse>
     </Card>
   );
 }

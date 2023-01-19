@@ -5,6 +5,7 @@ import DayView from "./dayView";
 import WeekView from "./weekView";
 import MonthView from "./monthView";
 import TableView from "./tableView";
+import Toolbar from "./toolbar";
 
 export default function Agenda() {
   const { agenda, loadingEvent, view, isTable } = useProjectContext();
@@ -13,6 +14,8 @@ export default function Agenda() {
 
   return (
     <>
+      <Toolbar />
+
       <Box
         sx={{
           display: !isTable && view.value === Views.DAY ? "block" : "none",

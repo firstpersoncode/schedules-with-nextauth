@@ -1,15 +1,13 @@
-import { Box, Toolbar } from "@mui/material";
+import { Box, Toolbar as MuiToolbar } from "@mui/material";
 import { useState } from "react";
 import { useProjectContext } from "context/project";
 
 import TopBar from "./topbar";
 import SideBar from "./sidebar";
-import Notifications from "./notifications";
 import EventDialog from "./eventDialog";
 import ProjectDialog from "./projectDialog";
 import AgendaDialog from "./agendaDialog";
-import StickyToolbar from "./stickyToolbar";
-import AgendaDetail from "./agendaDetail";
+import Toolbar from "./toolbar";
 import Agenda from "./agenda";
 
 export default function Project() {
@@ -27,7 +25,6 @@ export default function Project() {
   return (
     <>
       <TopBar
-        name="Default"
         open={openDrawer}
         onOpen={handleOpenDrawer}
         onClose={handleCloseDrawer}
@@ -48,10 +45,8 @@ export default function Project() {
           component="main"
           sx={{ flexGrow: 1, height: "100vh", overflowY: "auto" }}
         >
+          <MuiToolbar />
           <Toolbar />
-          <AgendaDetail />
-          <Notifications />
-          <StickyToolbar />
           <Agenda />
         </Box>
       </Box>

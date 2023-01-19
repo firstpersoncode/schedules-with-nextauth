@@ -35,7 +35,6 @@ const projectContext = {
   ],
   view: { title: "Day", value: Views.DAY },
   isTable: false,
-  isReport: false,
   selectedDate: new Date(),
   selectedCell: null,
 };
@@ -59,10 +58,6 @@ const useContextController = (initialContext) => {
 
   function toggleIsTable() {
     setContext((v) => ({ ...v, isTable: !v.isTable }));
-  }
-
-  function toggleReport() {
-    setContext((v) => ({ ...v, isReport: !v.isReport }));
   }
 
   function toggleProjectDialog() {
@@ -579,8 +574,7 @@ const useContextController = (initialContext) => {
         }));
 
         persistCtx = JSON.parse(persistCtx);
-        let { agenda, project, isTable, isReport, labels, statuses, view } =
-          persistCtx;
+        let { agenda, project, isTable, labels, statuses, view } = persistCtx;
         if (project) await selectProject(project);
         if (agenda) {
           agenda.start = new Date(agenda.start);
@@ -591,7 +585,6 @@ const useContextController = (initialContext) => {
         setContext((v) => ({
           ...v,
           isTable,
-          isReport,
           labels,
           statuses,
           view,
@@ -614,7 +607,6 @@ const useContextController = (initialContext) => {
       statuses: ctx.statuses,
       view: ctx.view,
       isTable: ctx.isTable,
-      isReport: ctx.isReport,
     };
     localStorage.setItem("ctx", JSON.stringify(persistCtx));
   }, [
@@ -624,7 +616,6 @@ const useContextController = (initialContext) => {
     ctx.statuses,
     ctx.view,
     ctx.isTable,
-    ctx.isReport,
   ]);
 
   return {
@@ -634,7 +625,6 @@ const useContextController = (initialContext) => {
     setSelectedCell,
     selectView,
     toggleIsTable,
-    toggleReport,
     toggleProjectDialog,
     setIsEditingProject,
     addProject,

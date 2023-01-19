@@ -5,13 +5,12 @@ import {
   AlertTitle,
   CardActionArea,
 } from "@mui/material";
-import Countdown from "components/project/countdown";
 import { useProjectContext } from "context/project";
 import { format, isBefore, isAfter, isToday } from "date-fns";
-
 import { useEffect, useRef, useState } from "react";
+import Countdown from "./countdown";
 
-export default function IncomingEvents() {
+export default function Notifications() {
   const { events, selectEvent, setIsEditingEvent, toggleEventDialog } =
     useProjectContext();
   const [missedEvents, setMissedEvents] = useState([]);
