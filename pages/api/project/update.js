@@ -20,39 +20,37 @@ export default async function update(req, res) {
 
       if (!currProject) throw new Error("Project not found");
 
-      if (labels.length) {
-        const deletedLabels = currProject.labels.filter(
-          (l) => !labels.find((lb) => lb.id === l.id)
-        );
+      const deletedLabels = currProject.labels.filter(
+        (l) => !labels.find((lb) => lb.id === l.id)
+      );
 
-        if (deletedLabels.length) {
-          await db.label.deleteMany({
-            where: { id: { in: deletedLabels.map((l) => l.id) } },
-          });
-        }
+      if (deletedLabels.length) {
+        await db.label.deleteMany({
+          where: { id: { in: deletedLabels.map((l) => l.id) } },
+        });
+      }
 
-        const newLabels = labels.filter((l) => !l.id);
+      const newLabels = labels.filter((l) => !l.id);
 
-        if (newLabels.length) {
-          await db.label.createMany({
-            data: newLabels.map((l) => ({
-              ...l,
-              projectId: currProject.id,
-            })),
-          });
-        }
+      if (newLabels.length) {
+        await db.label.createMany({
+          data: newLabels.map((l) => ({
+            ...l,
+            projectId: currProject.id,
+          })),
+        });
+      }
 
-        const updatedLabels = labels.filter((l) => l.id);
+      const updatedLabels = labels.filter((l) => l.id);
 
-        for (const label of updatedLabels) {
-          const updatedLabel = label;
-          const id = updatedLabel.id;
-          delete updatedLabel.id;
-          await db.label.update({
-            where: { id },
-            data: updatedLabel,
-          });
-        }
+      for (const label of updatedLabels) {
+        const updatedLabel = label;
+        const id = updatedLabel.id;
+        delete updatedLabel.id;
+        await db.label.update({
+          where: { id },
+          data: updatedLabel,
+        });
       }
 
       await db.project.update({
