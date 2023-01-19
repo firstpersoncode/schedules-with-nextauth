@@ -36,8 +36,6 @@ export default function WeekView() {
     setSelectedCell,
     setIsEditingEvent,
     toggleEventDialog,
-    views,
-    selectView,
   } = useProjectContext();
 
   const handleSelectSlot = (cell) => {
@@ -52,8 +50,6 @@ export default function WeekView() {
       setSelectedCell(cell);
       setIsEditingEvent(false);
       toggleEventDialog();
-      const selectedView = views.find((p) => p.value === Views.DAY);
-      selectView(selectedView);
     }
   };
 
