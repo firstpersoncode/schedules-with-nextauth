@@ -1,4 +1,4 @@
-import { Dialog as MUIDialog, Alert } from "@mui/material";
+import { Dialog as MUIDialog, Alert, DialogActions } from "@mui/material";
 import { useState } from "react";
 
 export function useDialog() {
@@ -19,12 +19,13 @@ export function useDialog() {
   return { dialog, handleOpenDialog, handleCloseDialog };
 }
 
-export default function Dialog({ dialog, onClose }) {
+export default function Dialog({ dialog, onClose, children }) {
   return (
     <MUIDialog open={dialog.open} onClose={onClose}>
       <Alert severity={dialog.severity}>
         <div dangerouslySetInnerHTML={{ __html: dialog.message }} />
       </Alert>
+      {children}
     </MUIDialog>
   );
 }
