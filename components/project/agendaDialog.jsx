@@ -1,7 +1,7 @@
 import {
   Box,
   Button,
-  Dialog,
+  Dialog as MuiDialog,
   DialogActions,
   TextField,
   LinearProgress,
@@ -13,6 +13,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { isAfter } from "date-fns";
 import { Delete } from "@mui/icons-material";
+import Dialog, { useDialog } from "components/dialog";
 
 export default function AgendaDialog() {
   const {
@@ -25,6 +26,8 @@ export default function AgendaDialog() {
     updateAgenda,
     deleteAgenda,
   } = useProjectContext();
+
+  const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -100,9 +103,19 @@ export default function AgendaDialog() {
   async function handleDelete(e) {
     e.preventDefault();
 
+    handleOpenDialog(
+      `<strong>You're about to delete ${agenda.title}</strong><p>This action can't be undone once deleting complete</p>`,
+      "warning"
+    );
+  }
+
+  async function confirmDelete(e) {
+    e.preventDefault();
+
     try {
       await deleteAgenda(agenda);
       onClose();
+      handleCloseDialog();
     } catch (err) {}
   }
 
@@ -136,87 +149,99 @@ export default function AgendaDialog() {
   }
 
   return (
-    <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
-      {isEditingAgenda && (
-        <DialogActions>
-          <IconButton disabled={loading} onClick={handleDelete}>
-            <Delete />
-          </IconButton>
-        </DialogActions>
-      )}
+    <>
+      <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+        {isEditingAgenda && (
+          <DialogActions>
+            <IconButton disabled={loading} onClick={handleDelete}>
+              <Delete />
+            </IconButton>
+          </DialogActions>
+        )}
 
-      <Box>
-        {loading && <LinearProgress />}
-        <Box sx={{ p: 2 }}>
-          <TextField
-            required
-            sx={{ mb: 2 }}
-            label="Title"
-            value={state.title}
-            onChange={handleChange("title")}
-            error={Boolean(errors.title)}
-            helperText={errors.title}
-            fullWidth
-          />
-          <TextField
-            label="Description"
-            sx={{ mb: 2 }}
-            value={state.description}
-            onChange={handleChange("description")}
-            fullWidth
-            multiline
-            minRows={4}
-          />
-
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              // views={["hours", "minutes"]}
-              // openTo="hours"
-              label="Start"
-              value={state.start}
-              onChange={handleDateChange("start")}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  required
-                  sx={{ mb: 2 }}
-                  fullWidth
-                  name="start"
-                  error={Boolean(errors.start)}
-                  helperText={errors.start}
-                />
-              )}
+        <Box>
+          {loading && <LinearProgress />}
+          <Box sx={{ p: 2 }}>
+            <TextField
+              required
+              sx={{ mb: 2 }}
+              label="Title"
+              value={state.title}
+              onChange={handleChange("title")}
+              error={Boolean(errors.title)}
+              helperText={errors.title}
+              fullWidth
+            />
+            <TextField
+              label="Description"
+              sx={{ mb: 2 }}
+              value={state.description}
+              onChange={handleChange("description")}
+              fullWidth
+              multiline
+              minRows={4}
             />
 
-            <DateTimePicker
-              // views={["hours", "minutes"]}
-              // openTo="hours"
-              label="End"
-              value={state.end}
-              onChange={handleDateChange("end")}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  sx={{ mb: 2 }}
-                  fullWidth
-                  name="end"
-                  error={Boolean(errors.end)}
-                  helperText={errors.end}
-                />
-              )}
-            />
-          </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                // views={["hours", "minutes"]}
+                // openTo="hours"
+                label="Start"
+                value={state.start}
+                onChange={handleDateChange("start")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    sx={{ mb: 2 }}
+                    fullWidth
+                    name="start"
+                    error={Boolean(errors.start)}
+                    helperText={errors.start}
+                  />
+                )}
+              />
+
+              <DateTimePicker
+                // views={["hours", "minutes"]}
+                // openTo="hours"
+                label="End"
+                value={state.end}
+                onChange={handleDateChange("end")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    sx={{ mb: 2 }}
+                    fullWidth
+                    name="end"
+                    error={Boolean(errors.end)}
+                    helperText={errors.end}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </Box>
         </Box>
-      </Box>
 
-      <DialogActions>
-        <Button disabled={loading} onClick={onClose}>
-          Cancel
-        </Button>
-        <Button disabled={loading} onClick={handleSubmit}>
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <DialogActions>
+          <Button disabled={loading} onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={loading} onClick={handleSubmit}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </MuiDialog>
+      <Dialog dialog={dialog} onClose={handleCloseDialog}>
+        <DialogActions>
+          <Button disabled={loading} onClick={handleCloseDialog}>
+            Cancel
+          </Button>
+          <Button disabled={loading} onClick={confirmDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
