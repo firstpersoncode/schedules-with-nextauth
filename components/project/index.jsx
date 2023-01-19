@@ -12,7 +12,7 @@ import SideBar from "./sidebar";
 import IncomingEvents from "./incomingEvents";
 import Report from "./report";
 import Agenda from "./agenda";
-import AddEvent from "./addEvent";
+import EventDialog from "./eventDialog";
 import ProjectDialog from "./projectDialog";
 import AddAgenda from "./agendaDialog";
 import { useProjectContext } from "context/project";
@@ -79,7 +79,7 @@ export default function Project() {
                 </Box>
               </Box>
 
-              <AddEvent />
+              <EventDialog />
             </>
           )}
         </Box>

@@ -195,7 +195,7 @@ function Menu() {
           </>
         )}
 
-        {agenda?.id && !loadingEvent && (
+        {agenda?.id && (
           <>
             <Divider>Statuses</Divider>
             <Box sx={{ p: 2 }}>

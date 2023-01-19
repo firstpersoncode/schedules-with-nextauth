@@ -8,7 +8,8 @@ export default async function create(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { title, description, start, end, agendaId, labels } = req.body;
+    const { title, description, start, end, agendaId, labels, status, type } =
+      req.body;
 
     const newEvent = await makeDBConnection(async (db) => {
       return await db.event.create({
@@ -17,10 +18,10 @@ export default async function create(req, res) {
           description,
           start,
           end,
-          status: "TODO",
-          type: "TASK",
           agenda: { connect: { id: agendaId } },
           labelIds: labels.map((l) => l.id),
+          status,
+          type,
         },
       });
     });

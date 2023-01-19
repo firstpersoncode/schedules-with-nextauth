@@ -5,12 +5,14 @@ import {
   DialogActions,
   TextField,
   LinearProgress,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useProjectContext } from "context/project";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { isAfter } from "date-fns";
+import { Delete } from "@mui/icons-material";
 
 export default function AgendaDialog() {
   const {
@@ -21,6 +23,7 @@ export default function AgendaDialog() {
     toggleAgendaDialog,
     addAgenda,
     updateAgenda,
+    deleteAgenda,
   } = useProjectContext();
 
   const [loading, setLoading] = useState(false);
@@ -94,6 +97,15 @@ export default function AgendaDialog() {
     return errors;
   }
 
+  async function handleDelete(e) {
+    e.preventDefault();
+
+    try {
+      await deleteAgenda(agenda);
+      onClose();
+    } catch (err) {}
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     const hasError = Object.keys(validateForm()).length;
@@ -125,6 +137,14 @@ export default function AgendaDialog() {
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+      {isEditingAgenda && (
+        <DialogActions>
+          <IconButton disabled={loading} onClick={handleDelete}>
+            <Delete />
+          </IconButton>
+        </DialogActions>
+      )}
+
       <Box>
         {loading && <LinearProgress />}
         <Box sx={{ p: 2 }}>

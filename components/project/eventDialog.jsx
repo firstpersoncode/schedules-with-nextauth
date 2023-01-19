@@ -6,16 +6,31 @@ import {
   TextField,
   LinearProgress,
   Autocomplete,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useProjectContext } from "context/project";
 import { isAfter } from "date-fns";
+import { Delete } from "@mui/icons-material";
 
-export default function AddEvent() {
-  const { labels, selectedCell, setSelectedCell, addEvent } =
-    useProjectContext();
+export default function EventDialog() {
+  const {
+    event,
+    eventDialog,
+    isEditingEvent,
+    labels,
+    selectedCell,
+    setSelectedCell,
+    setIsEditingEvent,
+    toggleEventDialog,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    statuses,
+  } = useProjectContext();
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -25,14 +40,41 @@ export default function AddEvent() {
     start: null,
     end: null,
     labels: [],
+    status: "TODO",
+    type: "TASK",
   });
 
-  const open = Boolean(selectedCell);
+  const open = eventDialog;
+
+  useEffect(() => {
+    if (isEditingEvent && event?.id) {
+      setState({
+        title: event.title,
+        description: event.description,
+        start: new Date(event.start),
+        end: new Date(event.end),
+        labels: event.labels,
+        status: event.status,
+        type: event.type,
+      });
+    }
+  }, [isEditingEvent, event]);
 
   function onClose() {
     if (loading) return;
-    setErrors({});
+    toggleEventDialog();
+    setIsEditingEvent(false);
     setSelectedCell(null);
+    setErrors({});
+    setState({
+      title: "",
+      description: "",
+      start: null,
+      end: null,
+      labels: [],
+      status: "TODO",
+      type: "TASK",
+    });
   }
 
   useEffect(() => {
@@ -91,6 +133,15 @@ export default function AddEvent() {
     return errors;
   }
 
+  async function handleDelete(e) {
+    e.preventDefault();
+
+    try {
+      await deleteEvent(event);
+      onClose();
+    } catch (err) {}
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     const hasError = Object.keys(validateForm()).length;
@@ -98,27 +149,44 @@ export default function AddEvent() {
     setLoading(true);
 
     try {
-      await addEvent({
-        title: state.title,
-        start: state.start,
-        end: state.end,
-        description: state.description,
-        labels: state.labels,
-      });
+      if (isEditingEvent) {
+        await updateEvent({
+          id: event.id,
+          title: state.title,
+          description: state.description,
+          start: state.start,
+          end: state.end,
+          labels: state.labels,
+          status: state.status,
+          type: state.type,
+        });
+      } else {
+        await addEvent({
+          title: state.title,
+          description: state.description,
+          start: state.start,
+          end: state.end,
+          labels: state.labels,
+          status: state.status,
+          type: state.type,
+        });
+      }
+
       onClose();
-      setState({
-        title: "",
-        description: "",
-        start: null,
-        end: null,
-        labels: [],
-      });
     } catch (err) {}
     setLoading(false);
   }
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+      {isEditingEvent && (
+        <DialogActions>
+          <IconButton disabled={loading} onClick={handleDelete}>
+            <Delete />
+          </IconButton>
+        </DialogActions>
+      )}
+
       <Box>
         {loading && <LinearProgress />}
         <Box sx={{ p: 2 }}>
@@ -132,23 +200,23 @@ export default function AddEvent() {
             helperText={errors.title}
             fullWidth
           />
-
-          <Autocomplete
-            multiple
-            options={labels}
-            getOptionLabel={(o) => o.title}
-            value={state.labels}
-            onChange={handleSelectLabel}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Labels"
-                variant="outlined"
-                sx={{ mb: 2 }}
-              />
-            )}
-          />
-
+          {labels.length > 0 && (
+            <Autocomplete
+              multiple
+              options={labels}
+              getOptionLabel={(o) => o.title}
+              value={state.labels}
+              onChange={handleSelectLabel}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Labels"
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+              )}
+            />
+          )}
           <TextField
             label="Description"
             sx={{ mb: 2 }}
@@ -198,6 +266,20 @@ export default function AddEvent() {
               )}
             />
           </LocalizationProvider>
+
+          <TextField
+            select
+            fullWidth
+            label="Status"
+            value={state.status}
+            onChange={handleChange("status")}
+          >
+            {statuses.map((option, i) => (
+              <MenuItem key={i} value={option.value}>
+                {option.title}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
       </Box>
 

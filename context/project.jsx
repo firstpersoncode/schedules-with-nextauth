@@ -16,11 +16,10 @@ const projectContext = {
   agendaDialog: false,
   isEditingAgenda: false,
   agendas: [],
-  agenda: {
-    start: sub(new Date(), { months: 1 }),
-    end: add(new Date(), { months: 1 }),
-  },
+  agenda: null,
   loadingEvent: false,
+  eventDialog: false,
+  isEditingEvent: false,
   events: [],
   eventIds: [],
   event: null,
@@ -160,9 +159,12 @@ const useContextController = (initialContext) => {
         ...project,
       };
 
+      const currProjects = ctx.projects;
+      currProjects.push(newProject);
+
       setContext((v) => ({
         ...v,
-        projects: [...v.projects, newProject],
+        projects: currProjects,
         loadingProject: false,
       }));
 
@@ -184,10 +186,11 @@ const useContextController = (initialContext) => {
       }));
 
       await axios.put("/api/project/update", project);
-      const currProjects = ctx.projects;
-      currProjects.forEach((p) => {
-        if (p.id === project.id) p = project;
+      const currProjects = ctx.projects.map((e) => {
+        if (e.id === project.id) e = { ...e, ...project };
+        return e;
       });
+
       setContext((v) => ({
         ...v,
         projects: currProjects,
@@ -195,6 +198,37 @@ const useContextController = (initialContext) => {
       }));
 
       await selectProject(project, false);
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingProject: false,
+      }));
+    }
+  }
+
+  async function deleteProject(project) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingProject: true,
+      }));
+
+      await axios.delete(`/api/project/delete?projectId=${project.id}`);
+
+      const currProjects = ctx.projects.filter((e) => e.id !== project.id);
+
+      setContext((v) => ({
+        ...v,
+        projects: currProjects,
+        project: null,
+        agendas: [],
+        agenda: null,
+        events: [],
+        eventIds: [],
+        event: null,
+        loadingProject: false,
+      }));
     } catch (err) {
       console.error(err);
       setContext((v) => ({
@@ -269,10 +303,12 @@ const useContextController = (initialContext) => {
           id: agendaId,
           ...agenda,
         };
+        const currAgendas = ctx.agendas;
+        currAgendas.push(newAgenda);
 
         setContext((v) => ({
           ...v,
-          agendas: [...v.agendas, newAgenda],
+          agendas: currAgendas,
           loadingAgenda: false,
         }));
 
@@ -294,9 +330,9 @@ const useContextController = (initialContext) => {
       }));
 
       await axios.put("/api/agenda/update", agenda);
-      const currAgendas = ctx.agendas;
-      currAgendas.forEach((p) => {
-        if (p.id === agenda.id) p = agenda;
+      const currAgendas = ctx.agendas.map((e) => {
+        if (e.id === agenda.id) e = { ...e, ...agenda };
+        return e;
       });
 
       setContext((v) => ({
@@ -315,9 +351,58 @@ const useContextController = (initialContext) => {
     }
   }
 
+  async function deleteAgenda(agenda) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: true,
+      }));
+
+      await axios.delete(`/api/agenda/delete?agendaId=${agenda.id}`);
+
+      const currAgendas = ctx.agendas.filter((e) => e.id !== agenda.id);
+
+      setContext((v) => ({
+        ...v,
+        agendas: currAgendas,
+        agenda: null,
+        events: [],
+        eventIds: [],
+        event: null,
+        loadingAgenda: false,
+      }));
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingAgenda: false,
+      }));
+    }
+  }
+
+  function toggleEventDialog() {
+    setContext((v) => ({ ...v, eventDialog: !v.eventDialog }));
+  }
+
+  function setIsEditingEvent(val) {
+    setContext((v) => ({ ...v, isEditingEvent: val }));
+  }
+
+  function selectEvent(event) {
+    setContext((v) => ({
+      ...v,
+      event,
+    }));
+  }
+
   async function addEvent(event) {
     if (ctx.agenda?.id)
       try {
+        setContext((v) => ({
+          ...v,
+          loadingEvent: true,
+        }));
+
         const res = await axios.post("/api/event/create", {
           ...event,
           agendaId: ctx.agenda.id,
@@ -329,22 +414,86 @@ const useContextController = (initialContext) => {
           ...event,
         };
 
+        const currEvents = ctx.events;
+        currEvents.push(newEvent);
+
+        const currEventIds = ctx.eventIds;
+        currEventIds.push(newEvent);
+
         setContext((v) => ({
           ...v,
-          events: [...v.events, newEvent],
-          eventIds: [...v.eventIds, newEvent],
-          event: newEvent,
+          events: currEvents,
+          eventIds: currEventIds,
+          loadingEvent: false,
         }));
       } catch (err) {
         console.error(err);
+        setContext((v) => ({
+          ...v,
+          loadingAgenda: false,
+        }));
       }
   }
 
-  function selectEvent(event) {
-    setContext((v) => ({
-      ...v,
-      event,
-    }));
+  async function updateEvent(event) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingEvent: true,
+      }));
+
+      await axios.put("/api/event/update", event);
+      const currEvents = ctx.events.map((e) => {
+        if (e.id === event.id) e = { ...e, ...event };
+        return e;
+      });
+      const currEventIds = ctx.eventIds.map((e) => {
+        if (e.id === event.id) e = { ...e, ...event };
+        return e;
+      });
+
+      setContext((v) => ({
+        ...v,
+        events: currEvents,
+        eventIds: currEventIds,
+        loadingEvent: false,
+      }));
+
+      await selectEvent(event, false);
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingEvent: false,
+      }));
+    }
+  }
+
+  async function deleteEvent(event) {
+    try {
+      setContext((v) => ({
+        ...v,
+        loadingEvent: true,
+      }));
+
+      await axios.delete(`/api/event/delete?eventId=${event.id}`);
+
+      const currEvents = ctx.events.filter((e) => e.id !== event.id);
+
+      setContext((v) => ({
+        ...v,
+        events: currEvents,
+        eventIds: currEvents,
+        event: null,
+        loadingEvent: false,
+      }));
+    } catch (err) {
+      console.error(err);
+      setContext((v) => ({
+        ...v,
+        loadingEvent: false,
+      }));
+    }
   }
 
   function toggleEventStatuses(status, checked) {
@@ -477,14 +626,20 @@ const useContextController = (initialContext) => {
     setIsEditingProject,
     addProject,
     updateProject,
+    deleteProject,
     selectProject,
     toggleProjectLabels,
     toggleAgendaDialog,
     setIsEditingAgenda,
     addAgenda,
     updateAgenda,
+    deleteAgenda,
     selectAgenda,
+    toggleEventDialog,
+    setIsEditingEvent,
     addEvent,
+    updateEvent,
+    deleteEvent,
     selectEvent,
     toggleEventStatuses,
   };

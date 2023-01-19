@@ -30,8 +30,16 @@ const localizer = dateFnsLocalizer({
 });
 
 export default function WeekAndMonthView({}) {
-  const { agenda, selectedDate, events, setSelectedDate, setSelectedCell } =
-    useProjectContext();
+  const {
+    agenda,
+    toggleEventDialog,
+    selectEvent,
+    selectedDate,
+    events,
+    setSelectedDate,
+    setSelectedCell,
+    setIsEditingEvent,
+  } = useProjectContext();
 
   function handleBackDay() {
     const d = sub(new Date(selectedDate), { days: 1 });
@@ -55,12 +63,15 @@ export default function WeekAndMonthView({}) {
 
   const handleSelectSlot = (cell) => {
     setSelectedCell(cell);
+    setIsEditingEvent(false);
+    toggleEventDialog();
   };
 
-  const handleSelectEvent = useCallback(
-    (event) => window.alert(event.title),
-    []
-  );
+  const handleSelectEvent = (event) => {
+    selectEvent(event);
+    setIsEditingEvent(true);
+    toggleEventDialog();
+  };
 
   return (
     <>

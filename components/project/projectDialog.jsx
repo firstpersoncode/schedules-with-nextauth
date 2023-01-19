@@ -23,6 +23,7 @@ export default function ProjectDialog() {
     toggleProjectDialog,
     addProject,
     updateProject,
+    deleteProject,
   } = useProjectContext();
 
   const [loading, setLoading] = useState(false);
@@ -100,6 +101,15 @@ export default function ProjectDialog() {
     return errors;
   }
 
+  async function handleDelete(e) {
+    e.preventDefault();
+
+    try {
+      await deleteProject(project);
+      onClose();
+    } catch (err) {}
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     const hasError = Object.keys(validateForm()).length;
@@ -129,6 +139,14 @@ export default function ProjectDialog() {
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+      {isEditingProject && (
+        <DialogActions>
+          <IconButton disabled={loading} onClick={handleDelete}>
+            <Delete />
+          </IconButton>
+        </DialogActions>
+      )}
+
       <Box>
         {loading && <LinearProgress />}
         <Box sx={{ p: 2 }}>
