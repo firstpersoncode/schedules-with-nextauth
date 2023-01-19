@@ -31,7 +31,7 @@ export const data = {
   ],
 };
 
-export default function Categories() {
+export default function ProgressChart() {
   return (
     <Box
       sx={{

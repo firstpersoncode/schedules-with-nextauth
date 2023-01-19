@@ -28,7 +28,12 @@ const projectContext = {
     { title: "In Progress", value: "INPROGRESS", checked: true },
     { title: "Completed", value: "COMPLETED", checked: true },
   ],
-  view: Views.MONTH,
+  views: [
+    { title: "Day", value: Views.DAY },
+    { title: "Week", value: Views.WEEK },
+    { title: "Month", value: Views.MONTH },
+  ],
+  view: { title: "Month", value: Views.MONTH },
   isTable: false,
   selectedDate: new Date(),
   selectedCell: null,
@@ -105,6 +110,10 @@ const useContextController = (initialContext) => {
     return function () {
       setContext((v) => ({ ...v, view }));
     };
+  }
+
+  function selectView(view) {
+    setContext((v) => ({ ...v, view }));
   }
 
   function toggleIsTable() {
@@ -621,6 +630,7 @@ const useContextController = (initialContext) => {
     setSelectedDate,
     setSelectedCell,
     setView,
+    selectView,
     toggleIsTable,
     toggleProjectDialog,
     setIsEditingProject,

@@ -12,16 +12,12 @@ import {
   TextField,
   Button,
   LinearProgress,
-  InputAdornment,
-  IconButton,
 } from "@mui/material";
 import { useProjectContext } from "context/project";
 import { useEffect } from "react";
 
 function Menu() {
   const {
-    events,
-    loadingEvent,
     projects,
     project,
     selectProject,
@@ -102,6 +98,7 @@ function Menu() {
               />
             )}
           />
+
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               disabled={!project?.id}
