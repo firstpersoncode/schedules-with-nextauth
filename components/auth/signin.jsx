@@ -93,7 +93,7 @@ export default function Signin() {
     try {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        signIn("google", { callbackUrl: "http://localhost:3000/project" });
+        signIn("google", { callbackUrl: `${process.env.URL}/project` });
       }, 1000);
     } catch (err) {
       console.error(err);

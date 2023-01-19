@@ -41,7 +41,7 @@ export default async function signup(req, res) {
       from: process.env.NODEMAILER_TRANSPORTER,
       to: email,
       subject: "[App Schedules] Verify your email address",
-      html: `<p>Click the link below to verify your email</p><a href="http://localhost:3000/auth?verificationId=${newUser.id}">Verify</a>`,
+      html: `<p>Click the link below to verify your email</p><a href="${process.env.URL}/auth?verificationId=${newUser.id}">Verify</a>`,
     });
     res.status(200).json({ message: "User created successfully!" });
   } catch (err) {
