@@ -7,16 +7,9 @@ import {
 } from "@mui/material";
 import Countdown from "components/project/countdown";
 import { useProjectContext } from "context/project";
-import {
-  closestIndexTo,
-  closestTo,
-  format,
-  isBefore,
-  isAfter,
-  isToday,
-} from "date-fns";
+import { format, isBefore, isAfter, isToday } from "date-fns";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function IncomingEvents() {
   const { events, selectEvent, setIsEditingEvent, toggleEventDialog } =
