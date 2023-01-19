@@ -5,7 +5,7 @@ import {
   AlertTitle,
   CardActionArea,
 } from "@mui/material";
-import Countdown from "components/countdown";
+import Countdown from "components/project/countdown";
 import { useProjectContext } from "context/project";
 import {
   closestIndexTo,
@@ -16,18 +16,18 @@ import {
   isToday,
 } from "date-fns";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function IncomingEvents() {
   const { events, selectEvent, setIsEditingEvent, toggleEventDialog } =
     useProjectContext();
-  const [inProgressEvent, setInProgressEvent] = useState(null);
-  const [inComingEvent, setInComingEvent] = useState(null);
-  const [missedEvent, setMissedEvent] = useState(null);
+  const [missedEvents, setMissedEvents] = useState([]);
+  const [inComingEvents, setInComingEvents] = useState([]);
+  const [inProgressEvents, setInProgressEvents] = useState([]);
 
-  const inProgressChecker = useRef();
-  const incomingChecker = useRef();
   const missedChecker = useRef();
+  const incomingChecker = useRef();
+  const inProgressChecker = useRef();
 
   const handleSelectEvent = (event) => () => {
     selectEvent(event);
@@ -36,126 +36,139 @@ export default function IncomingEvents() {
   };
 
   useEffect(() => {
-    if (inProgressChecker.current) clearInterval(inProgressChecker.current);
-    inProgressChecker.current = setInterval(() => {
-      const now = new Date();
-      const todoEvents = events.filter(
-        (e) => e.status === "INPROGRESS" && isBefore(now, new Date(e.end))
-      );
-
-      const closestEventIndex = closestIndexTo(
-        now,
-        todoEvents.map((e) => new Date(e.start))
-      );
-
-      const event = todoEvents[closestEventIndex];
-
-      setInProgressEvent(event);
-    }, 1000);
-
-    return () => clearInterval(inProgressChecker.current);
-  }, [events]);
-
-  useEffect(() => {
-    if (incomingChecker.current) clearInterval(incomingChecker.current);
-    incomingChecker.current = setInterval(() => {
-      const now = new Date();
-      const todoEvents = events.filter(
-        (e) => e.status === "TODO" && isBefore(now, new Date(e.start))
-      );
-
-      const closestEventIndex = closestIndexTo(
-        now,
-        todoEvents.map((e) => new Date(e.start))
-      );
-
-      const event = todoEvents[closestEventIndex];
-
-      setInComingEvent(event);
-    }, 1000);
-
-    return () => clearInterval(incomingChecker.current);
-  }, [events]);
-
-  useEffect(() => {
     if (missedChecker.current) clearInterval(missedChecker.current);
     missedChecker.current = setInterval(() => {
       const now = new Date();
-      const todoEvents = events.filter(
+      const data = events.filter(
         (e) =>
           e.status === "TODO" &&
           isAfter(now, new Date(e.start)) &&
           isBefore(now, new Date(e.end))
       );
 
-      const closestEventIndex = closestIndexTo(
-        now,
-        todoEvents.map((e) => new Date(e.end))
-      );
-
-      const event = todoEvents[closestEventIndex];
-
-      setMissedEvent(event);
+      setMissedEvents(data);
     }, 1000);
 
     return () => clearInterval(missedChecker.current);
   }, [events]);
 
+  useEffect(() => {
+    if (incomingChecker.current) clearInterval(incomingChecker.current);
+    incomingChecker.current = setInterval(() => {
+      const now = new Date();
+      const data = events.filter(
+        (e) => e.status === "TODO" && isBefore(now, new Date(e.start))
+      );
+
+      setInComingEvents(data);
+    }, 1000);
+
+    return () => clearInterval(incomingChecker.current);
+  }, [events]);
+
+  useEffect(() => {
+    if (inProgressChecker.current) clearInterval(inProgressChecker.current);
+    inProgressChecker.current = setInterval(() => {
+      const now = new Date();
+      const data = events.filter(
+        (e) => e.status === "INPROGRESS" && isBefore(now, new Date(e.end))
+      );
+
+      setInProgressEvents(data);
+    }, 1000);
+
+    return () => clearInterval(inProgressChecker.current);
+  }, [events]);
+
   return (
     <>
-      {missedEvent?.start && (
-        <CardActionArea onClick={handleSelectEvent(missedEvent)}>
-          <Alert severity="error">
-            <AlertTitle sx={{ fontSize: { xs: "16px", lg: "20px" } }}>
-              Missed today
-            </AlertTitle>
-            <Typography
-              sx={{ fontSize: { xs: "26px", lg: "30px", fontWeight: "500" } }}
-            >
-              {missedEvent.title}
-            </Typography>
-            <Typography>Ends at</Typography>
-            <Countdown targetDate={new Date(missedEvent.end)} />
-          </Alert>
-        </CardActionArea>
-      )}
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+          display: "flex",
+          alignItems: "stretch",
+          flexWrap: "nowrap",
+          gap: 1,
+        }}
+      >
+        {missedEvents.map((event, i) => (
+          <CardActionArea
+            key={`missed-${i}`}
+            onClick={handleSelectEvent(event)}
+            sx={{ flex: 1, minWidth: { xs: "80vw", lg: "70vw" } }}
+          >
+            <Alert severity="error">
+              <AlertTitle>Missed today</AlertTitle>
+              <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                {event.title}
+              </Typography>
+              <Typography sx={{ fontSize: 12 }}>Ends at</Typography>
+              <Countdown targetDate={new Date(event.end)} />
+            </Alert>
+          </CardActionArea>
+        ))}
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+          display: "flex",
+          alignItems: "stretch",
+          flexWrap: "nowrap",
+          gap: 1,
+        }}
+      >
+        {inComingEvents.map((event, i) => (
+          <CardActionArea
+            key={`incoming-${i}`}
+            onClick={handleSelectEvent(event)}
+            sx={{ flex: 1, minWidth: { xs: "80vw", lg: "70vw" } }}
+          >
+            <Alert severity="warning">
+              <AlertTitle>
+                Incoming{" "}
+                {isToday(new Date(event.start))
+                  ? "today"
+                  : `on ${format(new Date(event.start), "iiii")}`}
+              </AlertTitle>
+              <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                {event.title}
+              </Typography>
+              <Typography sx={{ fontSize: 12 }}>Started at</Typography>
+              <Countdown targetDate={new Date(event.start)} />
+            </Alert>
+          </CardActionArea>
+        ))}
+      </Box>
 
-      {inComingEvent?.start && (
-        <CardActionArea onClick={handleSelectEvent(inComingEvent)}>
-          <Alert severity="warning">
-            <AlertTitle sx={{ fontSize: { xs: "16px", lg: "20px" } }}>
-              Incoming{" "}
-              {isToday(new Date(inComingEvent.start))
-                ? "today"
-                : `on ${format(new Date(inComingEvent.start), "iiii")}`}
-            </AlertTitle>
-            <Typography
-              sx={{ fontSize: { xs: "26px", lg: "30px", fontWeight: "500" } }}
-            >
-              {inComingEvent.title}
-            </Typography>
-            <Typography>Started at</Typography>
-            <Countdown targetDate={new Date(inComingEvent.start)} />
-          </Alert>
-        </CardActionArea>
-      )}
-
-      {inProgressEvent?.start && (
-        <CardActionArea onClick={handleSelectEvent(inProgressEvent)}>
-          <Alert severity="success">
-            <AlertTitle sx={{ fontSize: { xs: "16px", lg: "20px" } }}>
-              In Progress
-            </AlertTitle>
-            <Typography
-              sx={{ fontSize: { xs: "26px", lg: "30px", fontWeight: "500" } }}
-            >
-              {inProgressEvent.title}
-            </Typography>
-            <Typography>Finished at</Typography>
-            <Countdown targetDate={new Date(inProgressEvent.end)} />
-          </Alert>
-        </CardActionArea>
-      )}
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+          display: "flex",
+          alignItems: "stretch",
+          flexWrap: "nowrap",
+          gap: 1,
+        }}
+      >
+        {inProgressEvents.map((event, i) => (
+          <CardActionArea
+            key={`inprogress-${i}`}
+            onClick={handleSelectEvent(event)}
+            sx={{ flex: 1, minWidth: { xs: "80vw", lg: "70vw" } }}
+          >
+            <Alert severity="success">
+              <AlertTitle>In Progress</AlertTitle>
+              <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                {event.title}
+              </Typography>
+              <Typography sx={{ fontSize: 12 }}>Finished at</Typography>
+              <Countdown targetDate={new Date(event.end)} />
+            </Alert>
+          </CardActionArea>
+        ))}
+      </Box>
     </>
   );
 }

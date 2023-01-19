@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import Typography from "@mui/material/Typography";
+import { useState, useEffect, useRef } from "react";
 
 function calculateTimeLeft(targetDate) {
   const difference = +new Date(targetDate) - +new Date();
@@ -23,20 +24,21 @@ function calculateTimeLeft(targetDate) {
 
 export default function Countdown({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate));
+  const intervalId = useRef();
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    intervalId.current = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
-    return () => clearInterval(intervalId);
-  }, [targetDate]);
+    return () => clearInterval(intervalId.current);
+  }, []);
 
   return (
-    <span>
+    <Typography sx={{ fontSize: 12 }}>
       {String(timeLeft.days)} {timeLeft.days > 1 ? "days" : "day"},{" "}
       {timeLeft.hours} {timeLeft.hours > 1 ? "hours" : "hour"},{" "}
       {timeLeft.minutes} {timeLeft.minutes > 1 ? "minutes" : "minute"},{" "}
       {timeLeft.seconds} {timeLeft.seconds > 1 ? "seconds" : "second"}
-    </span>
+    </Typography>
   );
 }
