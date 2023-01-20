@@ -48,6 +48,7 @@ export default function DayView({}) {
       onSelectSlot={handleSelectSlot}
       selectable
       toolbar={false}
+      scrollToTime={new Date()}
       onNavigate={() => {}}
     />
   );
