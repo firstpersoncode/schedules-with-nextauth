@@ -25,7 +25,6 @@ import { Views } from "react-big-calendar";
 import {
   add,
   endOfDay,
-  // format,
   isAfter,
   isBefore,
   isEqual,
@@ -36,9 +35,10 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useProjectContext } from "context/project";
+import { useRef, useState } from "react";
 import Notifications from "../notifications";
 import Report from "../report";
-import { useState } from "react";
+import useClickOutside from "hooks/useClickOutside";
 
 export default function Toolbar() {
   const {
@@ -55,6 +55,9 @@ export default function Toolbar() {
 
   const [openInfo, setOpenInfo] = useState(false);
 
+  const infoRef = useRef();
+  useClickOutside(infoRef, () => setOpenInfo(false));
+
   function toggleInfo() {
     setOpenInfo(!openInfo);
   }
@@ -65,8 +68,6 @@ export default function Toolbar() {
     if (isAfter(d, min)) {
       setSelectedDate(d);
     } else {
-      const indexOfDay = getIndexOfDate(min);
-      swiper.slideTo(indexOfDay);
       setSelectedDate(min);
     }
   }
@@ -78,8 +79,6 @@ export default function Toolbar() {
       if (isBefore(d, max)) {
         setSelectedDate(d);
       } else {
-        const indexOfDay = getIndexOfDate(max);
-        swiper.slideTo(indexOfDay);
         setSelectedDate(max);
       }
     } else {
@@ -202,7 +201,7 @@ export default function Toolbar() {
       {loadingEvent && <LinearProgress />}
 
       <Collapse in={openInfo}>
-        <Box sx={{ maxHeight: "50vh", overflowY: "auto" }}>
+        <Box ref={infoRef} sx={{ maxHeight: "50vh", overflowY: "auto" }}>
           <Notifications />
           <Report />
         </Box>
