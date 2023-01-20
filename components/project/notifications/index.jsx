@@ -31,12 +31,14 @@ export default function Notifications() {
     if (missedChecker.current) clearInterval(missedChecker.current);
     missedChecker.current = setInterval(() => {
       const now = new Date();
-      const data = events.filter(
-        (e) =>
-          e.status === "TODO" &&
-          isAfter(now, new Date(e.start)) &&
-          isBefore(now, new Date(e.end))
-      );
+      const data = events
+        .filter(
+          (e) =>
+            e.status === "TODO" &&
+            isAfter(now, new Date(e.start)) &&
+            isBefore(now, new Date(e.end))
+        )
+        .sort((a, b) => new Date(a.start) - new Date(b.start));
 
       setMissedEvents(data);
     }, 1000);
@@ -48,9 +50,9 @@ export default function Notifications() {
     if (incomingChecker.current) clearInterval(incomingChecker.current);
     incomingChecker.current = setInterval(() => {
       const now = new Date();
-      const data = events.filter(
-        (e) => e.status === "TODO" && isBefore(now, new Date(e.start))
-      );
+      const data = events
+        .filter((e) => e.status === "TODO" && isBefore(now, new Date(e.start)))
+        .sort((a, b) => new Date(a.start) - new Date(b.start));
 
       setInComingEvents(data);
     }, 1000);
@@ -62,9 +64,11 @@ export default function Notifications() {
     if (inProgressChecker.current) clearInterval(inProgressChecker.current);
     inProgressChecker.current = setInterval(() => {
       const now = new Date();
-      const data = events.filter(
-        (e) => e.status === "INPROGRESS" && isBefore(now, new Date(e.end))
-      );
+      const data = events
+        .filter(
+          (e) => e.status === "INPROGRESS" && isBefore(now, new Date(e.end))
+        )
+        .sort((a, b) => new Date(a.start) - new Date(b.start));
 
       setInProgressEvents(data);
     }, 1000);
