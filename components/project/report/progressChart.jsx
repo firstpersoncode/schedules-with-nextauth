@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { useProjectContext } from "context/project";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -14,35 +14,55 @@ export default function ProgressChart() {
     [statuses]
   );
 
-  const getEvents = (status) => {
-    return events.filter((e) => e.status === status.value);
-  };
+  const getEvents = useCallback(
+    (status) => {
+      const checkedLabels = labels.filter((l) => l.checked);
 
-  const getData = (status) => {
-    const checkedLabels = labels.filter((l) => l.checked);
-    const eventsByStatus = getEvents(status);
+      return events
+        .filter(
+          (e) =>
+            !e.labels.length ||
+            checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
+        )
+        .filter((e) => e.status === status.value);
+    },
+    [events, labels]
+  );
 
-    const eventsByLabels = checkedLabels.map((l) => {
-      return eventsByStatus.filter((e) => e.labels.find((el) => el.id === l.id))
-        .length;
-    });
+  const getData = useCallback(
+    (status) => {
+      const filteredEvents = events.filter((e) => e.status === status.value);
+      const checkedLabels = labels.filter((l) => l.checked);
+      checkedLabels.unshift({ title: "No label", color: "#000" });
 
-    const backgroundColors = checkedLabels.map((l) => l.color);
-    const borderColors = checkedLabels.map(() => "#fff");
+      const eventsByLabels = checkedLabels.map((l) => {
+        return filteredEvents.filter((e) => {
+          if (!l.id) {
+            return !e.labels.length;
+          }
 
-    return {
-      labels: checkedLabels.map((l) => l.title),
-      datasets: [
-        {
-          label: `${status.title} events`,
-          data: eventsByLabels,
-          backgroundColor: backgroundColors,
-          borderColor: borderColors,
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
+          return e.labels.find((el) => el.id === l.id);
+        }).length;
+      });
+
+      const backgroundColors = checkedLabels.map((l) => l.color);
+      const borderColors = checkedLabels.map(() => "#fff");
+
+      return {
+        labels: checkedLabels.map((l) => l.title),
+        datasets: [
+          {
+            label: `${status.title} events`,
+            data: eventsByLabels,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1,
+          },
+        ],
+      };
+    },
+    [events, labels]
+  );
 
   return (
     <Box
