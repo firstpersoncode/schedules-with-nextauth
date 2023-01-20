@@ -26,6 +26,7 @@ export default function DayView({}) {
   } = useProjectContext();
 
   const handleSelectSlot = (cell) => {
+    if (!cell?.start) return;
     setSelectedCell(cell);
     setIsEditingEvent(false);
     toggleEventDialog();

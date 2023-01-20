@@ -17,17 +17,24 @@ import { useProjectContext } from "context/project";
 
 function Menu() {
   const {
-    projects,
+    loadingProject,
     project,
+    projects,
     selectProject,
-    toggleProjectDialog,
     toggleProjectLabels,
     setIsEditingProject,
+    toggleProjectDialog,
+
+    loadingAgenda,
+    agenda,
+    agendas,
+    selectAgenda,
+    setIsEditingAgenda,
+    toggleAgendaDialog,
+
     labels,
     statuses,
     toggleEventStatuses,
-    agenda,
-    loadingProject,
   } = useProjectContext();
 
   async function handleSelectProject(_, v) {
@@ -38,6 +45,16 @@ function Menu() {
   function handleClickEditProject() {
     setIsEditingProject(true);
     toggleProjectDialog();
+  }
+
+  async function handleSelectAgenda(_, v) {
+    const selectedAgenda = agendas.find((p) => p.id === v.value);
+    await selectAgenda(selectedAgenda);
+  }
+
+  function handleClickEditAgenda() {
+    setIsEditingAgenda(true);
+    toggleAgendaDialog();
   }
 
   function handleCheckedLabel(label) {
@@ -57,7 +74,6 @@ function Menu() {
       <Toolbar />
       <Box sx={{ overflowY: "auto" }}>
         {loadingProject && <LinearProgress />}
-
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 2 }}>
           <Autocomplete
             sx={{ flex: 1 }}
@@ -74,6 +90,7 @@ function Menu() {
             value={project?.title || null}
             isOptionEqualToValue={(o, v) => o.label === v}
             onChange={handleSelectProject}
+            size="small"
             renderInput={(params) => (
               <TextField {...params} label="Project" variant="outlined" />
             )}
@@ -85,6 +102,56 @@ function Menu() {
 
           {project?.id && (
             <IconButton onClick={handleClickEditProject} size="small">
+              <Edit />
+            </IconButton>
+          )}
+        </Box>
+
+        {loadingAgenda && <LinearProgress />}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            p: 2,
+          }}
+        >
+          <Autocomplete
+            sx={{ flex: 1 }}
+            disabled={loadingAgenda || !project?.id}
+            options={agendas.map((p, i) => ({ label: p.title, value: p.id }))}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.value}>
+                  {option.label}
+                </li>
+              );
+            }}
+            disableClearable
+            blurOnSelect
+            value={agenda?.title || null}
+            isOptionEqualToValue={(o, v) => o.label === v}
+            onChange={handleSelectAgenda}
+            size="small"
+            renderInput={(params) => (
+              <TextField {...params} label="Agenda" variant="outlined" />
+            )}
+          />
+
+          <IconButton
+            disabled={!project?.id}
+            onClick={toggleAgendaDialog}
+            size="small"
+          >
+            <Add />
+          </IconButton>
+
+          {agenda?.id && (
+            <IconButton
+              onClick={handleClickEditAgenda}
+              variant="contained"
+              size="small"
+            >
               <Edit />
             </IconButton>
           )}

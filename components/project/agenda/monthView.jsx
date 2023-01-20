@@ -39,6 +39,7 @@ export default function MonthView() {
   } = useProjectContext();
 
   const handleSelectSlot = (cell) => {
+    if (!cell?.start) return;
     const min = startOfDay(new Date(agenda.start));
     const d = cell.start;
     const availableDate = agenda.end
@@ -60,7 +61,6 @@ export default function MonthView() {
   };
 
   const dayPropGetter = (d) => ({
-    onClick: () => console.log("AAA"),
     style: {
       backgroundColor: "transparent",
 

@@ -8,9 +8,7 @@ import TableView from "./tableView";
 import Toolbar from "./toolbar";
 
 export default function Agenda() {
-  const { agenda, loadingEvent, view, isTable } = useProjectContext();
-
-  if (!agenda?.id) return null;
+  const { view, isTable } = useProjectContext();
 
   return (
     <>
@@ -19,6 +17,9 @@ export default function Agenda() {
       <Box
         sx={{
           display: !isTable && view.value === Views.DAY ? "block" : "none",
+          height: "100vh",
+          overflowY: "auto",
+          pt: "80px",
         }}
       >
         <DayView />
@@ -27,6 +28,9 @@ export default function Agenda() {
       <Box
         sx={{
           display: !isTable && view.value === Views.WEEK ? "block" : "none",
+          height: "100vh",
+          overflowY: "auto",
+          pt: "80px",
         }}
       >
         <WeekView />
@@ -35,6 +39,9 @@ export default function Agenda() {
       <Box
         sx={{
           display: !isTable && view.value === Views.MONTH ? "block" : "none",
+          height: "100vh",
+          overflowY: "auto",
+          pt: "80px",
         }}
       >
         <MonthView />
@@ -43,6 +50,9 @@ export default function Agenda() {
       <Box
         sx={{
           display: isTable ? "block" : "none",
+          height: "100vh",
+          overflowY: "auto",
+          pt: "80px",
         }}
       >
         <TableView />

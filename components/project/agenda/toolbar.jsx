@@ -8,7 +8,7 @@ import {
   LinearProgress,
   Collapse,
 } from "@mui/material";
-import { useProjectContext } from "context/project";
+
 import {
   Adjust,
   CalendarViewDay,
@@ -25,12 +25,17 @@ import { Views } from "react-big-calendar";
 import {
   add,
   endOfDay,
+  // format,
   isAfter,
   isBefore,
   isEqual,
   startOfDay,
   sub,
 } from "date-fns";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { useProjectContext } from "context/project";
 import Notifications from "../notifications";
 import Report from "../report";
 import { useState } from "react";
@@ -57,21 +62,34 @@ export default function Toolbar() {
   function handleBackDate() {
     const d = sub(new Date(selectedDate), { [`${view.value}s`]: 1 });
     const min = startOfDay(new Date(agenda.start));
-    if (isAfter(d, min)) setSelectedDate(d);
-    else setSelectedDate(min);
+    if (isAfter(d, min)) {
+      setSelectedDate(d);
+    } else {
+      const indexOfDay = getIndexOfDate(min);
+      swiper.slideTo(indexOfDay);
+      setSelectedDate(min);
+    }
   }
 
   function handleNextDate() {
     const d = add(new Date(selectedDate), { [`${view.value}s`]: 1 });
     if (agenda.end) {
       const max = endOfDay(new Date(agenda.end));
-      if (isBefore(d, max)) setSelectedDate(d);
-      else setSelectedDate(max);
-    } else setSelectedDate(d);
+      if (isBefore(d, max)) {
+        setSelectedDate(d);
+      } else {
+        const indexOfDay = getIndexOfDate(max);
+        swiper.slideTo(indexOfDay);
+        setSelectedDate(max);
+      }
+    } else {
+      setSelectedDate(d);
+    }
   }
 
   function handleSetToday() {
-    setSelectedDate(new Date());
+    const today = new Date();
+    setSelectedDate(today);
   }
 
   function handleSelectView(e) {
@@ -79,20 +97,27 @@ export default function Toolbar() {
     selectView(selectedView);
   }
 
+  function handleChangeDate(v) {
+    setSelectedDate(v);
+  }
+
   return (
     <Card
       sx={{
         backgroundColor: "#FFF",
         zIndex: 10,
-        position: "sticky",
-        top: { xs: 55, lg: 60 },
+        position: "fixed",
+        width: { xs: "100vw", lg: "80vw" },
+        top: 40,
+        right: 0,
       }}
     >
       <Box
         sx={{
-          p: 1,
+          px: 1,
           display: "flex",
           justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -110,22 +135,47 @@ export default function Toolbar() {
                 : "outlined"
             }
             size="small"
+            sx={{ minWidth: "unset", p: 0, borderRadius: "50%" }}
           >
             <Adjust />
           </Button>
           <IconButton onClick={handleNextDate}>
             <ChevronRight />
           </IconButton>
+
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              size="small"
+              value={selectedDate}
+              closeOnSelect
+              onChange={handleChangeDate}
+              renderInput={(params) => (
+                <TextField {...params} variant="standard" />
+              )}
+            />
+          </LocalizationProvider>
         </Box>
 
-        <Box sx={{ display: "flex" }}>
+        {/* {format(new Date(selectedDate), "MMM dd, yyyy")} */}
+
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             select
-            variant="outlined"
+            variant="standard"
             size="small"
             value={view?.value || null}
             onChange={handleSelectView}
             fullWidth
+            InputProps={{
+              disableUnderline: true,
+              sx: {
+                "& .MuiSelect-select": {
+                  p: 0,
+                  flexDirection: "unset",
+                  lineHeight: 0,
+                },
+              },
+            }}
           >
             {views.map((option, i) => (
               <MenuItem key={i} value={option.value}>

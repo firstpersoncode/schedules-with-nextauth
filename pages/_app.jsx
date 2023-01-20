@@ -1,11 +1,8 @@
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "styles/globals.scss";
 
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import TagManager from "react-gtm-module";
 import { Box, LinearProgress } from "@mui/material";
 
 export default function _App({ Component, pageProps }) {
@@ -37,13 +34,6 @@ export default function _App({ Component, pageProps }) {
       RouterEvents.off("routeChangeError", handleComplete);
     };
   });
-
-  useEffect(() => {
-    if (process.env.GTM_ID && !window.GTM_INITIALIZED) {
-      TagManager.initialize({ gtmId: process.env.GTM_ID });
-      window.GTM_INITIALIZED = true;
-    }
-  }, []);
 
   return (
     <>
