@@ -73,6 +73,10 @@ export default function DateCellWrapper({ children, ...props }) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
           }}
         >
           <Typography sx={{ px: 1, fontSize: 12 }}>
@@ -82,7 +86,9 @@ export default function DateCellWrapper({ children, ...props }) {
             <Close />
           </IconButton>
         </Box>
-        {open && <DayView />}
+        <Box sx={{ pt: "40px", height: "60vh", overflowY: "auto" }}>
+          {open && <DayView />}
+        </Box>
       </Popover>
     </Box>
   );

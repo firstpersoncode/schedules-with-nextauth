@@ -85,11 +85,11 @@ export default function MonthView({}) {
       onNavigate={() => {}}
       onView={() => {}}
       style={{ minHeight: 600 }}
+      eventPropGetter={eventPropGetter}
       components={{
         event: Event,
         dateCellWrapper: DateCellWrapper,
       }}
-      eventPropGetter={eventPropGetter}
     />
   );
 }
