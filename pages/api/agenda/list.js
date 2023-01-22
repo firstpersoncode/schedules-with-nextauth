@@ -7,19 +7,30 @@ export default async function list(req, res) {
   try {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
-    const projectId = req.query.projectId;
-    const agendas = await makeDBConnection(async (db) => {
-      return await db.agenda.findMany({
+    const userId = session.user.id;
+    const data = await makeDBConnection(async (db) => {
+      const agendas = await db.agenda.findMany({
         where: {
-          projectId,
+          userIds: { has: userId },
         },
-        // include: {
-        //   events: true,
-        // },
+        include: {
+          labels: true,
+        },
       });
+
+      const events = await db.event.findMany({
+        where: {
+          agendaId: { in: agendas.map((a) => a.id) },
+        },
+        include: {
+          labels: true,
+        },
+      });
+
+      return { agendas, events };
     });
 
-    res.status(200).json({ agendas });
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).send(err.toString());
   }

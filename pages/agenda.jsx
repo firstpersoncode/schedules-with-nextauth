@@ -1,17 +1,17 @@
-import Meta from "components/meta";
-import Project from "components/project";
-import ProjectContextProvider from "context/project";
-import SessionContextProvider from "context/session";
 import { getSession } from "next-auth/react";
+import AgendaContextProvider from "context/agenda";
+import SessionContextProvider from "context/session";
+import Meta from "components/meta";
+import Agenda from "components/agenda";
 
-export default function ProjectPage({ session }) {
+export default function AgendaPage({ session }) {
   return (
     <>
-      <Meta title="Project" index={false} />
+      <Meta title="Agenda" index={false} />
       <SessionContextProvider context={session}>
-        <ProjectContextProvider>
-          <Project />
-        </ProjectContextProvider>
+        <AgendaContextProvider>
+          <Agenda />
+        </AgendaContextProvider>
       </SessionContextProvider>
     </>
   );

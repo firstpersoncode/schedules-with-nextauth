@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -7,34 +8,34 @@ import {
   LinearProgress,
   Autocomplete,
   MenuItem,
+  Typography,
   IconButton,
+  Chip,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { useProjectContext } from "context/project";
 import { isAfter } from "date-fns";
 import { Delete } from "@mui/icons-material";
 import Dialog, { useDialog } from "components/dialog";
+import { useAgendaContext } from "context/agenda";
 
-export default function EventDialog() {
+export default function Event() {
   const {
-    event,
+    agendas,
+    getAgendaByEvent,
+    closeEventDialog,
     eventDialog,
-    isEditingEvent,
-    labels,
-    selectedCell,
-    setSelectedCell,
-    setIsEditingEvent,
-    toggleEventDialog,
+    event,
+    cell,
     addEvent,
     updateEvent,
     deleteEvent,
     statuses,
-  } = useProjectContext();
+  } = useAgendaContext();
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
+  const open = eventDialog;
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [state, setState] = useState({
@@ -47,10 +48,12 @@ export default function EventDialog() {
     type: "TASK",
   });
 
-  const open = eventDialog;
+  const agenda = useMemo(() => {
+    return getAgendaByEvent(event);
+  }, [event, getAgendaByEvent]);
 
   useEffect(() => {
-    if (isEditingEvent && event?.id) {
+    if (event?.id) {
       setState({
         title: event.title,
         description: event.description,
@@ -59,15 +62,25 @@ export default function EventDialog() {
         labels: event.labels,
         status: event.status,
         type: event.type,
+        agenda,
       });
     }
-  }, [isEditingEvent, event]);
+  }, [event, agenda]);
+
+  useEffect(() => {
+    if (cell) {
+      let { start, end } = cell;
+      const dateStart = new Date(start);
+      const hour = dateStart.getHours();
+      if (hour > 22)
+        end = new Date(new Date(new Date().setHours(hour)).setMinutes(59));
+      setState((v) => ({ ...v, start: new Date(start), end: new Date(end) }));
+    }
+  }, [cell]);
 
   function onClose() {
     if (loading) return;
-    toggleEventDialog();
-    setIsEditingEvent(false);
-    setSelectedCell(null);
+    closeEventDialog();
     setErrors({});
     setState({
       title: "",
@@ -80,17 +93,6 @@ export default function EventDialog() {
     });
   }
 
-  useEffect(() => {
-    if (selectedCell) {
-      let { start, end } = selectedCell;
-      const dateStart = new Date(start);
-      const hour = dateStart.getHours();
-      if (hour > 22)
-        end = new Date(new Date(new Date().setHours(hour)).setMinutes(59));
-      setState((v) => ({ ...v, start: new Date(start), end: new Date(end) }));
-    }
-  }, [selectedCell]);
-
   function handleChange(name) {
     return function (e) {
       const value = e.target.value;
@@ -102,6 +104,16 @@ export default function EventDialog() {
       });
       setErrors((v) => ({ ...v, [name]: undefined }));
     };
+  }
+
+  function handleSelectAgenda(_, agenda) {
+    setState((prev) => {
+      return {
+        ...prev,
+        agenda,
+      };
+    });
+    setErrors((v) => ({ ...v, agenda: undefined }));
   }
 
   function handleSelectLabel(_, labels) {
@@ -121,11 +133,13 @@ export default function EventDialog() {
           [name]: value,
         };
       });
+      setErrors((v) => ({ ...v, [name]: undefined }));
     };
   }
 
   function validateForm() {
     let errors = {};
+    if (!event?.id && !state.agenda) errors.agenda = "Required";
     if (!state.title) errors.title = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
@@ -162,7 +176,7 @@ export default function EventDialog() {
     setLoading(true);
 
     try {
-      if (isEditingEvent) {
+      if (event?.id) {
         await updateEvent({
           id: event.id,
           title: state.title,
@@ -182,6 +196,7 @@ export default function EventDialog() {
           labels: state.labels,
           status: state.status,
           type: state.type,
+          agenda: state.agenda,
         });
       }
 
@@ -193,17 +208,47 @@ export default function EventDialog() {
   return (
     <>
       <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
-        {isEditingEvent && (
-          <DialogActions>
-            <IconButton disabled={loading} onClick={handleDelete}>
-              <Delete />
-            </IconButton>
-          </DialogActions>
-        )}
-
         <Box>
           {loading && <LinearProgress />}
           <Box sx={{ p: 2 }}>
+            {event?.id && agenda?.id && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
+                  {agenda.title}
+                </Typography>
+                <IconButton disabled={loading} onClick={handleDelete}>
+                  <Delete />
+                </IconButton>
+              </Box>
+            )}
+
+            {!event?.id && agendas.length > 0 && (
+              <Autocomplete
+                sx={{ mb: 2 }}
+                value={state.agenda || null}
+                options={agendas}
+                getOptionLabel={(o) => o.title}
+                onChange={handleSelectAgenda}
+                disableClearable
+                blurOnSelect
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Agenda"
+                    variant="outlined"
+                    error={Boolean(errors.agenda)}
+                    helperText={errors.agenda}
+                  />
+                )}
+              />
+            )}
+
             <TextField
               required
               sx={{ mb: 2 }}
@@ -214,23 +259,34 @@ export default function EventDialog() {
               helperText={errors.title}
               fullWidth
             />
-            {labels.length > 0 && (
-              <Autocomplete
-                multiple
-                options={labels}
-                getOptionLabel={(o) => o.title}
-                value={state.labels}
-                onChange={handleSelectLabel}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Labels"
-                    variant="outlined"
-                    sx={{ mb: 2 }}
+
+            <Autocomplete
+              disabled={!state.agenda?.labels?.length}
+              multiple
+              options={state.agenda?.labels || []}
+              getOptionLabel={(o) => o.title}
+              value={state.labels}
+              renderTags={(v, getTagProps) =>
+                v.map((val, i) => (
+                  <Chip
+                    {...getTagProps(i)}
+                    key={i}
+                    sx={{ backgroundColor: val.color }}
+                    label={val.title}
                   />
-                )}
-              />
-            )}
+                ))
+              }
+              onChange={handleSelectLabel}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Labels"
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+              )}
+            />
+
             <TextField
               label="Description"
               sx={{ mb: 2 }}

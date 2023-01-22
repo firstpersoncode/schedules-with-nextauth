@@ -15,8 +15,8 @@ export default function Home({ session }) {
           </Link>
         ) : (
           <>
-            <Link href="/project">
-              <Button>Project</Button>
+            <Link href="/agenda">
+              <Button>Agenda</Button>
             </Link>
             <Button onClick={() => signOut()}>Sign out</Button>
           </>

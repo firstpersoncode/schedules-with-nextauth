@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -6,26 +7,29 @@ import {
   TextField,
   LinearProgress,
   IconButton,
+  Typography,
+  Divider,
+  List,
+  ListItem,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useProjectContext } from "context/project";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { Delete, Add } from "@mui/icons-material";
 import { isAfter } from "date-fns";
-import { Delete } from "@mui/icons-material";
+import { useAgendaContext } from "context/agenda";
 import Dialog, { useDialog } from "components/dialog";
+import getRandomHex from "utils/getRandomHex";
+import { MuiColorInput } from "mui-color-input";
 
 export default function AgendaDialog() {
   const {
-    setIsEditingAgenda,
-    isEditingAgenda,
-    agenda,
     agendaDialog,
-    toggleAgendaDialog,
+    agenda,
+    closeAgendaDialog,
     addAgenda,
     updateAgenda,
     deleteAgenda,
-  } = useProjectContext();
+  } = useAgendaContext();
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
@@ -36,37 +40,42 @@ export default function AgendaDialog() {
     description: "",
     start: new Date(),
     end: null,
+    labels: [],
+    eventColor: getRandomHex(),
   });
 
   const open = agendaDialog;
 
   useEffect(() => {
-    if (isEditingAgenda && agenda?.id) {
+    if (open && agenda?.id) {
       setState({
         title: agenda.title,
         description: agenda.description,
         start: new Date(agenda.start),
         end: agenda.end && new Date(agenda.end),
+        labels: agenda.labels,
+        eventColor: agenda.eventColor,
       });
     }
-  }, [isEditingAgenda, agenda]);
+  }, [agenda, open]);
 
   function onClose() {
     if (loading) return;
-    toggleAgendaDialog();
-    setIsEditingAgenda(false);
+    closeAgendaDialog();
     setErrors({});
     setState({
       title: "",
       description: "",
       start: new Date(),
       end: null,
+      labels: [],
+      eventColor: state.eventColor,
     });
   }
 
   function handleChange(name) {
     return function (e) {
-      const value = e.target.value;
+      const value = name === "eventColor" ? e : e.target.value;
       setState((prev) => {
         return {
           ...prev,
@@ -85,6 +94,44 @@ export default function AgendaDialog() {
           [name]: value,
         };
       });
+      setErrors((v) => ({ ...v, [name]: undefined }));
+    };
+  }
+
+  function addLabel() {
+    setState((v) => ({
+      ...v,
+      labels: [...v.labels, { title: "", color: getRandomHex() }],
+    }));
+  }
+
+  function deleteLabel(i) {
+    return function () {
+      const labels = [...state.labels];
+      labels.splice(i, 1);
+      setState((v) => ({ ...v, labels }));
+    };
+  }
+
+  function handleChangeLabel(i) {
+    return function (e) {
+      const labels = state.labels;
+      const selectedLabel = labels[i];
+      selectedLabel.title = e.target.value;
+      labels[i] = selectedLabel;
+      setState((v) => ({ ...v, labels }));
+      setErrors({ labels: undefined });
+    };
+  }
+
+  function handleChangeLabelColor(i) {
+    return function (e) {
+      const labels = state.labels;
+      const selectedLabel = labels[i];
+      selectedLabel.color = e;
+      labels[i] = selectedLabel;
+      setState((v) => ({ ...v, labels }));
+      setErrors({ labels: undefined });
     };
   }
 
@@ -92,9 +139,16 @@ export default function AgendaDialog() {
     let errors = {};
     if (!state.title) errors.title = "Required";
     if (!state.start) errors.start = "Required";
+    if (!state.eventColor) errors.eventColor = "Required";
     // if (!state.end) errors.end = "Required";
     if (state.end && isAfter(new Date(state.start), new Date(state.end)))
       errors.end = "Must be greater than start time";
+    if (state.labels.length) {
+      if (state.labels.find((l) => !Boolean(l.color)))
+        errors.labels = "Color Required";
+      if (state.labels.find((l) => !Boolean(l.title)))
+        errors.labels = "Name Required";
+    }
 
     setErrors(errors);
     return errors;
@@ -104,7 +158,7 @@ export default function AgendaDialog() {
     e.preventDefault();
 
     handleOpenDialog(
-      `<strong>You're about to delete ${agenda.title}</strong><p>This action can't be undone once deleting complete</p>`,
+      `<strong>You're about to delete ${agenda.title}</strong> including all the associated events with this agenda.<p>This action can't be undone once deleting complete</p>`,
       "warning"
     );
   }
@@ -126,13 +180,15 @@ export default function AgendaDialog() {
     setLoading(true);
 
     try {
-      if (isEditingAgenda) {
+      if (agenda?.id) {
         await updateAgenda({
           id: agenda.id,
           title: state.title,
           description: state.description,
           start: state.start,
           end: state.end,
+          labels: state.labels,
+          eventColor: state.eventColor,
         });
       } else {
         await addAgenda({
@@ -140,6 +196,8 @@ export default function AgendaDialog() {
           description: state.description,
           start: state.start,
           end: state.end,
+          labels: state.labels,
+          eventColor: state.eventColor,
         });
       }
 
@@ -151,17 +209,26 @@ export default function AgendaDialog() {
   return (
     <>
       <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
-        {isEditingAgenda && (
-          <DialogActions>
-            <IconButton disabled={loading} onClick={handleDelete}>
-              <Delete />
-            </IconButton>
-          </DialogActions>
-        )}
-
         <Box>
           {loading && <LinearProgress />}
           <Box sx={{ p: 2 }}>
+            {agenda?.id && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
+                  {agenda.id}
+                </Typography>
+                <IconButton disabled={loading} onClick={handleDelete}>
+                  <Delete />
+                </IconButton>
+              </Box>
+            )}
+
             <TextField
               required
               sx={{ mb: 2 }}
@@ -172,6 +239,7 @@ export default function AgendaDialog() {
               helperText={errors.title}
               fullWidth
             />
+
             <TextField
               label="Description"
               sx={{ mb: 2 }}
@@ -220,6 +288,66 @@ export default function AgendaDialog() {
                 )}
               />
             </LocalizationProvider>
+
+            <MuiColorInput
+              required
+              sx={{ mb: 2 }}
+              label="Event Color"
+              value={state.eventColor}
+              onChange={handleChange("eventColor")}
+              fullWidth
+              error={Boolean(errors.eventColor)}
+              helperText={errors.eventColor}
+              format="hex"
+              isAlphaHidden
+            />
+
+            <Divider>Labels</Divider>
+
+            <List sx={{ maxWidth: 400 }}>
+              {state.labels.map((label, i) => (
+                <ListItem
+                  key={i}
+                  sx={{ pl: 0 }}
+                  secondaryAction={
+                    <IconButton edge="end" onClick={deleteLabel(i)}>
+                      <Delete />
+                    </IconButton>
+                  }
+                >
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      label="Label"
+                      value={label.title}
+                      onChange={handleChangeLabel(i)}
+                      fullWidth
+                    />
+                    <MuiColorInput
+                      label="Color"
+                      value={label.color}
+                      onChange={handleChangeLabelColor(i)}
+                      format="hex"
+                      fullWidth
+                      isAlphaHidden
+                    />
+                  </Box>
+                </ListItem>
+              ))}
+
+              {errors.labels && (
+                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
+                  {errors.labels}
+                </Typography>
+              )}
+
+              <Button
+                onClick={addLabel}
+                variant="contained"
+                startIcon={<Add />}
+              >
+                Label
+              </Button>
+            </List>
           </Box>
         </Box>
 

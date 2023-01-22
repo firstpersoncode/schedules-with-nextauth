@@ -8,14 +8,48 @@ export default async function update(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { id, title, description, start, end } = req.body;
+    const { id, title, description, start, end, labels, eventColor } = req.body;
 
-    await makeDBConnection(async (db) => {
+    const data = await makeDBConnection(async (db) => {
       const currAgenda = await db.agenda.findUnique({
         where: { id },
+        include: { labels: true },
       });
 
       if (!currAgenda) throw new Error("Agenda not found");
+
+      const deletedLabels = currAgenda.labels.filter(
+        (l) => !labels.find((lb) => lb.id === l.id)
+      );
+
+      if (deletedLabels.length) {
+        await db.label.deleteMany({
+          where: { id: { in: deletedLabels.map((l) => l.id) } },
+        });
+      }
+
+      const newLabels = labels.filter((l) => !l.id);
+
+      if (newLabels.length) {
+        await db.label.createMany({
+          data: newLabels.map((l) => ({
+            ...l,
+            agendaId: currAgenda.id,
+          })),
+        });
+      }
+
+      const updatedLabels = labels.filter((l) => l.id);
+
+      for (const label of updatedLabels) {
+        const updatedLabel = label;
+        const id = updatedLabel.id;
+        delete updatedLabel.id;
+        await db.label.update({
+          where: { id },
+          data: updatedLabel,
+        });
+      }
 
       await db.agenda.update({
         where: {
@@ -26,12 +60,19 @@ export default async function update(req, res) {
           description,
           start,
           end,
+          eventColor,
         },
+      });
+
+      return await db.agenda.findUnique({
+        where: { id: currAgenda.id },
+        include: { labels: true },
       });
     });
 
     res.status(200).json({
       message: "Agenda updated successfully!",
+      agenda: data,
     });
   } catch (err) {
     res.status(500).send(err.toString());
