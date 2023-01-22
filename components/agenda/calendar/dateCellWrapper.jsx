@@ -55,7 +55,7 @@ export default function DateCellWrapper({ children, ...props }) {
         PaperProps={{
           sx: {
             width: { xs: "100vw", lg: "40vw" },
-            height: 300,
+            height: "50vh",
             overflowY: "auto",
 
             "& .rbc-timeslot-group": { minHeight: 60 },
