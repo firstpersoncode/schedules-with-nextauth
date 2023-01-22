@@ -51,8 +51,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  projects Project[] @relation(fields: [projectIds], references: [id])
-  projectIds String[] @db.ObjectId
+  agendas Agenda[] @relation(fields: [agendaIds], references: [id])
+  agendaIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,36 +72,20 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-model Project {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title      String
-  description String?
-
-  agendas Agenda[]
-  labels Label[]
-
-  users User[] @relation(fields: [userIds], references: [id])
-  userIds String[] @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
- archived Boolean @default(false)
-
- @@map("projects")
-}
-
 model Agenda {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title      String
   start DateTime
   end DateTime?
   description String?
+
+  eventColor String?
   
   events Event[]
+  labels Label[]
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String @db.ObjectId
+  users User[] @relation(fields: [userIds], references: [id])
+  userIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,8 +103,8 @@ model Label {
   events Event[] @relation(fields: [eventIds], references: [id])
   eventIds String[] @db.ObjectId
  
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String @db.ObjectId
+  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId String @db.ObjectId
 
   @@map("labels")
 }

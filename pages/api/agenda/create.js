@@ -7,24 +7,41 @@ export default async function create(req, res) {
   try {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
+    const userId = session.user.id;
+    const { title, description, start, end, labels, eventColor } = req.body;
 
-    const { title, description, start, end, projectId } = req.body;
-
-    const newAgenda = await makeDBConnection(async (db) => {
-      return await db.agenda.create({
+    const data = await makeDBConnection(async (db) => {
+      const newAgenda = await db.agenda.create({
         data: {
           title,
           description,
           start,
           end,
-          projectId,
+          eventColor,
+          userIds: [userId],
         },
       });
+
+      if (labels.length) {
+        await db.label.createMany({
+          data: labels.map((l) => ({
+            ...l,
+            agendaId: newAgenda.id,
+          })),
+        });
+      }
+
+      const agenda = await db.agenda.findUnique({
+        where: { id: newAgenda.id },
+        include: { labels: true },
+      });
+
+      return agenda;
     });
 
     res
       .status(200)
-      .json({ message: "Agenda created successfully!", agenda: newAgenda.id });
+      .json({ message: "Agenda created successfully!", agenda: data });
   } catch (err) {
     res.status(500).send(err.toString());
   }
