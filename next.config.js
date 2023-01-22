@@ -1,6 +1,6 @@
 module.exports = {
   reactStrictMode: true,
   env: {
-    URL: process.env.URL,
+    SITE_URL: process.env.SITE_URL,
   },
 };
