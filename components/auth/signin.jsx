@@ -79,7 +79,7 @@ export default function Signin() {
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        push("/project");
+        push("/agenda");
       }, 3000);
     } catch (err) {
       // console.error(err?.response?.data || err?.error || err);
