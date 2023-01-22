@@ -1,8 +1,9 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Box, Popover } from "@mui/material";
-import { startOfDay, isSameDay, isEqual } from "date-fns";
+import { Box, IconButton, Popover, Typography } from "@mui/material";
+import { startOfDay, isSameDay, isEqual, format } from "date-fns";
 import { useAgendaContext } from "context/agenda";
+import { Close } from "@mui/icons-material";
 
 const DayView = dynamic(() => import("./dayView"));
 
@@ -56,7 +57,7 @@ export default function DateCellWrapper({ children, ...props }) {
           sx: {
             width: { xs: "100vw", lg: "40vw" },
             height: "60vh",
-            overflowY: "auto",
+            overflow: "hidden",
 
             "& .rbc-timeslot-group": { minHeight: 60 },
             "& .rbc-label": { fontSize: 10 },
@@ -67,6 +68,20 @@ export default function DateCellWrapper({ children, ...props }) {
           },
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography sx={{ px: 1, fontSize: 12 }}>
+            {format(new Date(d), "MMM dd, yyyy")}
+          </Typography>
+          <IconButton sx={{ p: 1 }} size="small" onClick={handleClose}>
+            <Close />
+          </IconButton>
+        </Box>
         {open && <DayView />}
       </Popover>
     </Box>
