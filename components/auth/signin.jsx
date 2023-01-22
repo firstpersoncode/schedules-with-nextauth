@@ -74,7 +74,7 @@ export default function Signin() {
       });
       if (!res.ok) throw res;
       handleOpenDialog(
-        "<strong>Signed in!</strong><p>You'll be redirected to your project.</p><a href='/project'>Or click this if nothing happen.</a>",
+        "<strong>Signed in!</strong><p>You'll be redirected to your project.</p><a href='/agenda'>Or click this if nothing happen.</a>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
