@@ -1,37 +1,29 @@
+import { useCallback, useMemo } from "react";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { useProjectContext } from "context/project";
-import { useCallback, useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
+import { useAgendaContext } from "context/agenda";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function ProgressChart() {
-  const { labels, events, statuses } = useProjectContext();
+  const { labels, getEvents, statuses } = useAgendaContext();
+
+  const events = getEvents();
 
   const checkedStatuses = useMemo(
     () => statuses.filter((l) => l.checked),
     [statuses]
   );
 
-  const getEvents = useCallback(
-    (status) => {
-      const checkedLabels = labels.filter((l) => l.checked);
-
-      return events
-        .filter(
-          (e) =>
-            !e.labels.length ||
-            checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
-        )
-        .filter((e) => e.status === status.value);
-    },
-    [events, labels]
+  const getEventsByStatus = useCallback(
+    (status) => events.filter((e) => e.status === status.value),
+    [events]
   );
 
   const getData = useCallback(
     (status) => {
-      const filteredEvents = events.filter((e) => e.status === status.value);
+      const filteredEvents = getEventsByStatus(status);
       const checkedLabels = labels.filter((l) => l.checked);
       checkedLabels.unshift({ title: "No label", color: "#000" });
 
@@ -65,26 +57,17 @@ export default function ProgressChart() {
   );
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        grid: {
-          xs: "auto",
-          lg: `auto / repeat(${checkedStatuses.length}, 1fr)`,
-        },
-        gap: 2,
-      }}
-    >
+    <>
       {checkedStatuses.map((status, i) => (
         <Card variant="outlined" key={i}>
           <CardContent>
             <Typography>
-              {getEvents(status).length} {status.title}
+              {getEventsByStatus(status).length} {status.title}
             </Typography>
             <Doughnut data={getData(status)} />
           </CardContent>
         </Card>
       ))}
-    </Box>
+    </>
   );
 }

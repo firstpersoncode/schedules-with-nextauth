@@ -29,8 +29,15 @@ import { add, format, isEqual, startOfDay, sub } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 
 export default function Toolbar() {
-  const { views, view, selectView, date, selectDate, toggleDrawer } =
-    useAgendaContext();
+  const {
+    views,
+    view,
+    selectView,
+    date,
+    selectDate,
+    toggleDrawer,
+    toggleInfoDrawer,
+  } = useAgendaContext();
 
   const [datePicker, setDatePicker] = useState(false);
 
@@ -163,7 +170,9 @@ export default function Toolbar() {
             ))}
           </TextField>
 
-          <IconButton>{false ? <ExpandLess /> : <Info />}</IconButton>
+          <IconButton onClick={toggleInfoDrawer}>
+            <Info />
+          </IconButton>
         </Box>
       </Box>
     </Card>

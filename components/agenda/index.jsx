@@ -4,6 +4,7 @@ import SideBar from "./sidebar";
 import Calendar from "./calendar";
 import Toolbar from "./toolbar";
 import dynamic from "next/dynamic";
+import InfoBar from "./infobar";
 
 const Event = dynamic(() => import("./event"));
 const Dialog = dynamic(() => import("./dialog"));
@@ -30,6 +31,7 @@ export default function Agenda() {
           <Toolbar />
           {agendas.length > 0 && <Calendar />}
         </Box>
+        <InfoBar />
       </Box>
 
       {eventDialog && <Event />}

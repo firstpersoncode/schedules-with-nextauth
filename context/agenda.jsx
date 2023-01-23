@@ -41,6 +41,7 @@ const agendaContext = {
   isReady: false,
 
   drawer: false,
+  infoDrawer: false,
 };
 
 const AgendaContext = createContext(agendaContext);
@@ -313,7 +314,12 @@ const useContextController = (context) => {
   }
 
   function toggleDrawer() {
+    console.log("toggle?", ctx.drawer)
     setContext((v) => ({ ...v, drawer: !v.drawer }));
+  }
+
+  function toggleInfoDrawer() {
+    setContext((v) => ({ ...v, infoDrawer: !v.infoDrawer }));
   }
 
   function toggleEventStatuses(status, checked) {
@@ -349,6 +355,7 @@ const useContextController = (context) => {
     selectDate,
     toggleIsTable,
     toggleDrawer,
+    toggleInfoDrawer,
     toggleEventStatuses,
   };
 };
