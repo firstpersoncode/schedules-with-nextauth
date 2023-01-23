@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Typography, Chip, Box } from "@mui/material";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import {
@@ -56,11 +56,19 @@ function Event({ event }) {
   );
 }
 
-export default function DayView() {
+export default function DayView({ initialScrollToTime }) {
   const { openEventDialog, date, getEvents, getAgendaByEvent } =
     useAgendaContext();
   const events = getEvents();
   const getAgenda = useCallback((e) => getAgendaByEvent(e), [getAgendaByEvent]);
+
+  const scrollToTime = useMemo(() => {
+    if (initialScrollToTime) return initialScrollToTime;
+    if (isSameDay(startOfDay(new Date(date)), startOfDay(new Date())))
+      return new Date();
+
+    return undefined;
+  }, [initialScrollToTime, date]);
 
   const handleSelectSlot = (cell) => {
     openEventDialog(cell);
@@ -92,11 +100,7 @@ export default function DayView() {
       onSelectSlot={handleSelectSlot}
       selectable
       toolbar={false}
-      scrollToTime={
-        isSameDay(startOfDay(new Date(date)), startOfDay(new Date()))
-          ? new Date()
-          : undefined
-      }
+      scrollToTime={scrollToTime}
       onNavigate={() => {}}
       onView={() => {}}
       longPressThreshold={100}
