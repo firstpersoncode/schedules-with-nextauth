@@ -53,7 +53,7 @@ export default function ProgressChart() {
         ],
       };
     },
-    [events, labels]
+    [getEventsByStatus, labels]
   );
 
   return (
