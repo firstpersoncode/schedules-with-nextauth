@@ -8,7 +8,6 @@ import {
   Checkbox,
   IconButton,
   Collapse,
-  Radio,
   Typography,
   Chip,
 } from "@mui/material";
@@ -17,8 +16,9 @@ import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 
 export default function Agenda({ agenda }) {
   const {
-    agenda: activeAgenda,
-    selectAgenda,
+    // agenda: activeAgenda,
+    // selectAgenda,
+    toggleCheckedAgenda,
     openAgendaDialog,
     getLabelsByAgenda,
     toggleCheckedLabel,
@@ -30,8 +30,12 @@ export default function Agenda({ agenda }) {
     setOpen(!open);
   }
 
-  function handleSelectAgenda() {
-    selectAgenda(agenda);
+  // function handleSelectAgenda() {
+  //   selectAgenda(agenda);
+  // }
+
+  function handleCheckedAgenda(_, checked) {
+    toggleCheckedAgenda(agenda, checked);
   }
 
   function handleClickEditAgenda() {
@@ -73,6 +77,8 @@ export default function Agenda({ agenda }) {
     return res;
   }, [agenda]);
 
+  const expanded = open && agenda.checked;
+
   return (
     <>
       <Box
@@ -85,6 +91,23 @@ export default function Agenda({ agenda }) {
         }}
       >
         <FormControlLabel
+          sx={{ flex: 1 }}
+          onChange={handleCheckedAgenda}
+          control={
+            <Checkbox
+              sx={{
+                color: agenda.eventColor,
+                "&.Mui-checked": {
+                  color: agenda.eventColor,
+                },
+              }}
+              checked={agenda.checked}
+            />
+          }
+          label={agenda.title}
+        />
+
+        {/* <FormControlLabel
           sx={{ flex: 1 }}
           onChange={handleSelectAgenda}
           control={
@@ -99,18 +122,18 @@ export default function Agenda({ agenda }) {
             />
           }
           label={agenda.title}
-        />
+        /> */}
 
         <IconButton onClick={handleClickEditAgenda} size="small">
           <Edit />
         </IconButton>
 
         <IconButton onClick={toggleOpen} size="small">
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {expanded ? <ExpandLess /> : <ExpandMore />}
         </IconButton>
       </Box>
 
-      <Collapse in={open}>
+      <Collapse in={expanded}>
         {labels.length > 0 && (
           <Box sx={{ px: 2 }}>
             <FormGroup>

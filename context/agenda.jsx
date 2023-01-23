@@ -65,6 +65,7 @@ const useContextController = (context) => {
             ...a,
             start: new Date(a.start),
             end: a.end && new Date(a.end),
+            checked: true,
           };
         });
 
@@ -103,12 +104,25 @@ const useContextController = (context) => {
     }));
   }
 
+  function toggleCheckedAgenda(agenda, checked) {
+    const currAgendas = ctx.agendas.map((a) => {
+      if (a.id === agenda.id) {
+        a.checked = checked;
+      }
+
+      return a;
+    });
+
+    setContext((v) => ({ ...v, agendas: currAgendas }));
+  }
+
   async function addAgenda(agenda) {
     try {
       const res = await axios.post("/api/agenda/create", agenda);
       const newAgenda = res.data?.agenda;
       newAgenda.start = new Date(newAgenda.start);
       if (newAgenda.end) newAgenda.end = new Date(newAgenda.end);
+      newAgenda.checked = true;
 
       const currAgendas = ctx.agendas;
       currAgendas.push(newAgenda);
@@ -196,16 +210,19 @@ const useContextController = (context) => {
   }
 
   const getEvents = useCallback(() => {
+    const checkedAgendas = ctx.agendas.filter((a) => a.checked);
     const checkedLabels = ctx.labels.filter((l) => l.checked);
     const checkedStatuses = ctx.statuses.filter((s) => s.checked);
+
     return ctx.events
+      .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
       .filter(
         (e) =>
           !e.labels.length ||
           checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
       )
       .filter((e) => checkedStatuses.find((s) => s.value === e.status));
-  }, [ctx.events, ctx.labels, ctx.statuses]);
+  }, [ctx.events, ctx.labels, ctx.statuses, ctx.agendas]);
 
   async function addEvent({ agenda, ...event }) {
     try {
@@ -314,7 +331,6 @@ const useContextController = (context) => {
   }
 
   function toggleDrawer() {
-    console.log("toggle?", ctx.drawer)
     setContext((v) => ({ ...v, drawer: !v.drawer }));
   }
 
@@ -338,6 +354,7 @@ const useContextController = (context) => {
     ...ctx,
     getAgendaByEvent,
     selectAgenda,
+    toggleCheckedAgenda,
     addAgenda,
     updateAgenda,
     deleteAgenda,
