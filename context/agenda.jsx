@@ -81,6 +81,7 @@ const useContextController = (context) => {
           events,
           labels,
           agenda: agendas.length ? agendas[0] : null,
+          isReady: true,
         }));
       } catch (err) {
         console.error(err);
