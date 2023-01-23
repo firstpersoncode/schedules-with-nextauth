@@ -221,7 +221,7 @@ export default function AgendaDialog() {
                 }}
               >
                 <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
-                  {agenda.id}
+                  Agenda
                 </Typography>
                 <IconButton disabled={loading} onClick={handleDelete}>
                   <Delete />
