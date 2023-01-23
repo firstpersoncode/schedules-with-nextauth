@@ -1,16 +1,15 @@
 import dynamic from "next/dynamic";
 import { Close } from "@mui/icons-material";
 import { SwipeableDrawer, Drawer, IconButton, Box } from "@mui/material";
+import { useGlobalContext } from "context/global";
 import { useAgendaContext } from "context/agenda";
-import useIsMobile from "hooks/useIsMobile";
-import { useEffect } from "react";
 
 const Menu = dynamic(() => import("./menu"));
 const drawerWidth = "20vw";
 
 export default function SideBar() {
+  const { isMobile } = useGlobalContext();
   const { drawer, toggleDrawer } = useAgendaContext();
-  const isMobile = useIsMobile();
 
   return (
     <>

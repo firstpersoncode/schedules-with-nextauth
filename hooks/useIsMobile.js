@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import useUserAgent from "./useUserAgent";
 
-export default function useIsMobile(size = 1201) {
-  const ua = useUserAgent();
-  const [isMobile, setIsMobile] = useState(ua.isMobile);
+export default function useIsMobile(initialState = false, size = 1201) {
+  const [isMobile, setIsMobile] = useState(initialState);
 
   useEffect(() => {
     function handleResize() {

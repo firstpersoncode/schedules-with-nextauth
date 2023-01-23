@@ -1,16 +1,23 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import useUserAgent from "hooks/useUserAgent";
+import useIsMobile from "hooks/useIsMobile";
 
 const globalContext = { userAgent: "" };
 
 const GlobalContext = createContext(globalContext);
 const useContextController = (context) => {
   const [ctx, setContext] = useState(context);
+
+  const ua = useUserAgent(ctx.userAgent);
+  const isMobile = useIsMobile(ua.isMobile);
+
   useEffect(() => {
     setContext((v) => ({ ...v, isClient: true }));
   }, []);
 
   return {
     ...ctx,
+    isMobile,
     setContext,
   };
 };

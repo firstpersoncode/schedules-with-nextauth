@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { parse } from "next-useragent";
-import { useGlobalContext } from "context/global";
 
-export default function useUserAgent() {
-  const { userAgent } = useGlobalContext();
+export default function useUserAgent(userAgent = "") {
   const [ua, setUa] = useState(userAgent);
 
   useEffect(() => {
