@@ -126,7 +126,12 @@ export default function Toolbar() {
             onChange={handleSelectDate}
             renderInput={({ inputRef }) => {
               return (
-                <Button ref={inputRef} size="small" onClick={toggleDatePicker}>
+                <Button
+                  variant="contained"
+                  ref={inputRef}
+                  size="small"
+                  onClick={toggleDatePicker}
+                >
                   <Typography sx={{ fontSize: 14 }}>
                     {format(new Date(date), "MMM dd, yyyy")}
                   </Typography>
