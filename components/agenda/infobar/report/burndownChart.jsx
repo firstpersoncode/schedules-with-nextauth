@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -54,6 +55,12 @@ export const data = {
   ],
 };
 
-export default function BurnDownChart() {
-  return <Line options={options} data={data} />;
+export default function BurnDownChart({ agenda }) {
+  return (
+    <Box sx={{ overflowX: "auto" }}>
+      <Box sx={{ minWidth: 700 }}>
+        <Line options={options} data={data} />
+      </Box>
+    </Box>
+  );
 }
