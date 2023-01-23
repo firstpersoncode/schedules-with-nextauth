@@ -1,12 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const globalContext = {
-  data: "",
-};
+const globalContext = { userAgent: "" };
 
 const GlobalContext = createContext(globalContext);
-const useContextController = (initialContext) => {
-  const [ctx, setContext] = useState(initialContext);
+const useContextController = (context) => {
+  const [ctx, setContext] = useState(context);
   useEffect(() => {
     setContext((v) => ({ ...v, isClient: true }));
   }, []);
@@ -19,9 +17,9 @@ const useContextController = (initialContext) => {
 
 export default function GlobalContextProvider({
   children,
-  context: initialContext,
+  context = globalContext,
 }) {
-  const controlledContext = useContextController(initialContext);
+  const controlledContext = useContextController(context);
   return (
     <GlobalContext.Provider value={controlledContext}>
       {children}
@@ -30,3 +28,9 @@ export default function GlobalContextProvider({
 }
 
 export const useGlobalContext = () => useContext(GlobalContext);
+
+export function getGlobalContext(context) {
+  return {
+    userAgent: context.req.headers["user-agent"],
+  };
+}
