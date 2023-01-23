@@ -9,15 +9,28 @@ import {
 } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { isAfter, isBefore } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Chart({ status, events, labels }) {
-  const eventsByStatus = useMemo(
-    () => events.filter((e) => e.status === status.value),
-    [events, status]
-  );
+  const eventsByStatus = useMemo(() => {
+    const now = new Date();
+
+    if (status.value === "MISSED")
+      return events.filter(
+        (e) => e.status === "TODO" && isAfter(now, new Date(e.start))
+      );
+    else
+      return events.filter((e) => {
+        if (e.status === status.value) {
+          if (e.status === "TODO") return isBefore(now, new Date(e.start));
+          else return true;
+        }
+        return false;
+      });
+  }, [events, status]);
 
   const eventsByLabels = useMemo(
     () =>
@@ -100,14 +113,15 @@ export default function ProgressChart({ agenda }) {
     const filteredLabels = labels
       .filter((e) => e.agendaId === agenda.id)
       .filter((e) => e.checked);
-    filteredLabels.unshift({ title: "No label", color: "#000" });
+    filteredLabels.unshift({ title: "No label", color: "#ddd" });
     return filteredLabels;
   }, [labels, agenda]);
 
-  const checkedStatuses = useMemo(
-    () => statuses.filter((s) => s.checked),
-    [statuses]
-  );
+  const checkedStatuses = useMemo(() => {
+    const s = statuses.filter((s) => s.checked && s.value !== "INPROGRESS");
+    s.push({ title: "Missed", value: "MISSED", checked: true });
+    return s;
+  }, [statuses]);
 
   function handleSelectAgenda() {
     selectAgenda(agenda);
