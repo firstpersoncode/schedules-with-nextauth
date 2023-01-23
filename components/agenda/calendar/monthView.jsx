@@ -1,14 +1,7 @@
 import { useCallback } from "react";
 import { Box, Typography } from "@mui/material";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import {
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  startOfDay,
-  isSameDay,
-} from "date-fns";
+import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { useAgendaContext } from "context/agenda";
 import DateCellWrapper from "./dateCellWrapper";
@@ -76,11 +69,6 @@ export default function MonthView({}) {
       events={events}
       localizer={localizer}
       toolbar={false}
-      scrollToTime={
-        isSameDay(startOfDay(new Date(date)), startOfDay(new Date()))
-          ? new Date()
-          : undefined
-      }
       onNavigate={() => {}}
       onView={() => {}}
       style={{ minHeight: 600 }}

@@ -24,7 +24,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { Views } from "react-big-calendar";
-import { add, format, isEqual, startOfDay, sub } from "date-fns";
+import { add, format, isEqual, isToday, startOfDay, sub } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 import { useGlobalContext } from "context/global";
 
@@ -54,12 +54,16 @@ export default function Toolbar() {
 
   function handleBackDate() {
     const d = sub(new Date(date), { [`${view.value}s`]: 1 });
-    selectDate(d);
+    const today = isToday(d);
+    if (today) selectDate(new Date());
+    else selectDate(startOfDay(d));
   }
 
   function handleNextDate() {
     const d = add(new Date(date), { [`${view.value}s`]: 1 });
-    selectDate(d);
+    const today = isToday(d);
+    if (today) selectDate(new Date());
+    else selectDate(startOfDay(d));
   }
 
   function handleSetToday() {
@@ -68,7 +72,9 @@ export default function Toolbar() {
   }
 
   function handleSelectDate(v) {
-    selectDate(v);
+    const today = isToday(new Date(v));
+    if (today) selectDate(new Date());
+    else selectDate(startOfDay(new Date(v)));
   }
 
   function handleSelectView(e) {

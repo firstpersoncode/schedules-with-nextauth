@@ -1,14 +1,7 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Typography, Chip, Box } from "@mui/material";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import {
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  isSameDay,
-  startOfDay,
-} from "date-fns";
+import { format, parse, startOfWeek, getDay, isToday } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { useAgendaContext } from "context/agenda";
 
@@ -56,28 +49,12 @@ function Event({ event }) {
   );
 }
 
-export default function DayView({ initialScrollToTime }) {
-  const { openEventDialog, date, getEvents, getAgendaByEvent } =
+export default function DayView() {
+  const { view, openEventDialog, date, getEvents, getAgendaByEvent } =
     useAgendaContext();
+  const timeoutScrollRef = useRef();
   const events = getEvents();
   const getAgenda = useCallback((e) => getAgendaByEvent(e), [getAgendaByEvent]);
-
-  const scrollToTime = useMemo(() => {
-    if (initialScrollToTime) return initialScrollToTime;
-    if (isSameDay(startOfDay(new Date(date)), startOfDay(new Date())))
-      return new Date();
-
-    return undefined;
-  }, [initialScrollToTime, date]);
-
-  const handleSelectSlot = (cell) => {
-    openEventDialog(cell);
-  };
-
-  const handleSelectEvent = (event) => {
-    openEventDialog({ start: event.start, end: event.end }, event);
-  };
-
   const eventPropGetter = useCallback(
     (event) => ({
       style: {
@@ -90,6 +67,44 @@ export default function DayView({ initialScrollToTime }) {
     [getAgenda]
   );
 
+  const handleSelectSlot = (cell) => {
+    openEventDialog(cell);
+  };
+
+  const handleSelectEvent = (event) => {
+    openEventDialog({ start: event.start, end: event.end }, event);
+  };
+
+  useEffect(() => {
+    function scrollToTimeSlot() {
+      const timeSlots = document.querySelectorAll(
+        ".dayView .rbc-timeslot-group"
+      );
+
+      if (timeSlots.length) {
+        const hour = new Date(date).getHours();
+        const targetScroll = timeSlots[hour];
+        targetScroll.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    if (timeoutScrollRef.current) clearTimeout(timeoutScrollRef.current);
+    timeoutScrollRef.current = setTimeout(() => {
+      if (view.value === Views.MONTH) {
+        const today = isToday(new Date(date));
+        if (today) {
+          const currentTimeIndicator = document.querySelector(
+            ".dayView .rbc-current-time-indicator"
+          );
+          if (currentTimeIndicator)
+            currentTimeIndicator.scrollIntoView({ behavior: "smooth" });
+        } else scrollToTimeSlot();
+      } else scrollToTimeSlot();
+    }, 300);
+    return () =>
+      timeoutScrollRef.current && clearTimeout(timeoutScrollRef.current);
+  }, [date, view]);
+
   return (
     <Calendar
       date={date}
@@ -100,7 +115,6 @@ export default function DayView({ initialScrollToTime }) {
       onSelectSlot={handleSelectSlot}
       selectable
       toolbar={false}
-      scrollToTime={scrollToTime}
       onNavigate={() => {}}
       onView={() => {}}
       longPressThreshold={100}

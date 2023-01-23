@@ -2,8 +2,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Close } from "@mui/icons-material";
 import { Box, IconButton, Popover, Typography } from "@mui/material";
-import { Views } from "react-big-calendar";
-import { startOfDay, isSameDay, isEqual, format } from "date-fns";
+import { startOfDay, isEqual, format, isToday } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 import { useGlobalContext } from "context/global";
 
@@ -18,7 +17,7 @@ export default function DateCellWrapper({ children, ...props }) {
 
   const handleClick = (e) => {
     e.stopPropagation();
-    const day = startOfDay(new Date(props.value));
+    const day = new Date(props.value);
     selectDate(day);
     if (isMobile) setAnchorEl(e.currentTarget);
   };
@@ -43,10 +42,7 @@ export default function DateCellWrapper({ children, ...props }) {
         ) && {
           backgroundColor: "rgba(255, 238, 0, 0.1)",
         }),
-        ...(isSameDay(
-          startOfDay(new Date(props.value)),
-          startOfDay(new Date())
-        ) && {
+        ...(isToday(startOfDay(new Date(props.value))) && {
           backgroundColor: "rgba(0, 146, 255, 0.1)",
         }),
         "& .rbc-day-bg": { backgroundColor: "transparent" },
@@ -94,20 +90,11 @@ export default function DateCellWrapper({ children, ...props }) {
             <Close />
           </IconButton>
         </Box>
-        <Box sx={{ pt: "40px", height: "60vh", overflowY: "auto" }}>
-          {open && (
-            <DayView
-              initialScrollToTime={
-                view.value === Views.MONTH &&
-                isSameDay(
-                  startOfDay(new Date(props.value)),
-                  startOfDay(new Date())
-                )
-                  ? new Date()
-                  : new Date(props.value)
-              }
-            />
-          )}
+        <Box
+          className="dayView"
+          sx={{ pt: "40px", height: "60vh", overflowY: "auto" }}
+        >
+          {open && <DayView />}
         </Box>
       </Popover>
     </Box>
