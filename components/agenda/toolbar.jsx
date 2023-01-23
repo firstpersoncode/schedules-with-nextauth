@@ -11,12 +11,11 @@ import {
 
 import {
   Adjust,
-  CalendarViewDay,
+  ViewDay,
   CalendarViewMonth,
-  CalendarViewWeek,
+  ViewWeek,
   ChevronLeft,
   ChevronRight,
-  ExpandLess,
   Info,
   Toc,
   Menu,
@@ -160,8 +159,8 @@ export default function Toolbar() {
               <MenuItem key={i} value={option.value}>
                 {
                   {
-                    [Views.DAY]: <CalendarViewDay />,
-                    [Views.WEEK]: <CalendarViewWeek />,
+                    [Views.DAY]: <ViewDay />,
+                    [Views.WEEK]: <ViewWeek />,
                     [Views.MONTH]: <CalendarViewMonth />,
                     table: <Toc />,
                   }[option.value]
