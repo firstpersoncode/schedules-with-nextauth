@@ -5,10 +5,12 @@ import { Box, IconButton, Popover, Typography } from "@mui/material";
 import { Views } from "react-big-calendar";
 import { startOfDay, isSameDay, isEqual, format } from "date-fns";
 import { useAgendaContext } from "context/agenda";
+import { useGlobalContext } from "context/global";
 
 const DayView = dynamic(() => import("./dayView"));
 
 export default function DateCellWrapper({ children, ...props }) {
+  const { isMobile } = useGlobalContext();
   const { selectDate, date, view } = useAgendaContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -18,7 +20,7 @@ export default function DateCellWrapper({ children, ...props }) {
     e.stopPropagation();
     const day = startOfDay(new Date(props.value));
     selectDate(day);
-    setAnchorEl(e.currentTarget);
+    if (isMobile) setAnchorEl(e.currentTarget);
   };
 
   const handleClose = (e) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Box,
   TextField,
@@ -26,8 +26,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { Views } from "react-big-calendar";
 import { add, format, isEqual, startOfDay, sub } from "date-fns";
 import { useAgendaContext } from "context/agenda";
+import { useGlobalContext } from "context/global";
 
 export default function Toolbar() {
+  const { isMobile } = useGlobalContext();
+
   const {
     views,
     view,
@@ -37,6 +40,11 @@ export default function Toolbar() {
     toggleDrawer,
     toggleInfoDrawer,
   } = useAgendaContext();
+
+  const availableViews = useMemo(() => {
+    if (!isMobile) return views.filter((v) => v.value !== Views.DAY);
+    return views;
+  }, [isMobile, views]);
 
   const [datePicker, setDatePicker] = useState(false);
 
@@ -160,7 +168,7 @@ export default function Toolbar() {
               },
             }}
           >
-            {views.map((option, i) => (
+            {availableViews.map((option, i) => (
               <MenuItem key={i} value={option.value}>
                 {
                   {

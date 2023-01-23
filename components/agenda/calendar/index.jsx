@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { Views } from "react-big-calendar";
 import { Box } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
+import { useGlobalContext } from "context/global";
 
 const DayView = dynamic(() => import("./dayView"));
 const WeekView = dynamic(() => import("./weekView"));
@@ -9,13 +10,12 @@ const MonthView = dynamic(() => import("./monthView"));
 const TableView = dynamic(() => import("./tableView"));
 
 export default function Calendar() {
+  const { isMobile } = useGlobalContext();
   const { view } = useAgendaContext();
 
   return (
     <Box
       sx={{
-        height: "100vh",
-        overflowY: "auto",
         pt: "40px",
         "& .rbc-timeslot-group": { minHeight: 60 },
         "& .rbc-label": { fontSize: 10 },
@@ -25,10 +25,49 @@ export default function Calendar() {
         },
       }}
     >
-      {view.value === Views.DAY && <DayView />}
-      {view.value === Views.WEEK && <WeekView />}
-      {view.value === Views.MONTH && <MonthView />}
-      {view.value === "table" && <TableView />}
+      {isMobile ? (
+        <Box
+          className={`${view.value}View`}
+          sx={{
+            height: "calc(100vh - 40px)",
+            overflow: "hidden",
+          }}
+        >
+          {view.value === Views.DAY && <DayView />}
+          {view.value === Views.WEEK && <WeekView />}
+          {view.value === Views.MONTH && <MonthView />}
+          {view.value === "table" && <TableView />}
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            height: "calc(100vh - 40px)",
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            className="dayView"
+            sx={{
+              flex: 1,
+              minWidth: "30%",
+            }}
+          >
+            <DayView />
+          </Box>
+          <Box
+            className={`${view.value}View`}
+            sx={{
+              flex: 1,
+              minWidth: "70%",
+            }}
+          >
+            {view.value === Views.WEEK && <WeekView />}
+            {view.value === Views.MONTH && <MonthView />}
+            {view.value === "table" && <TableView />}
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }
