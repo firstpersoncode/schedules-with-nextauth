@@ -1,3 +1,8 @@
+import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import Image from "next/image";
+import { signIn } from "next-auth/react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
@@ -11,13 +16,11 @@ import {
   LinearProgress,
   TextField,
 } from "@mui/material";
-import Dialog, { useDialog } from "components/dialog";
-import { signIn } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useRef, useState } from "react";
 import validateEmail from "utils/validateEmail";
-import Signup from "./signup";
+import { useDialog } from "components/dialog";
+
+const Dialog = dynamic(() => import("components/dialog"));
+const Signup = dynamic(() => import("./signup"));
 
 export default function Signin() {
   const { push } = useRouter();
@@ -245,8 +248,10 @@ export default function Signin() {
         </Card>
       </Box>
 
-      <Dialog dialog={dialog} onClose={handleCloseDialog} />
-      <Signup open={openSignUpDialog} onClose={handleCloseSignUpDialog} />
+      {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
+      {openSignUpDialog && (
+        <Signup open={openSignUpDialog} onClose={handleCloseSignUpDialog} />
+      )}
     </Container>
   );
 }

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { Box, Typography } from "@mui/material";
 import {
   format,
   parse,
@@ -10,7 +11,6 @@ import {
 } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { useAgendaContext } from "context/agenda";
-import { Box, Typography } from "@mui/material";
 import DateCellWrapper from "./dateCellWrapper";
 
 const locales = {

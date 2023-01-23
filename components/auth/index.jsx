@@ -1,8 +1,11 @@
-import axios from "axios";
-import Dialog, { useDialog } from "components/dialog";
-import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { useDialog } from "components/dialog";
 import Signin from "./signin";
+
+const Dialog = dynamic(() => import("components/dialog"));
 
 export default function Auth() {
   const { query } = useRouter();
@@ -39,7 +42,7 @@ export default function Auth() {
   return (
     <>
       <Signin />
-      <Dialog dialog={dialog} onClose={handleCloseDialog} />
+      {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
     </>
   );
 }

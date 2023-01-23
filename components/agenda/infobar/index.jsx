@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { Close } from "@mui/icons-material";
 import { SwipeableDrawer, IconButton, Box } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
+
 const Notifications = dynamic(() => import("./notifications"));
 const Report = dynamic(() => import("./report"));
 

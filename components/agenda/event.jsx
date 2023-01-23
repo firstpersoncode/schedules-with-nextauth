@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   Box,
   Button,
@@ -16,8 +17,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { isAfter } from "date-fns";
 import { Delete } from "@mui/icons-material";
-import Dialog, { useDialog } from "components/dialog";
 import { useAgendaContext } from "context/agenda";
+import { useDialog } from "components/dialog";
+const Dialog = dynamic(() => import("components/dialog"));
 
 export default function Event() {
   const {
@@ -363,16 +365,18 @@ export default function Event() {
         </DialogActions>
       </MuiDialog>
 
-      <Dialog dialog={dialog} onClose={handleCloseDialog}>
-        <DialogActions>
-          <Button disabled={loading} onClick={handleCloseDialog}>
-            Cancel
-          </Button>
-          <Button disabled={loading} onClick={confirmDelete}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dialog && (
+        <Dialog dialog={dialog} onClose={handleCloseDialog}>
+          <DialogActions>
+            <Button disabled={loading} onClick={handleCloseDialog}>
+              Cancel
+            </Button>
+            <Button disabled={loading} onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 }

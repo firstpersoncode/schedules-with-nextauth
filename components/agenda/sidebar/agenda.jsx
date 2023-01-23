@@ -11,8 +11,8 @@ import {
   Typography,
   Chip,
 } from "@mui/material";
-import { useAgendaContext } from "context/agenda";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
+import { useAgendaContext } from "context/agenda";
 
 export default function Agenda({ agenda }) {
   const {

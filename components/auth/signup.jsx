@@ -1,3 +1,6 @@
+import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
@@ -10,12 +13,12 @@ import {
   LinearProgress,
   TextField,
 } from "@mui/material";
-import { useRef, useState } from "react";
 import axios from "axios";
 import validateEmail from "utils/validateEmail";
-import Image from "next/image";
 import validatePassword from "utils/validatePassword";
-import Dialog, { useDialog } from "components/dialog";
+import { useDialog } from "components/dialog";
+
+const Dialog = dynamic(() => import("components/dialog"));
 
 export default function Signup({ open, onClose }) {
   const timeoutRef = useRef();
@@ -235,7 +238,7 @@ export default function Signup({ open, onClose }) {
         </Card>
       </MuiDialog>
 
-      <Dialog dialog={dialog} onClose={handleCloseDialog} />
+      {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
     </>
   );
 }

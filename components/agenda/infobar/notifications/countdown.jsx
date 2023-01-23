@@ -1,5 +1,5 @@
-import Typography from "@mui/material/Typography";
 import { useState, useEffect, useRef } from "react";
+import { Typography } from "@mui/material";
 
 function calculateTimeLeft(targetDate) {
   const difference = +new Date(targetDate) - +new Date();
