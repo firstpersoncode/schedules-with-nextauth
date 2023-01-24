@@ -176,17 +176,7 @@ export default function ProgressChart({ agenda }) {
           px: 2,
         }}
       >
-        {!loading && agendaEvents.length ? (
-          checkedStatuses.map((status, i) => (
-            <Box key={i} sx={{ flex: 1, minWidth: "90%" }}>
-              <Chart
-                status={status}
-                events={agendaEvents}
-                labels={agendaLabels}
-              />
-            </Box>
-          ))
-        ) : (
+        {loading && (
           <>
             <Box sx={{ flex: 1, minWidth: "90%" }}>
               <Skeleton
@@ -214,6 +204,17 @@ export default function ProgressChart({ agenda }) {
             </Box>
           </>
         )}
+
+        {agendaEvents.length > 0 &&
+          checkedStatuses.map((status, i) => (
+            <Box key={i} sx={{ flex: 1, minWidth: "90%" }}>
+              <Chart
+                status={status}
+                events={agendaEvents}
+                labels={agendaLabels}
+              />
+            </Box>
+          ))}
       </Box>
     </>
   );

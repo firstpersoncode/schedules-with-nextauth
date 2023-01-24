@@ -45,9 +45,7 @@ export default function Menu() {
 
       <Divider />
 
-      {agendas.length ? (
-        agendas.map((agenda, i) => <Agenda key={i} agenda={agenda} />)
-      ) : isLoading ? (
+      {isLoading && !agendas.length && (
         <Box sx={{ p: 2 }}>
           <Box
             sx={{
@@ -62,9 +60,21 @@ export default function Menu() {
           </Box>
           <Skeleton animation="wave" height="40px" width="50%" />
         </Box>
-      ) : null}
+      )}
 
-      {agendas.length ? (
+      {agendas.map((agenda, i) => (
+        <Agenda key={i} agenda={agenda} />
+      ))}
+
+      {isLoading && !agendas.length && (
+        <Box sx={{ p: 2 }}>
+          <Skeleton animation="wave" height="40px" width="50%" />
+          <Skeleton animation="wave" height="40px" width="50%" />
+          <Skeleton animation="wave" height="40px" width="50%" />
+        </Box>
+      )}
+
+      {agendas.length && (
         <Box sx={{ p: 2 }}>
           <FormGroup>
             {statuses.map((status, i) => (
@@ -77,13 +87,7 @@ export default function Menu() {
             ))}
           </FormGroup>
         </Box>
-      ) : isLoading ? (
-        <Box sx={{ p: 2 }}>
-          <Skeleton animation="wave" height="40px" width="50%" />
-          <Skeleton animation="wave" height="40px" width="50%" />
-          <Skeleton animation="wave" height="40px" width="50%" />
-        </Box>
-      ) : null}
+      )}
     </Box>
   );
 }

@@ -115,6 +115,17 @@ export default function Notifications() {
       </Box>
 
       <Collapse in={open}>
+        {loading && (
+          <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
+            <Skeleton
+              sx={{ p: 0, m: 0, transform: "unset" }}
+              animation="wave"
+              height="120px"
+              width="100%"
+            />
+          </Box>
+        )}
+
         {missedEvents.length > 0 && (
           <Box
             sx={{
@@ -195,16 +206,6 @@ export default function Notifications() {
                 </Alert>
               </CardActionArea>
             ))}
-          </Box>
-        )}
-        {loading && (
-          <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
-            <Skeleton
-              sx={{ p: 0, m: 0, transform: "unset" }}
-              animation="wave"
-              height="120px"
-              width="100%"
-            />
           </Box>
         )}
       </Collapse>
