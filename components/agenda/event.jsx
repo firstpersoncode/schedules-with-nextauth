@@ -19,6 +19,9 @@ import { isAfter } from "date-fns";
 import { Delete } from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
 import { useDialog } from "components/dialog";
+import validateEventStartEnd, {
+  validateEventStartEndWithinAgenda,
+} from "utils/validateEventStartEnd";
 const Dialog = dynamic(() => import("components/dialog"));
 
 export default function Event() {
@@ -66,8 +69,13 @@ export default function Event() {
         type: event.type,
         agenda,
       });
+    } else if (agendas.length === 1) {
+      setState((s) => ({
+        ...s,
+        agenda: agendas[0],
+      }));
     }
-  }, [event, agenda]);
+  }, [event, agenda, agendas]);
 
   useEffect(() => {
     if (cell) {
@@ -141,12 +149,30 @@ export default function Event() {
 
   function validateForm() {
     let errors = {};
+    setErrors(errors);
     if (!event?.id && !state.agenda) errors.agenda = "Required";
     if (!state.title) errors.title = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
-    else if (isAfter(new Date(state.start), new Date(state.end)))
-      errors.end = "Must be greater than start time";
+    if (
+      state.start &&
+      state.end &&
+      !validateEventStartEnd(state.start, state.end)
+    ) {
+      errors.start =
+        "Invalid date range, start should be lower than ends and no more than 1 day";
+      errors.end =
+        "Invalid date range, ends should be greater than start and no more than 1 day";
+    } else if (
+      state.start &&
+      state.end &&
+      state.agenda &&
+      !validateEventStartEndWithinAgenda(state.start, state.end, state.agenda)
+    ) {
+      errors.start =
+        "Invalid date range, should start within the agenda timeline";
+      errors.end = "Invalid date range, should ends within the agenda timeline";
+    }
 
     setErrors(errors);
     return errors;

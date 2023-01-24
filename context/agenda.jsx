@@ -89,7 +89,7 @@ const useContextController = (context) => {
       const res = await axios.post("/api/agenda/create", agenda);
       const newAgenda = res.data?.agenda;
       newAgenda.start = new Date(newAgenda.start);
-      if (newAgenda.end) newAgenda.end = new Date(newAgenda.end);
+      newAgenda.end = new Date(newAgenda.end);
       newAgenda.checked = true;
 
       const currAgendas = ctx.agendas;
@@ -114,7 +114,7 @@ const useContextController = (context) => {
       const res = await axios.put("/api/agenda/update", agenda);
       const updatedAgenda = res.data?.agenda;
       updatedAgenda.start = new Date(updatedAgenda.start);
-      if (updatedAgenda.end) updatedAgenda.end = new Date(updatedAgenda.end);
+      updatedAgenda.end = new Date(updatedAgenda.end);
 
       const currAgendas = ctx.agendas.map((e) => {
         if (e.id === updatedAgenda.id) e = { ...e, ...updatedAgenda };
@@ -356,7 +356,7 @@ const useContextController = (context) => {
           return {
             ...a,
             start: new Date(a.start),
-            end: a.end && new Date(a.end),
+            end: new Date(a.end),
             checked: true,
           };
         });

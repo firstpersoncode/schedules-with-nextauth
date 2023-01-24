@@ -1,5 +1,6 @@
 import { getSession } from "next-auth/react";
 import { makeDBConnection } from "prisma/db";
+import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
 
 export default async function update(req, res) {
   if (req.method !== "PUT") res.status(405).send();
@@ -9,6 +10,11 @@ export default async function update(req, res) {
     if (!session) throw new Error("Session not found");
 
     const { id, title, description, start, end, labels, eventColor } = req.body;
+
+    if (!validateAgendaStartEnd(start, end))
+      throw new Error(
+        "Invalid Agenda start and end format, end date should be greater than start date and should no more than 1 year"
+      );
 
     const data = await makeDBConnection(async (db) => {
       const currAgenda = await db.agenda.findUnique({

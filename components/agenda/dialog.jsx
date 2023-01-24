@@ -21,6 +21,7 @@ import { MuiColorInput } from "mui-color-input";
 import getRandomHex from "utils/getRandomHex";
 import { useAgendaContext } from "context/agenda";
 import { useDialog } from "components/dialog";
+import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
 const Dialog = dynamic(() => import("components/dialog"));
 
 export default function AgendaDialog() {
@@ -54,7 +55,7 @@ export default function AgendaDialog() {
         title: agenda.title,
         description: agenda.description,
         start: new Date(agenda.start),
-        end: agenda.end && new Date(agenda.end),
+        end: new Date(agenda.end),
         labels: agenda.labels,
         eventColor: agenda.eventColor,
       });
@@ -139,12 +140,22 @@ export default function AgendaDialog() {
 
   function validateForm() {
     let errors = {};
+    setErrors(errors);
+
     if (!state.title) errors.title = "Required";
     if (!state.start) errors.start = "Required";
+    if (!state.end) errors.end = "Required";
+    if (
+      state.start &&
+      state.end &&
+      !validateAgendaStartEnd(state.start, state.end)
+    ) {
+      errors.start =
+        "Invalid date range, start should be lower than ends and no more than 1 year";
+      errors.end =
+        "Invalid date range, ends should be greater than start and no more than 1 year";
+    }
     if (!state.eventColor) errors.eventColor = "Required";
-    // if (!state.end) errors.end = "Required";
-    if (state.end && isAfter(new Date(state.start), new Date(state.end)))
-      errors.end = "Must be greater than start time";
     if (state.labels.length) {
       if (state.labels.find((l) => !Boolean(l.color)))
         errors.labels = "Color Required";

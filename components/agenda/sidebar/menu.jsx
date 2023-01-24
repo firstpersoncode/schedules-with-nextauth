@@ -74,7 +74,7 @@ export default function Menu() {
         </Box>
       )}
 
-      {agendas.length && (
+      {agendas.length > 0 && (
         <Box sx={{ p: 2 }}>
           <FormGroup>
             {statuses.map((status, i) => (

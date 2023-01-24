@@ -1,5 +1,8 @@
 import { getSession } from "next-auth/react";
 import { makeDBConnection } from "prisma/db";
+import validateEventStartEnd, {
+  validateEventStartEndWithinAgenda,
+} from "utils/validateEventStartEnd";
 
 export default async function update(req, res) {
   if (req.method !== "PUT") res.status(405).send();
@@ -11,12 +14,29 @@ export default async function update(req, res) {
     const { id, title, description, start, end, labels, status, type } =
       req.body;
 
+    if (!validateEventStartEnd(start, end))
+      throw new Error(
+        "Invalid Event date range format, end date should be greater than start date and should no more than 1 day"
+      );
+
     await makeDBConnection(async (db) => {
       const currEvent = await db.event.findUnique({
         where: { id },
+        include: {
+          agenda: true,
+        },
       });
 
       if (!currEvent) throw new Error("Event not found");
+
+      const { agenda } = currEvent;
+
+      if (!agenda) throw new Error("Agenda not found");
+
+      if (!validateEventStartEndWithinAgenda(start, end, agenda))
+        throw new Error(
+          "Event should start and ends within the agenda timeline"
+        );
 
       await db.event.update({
         where: {

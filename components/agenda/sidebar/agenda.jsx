@@ -49,7 +49,6 @@ export default function Agenda({ agenda }) {
   }
 
   const startEndAgenda = useMemo(() => {
-    if (!agenda.end) return format(new Date(agenda.start), "iii dd MMM, yyyy");
     if (isSameDay(new Date(agenda.start), new Date(agenda.end)))
       return `${format(new Date(agenda.start), "iii dd MMM HH:mm")} - ${format(
         new Date(agenda.end),
