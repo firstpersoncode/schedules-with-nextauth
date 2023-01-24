@@ -340,7 +340,6 @@ const useContextController = (context) => {
     const savedCtx = localStorage.getItem("ctx");
     if (savedCtx) {
       const { view } = JSON.parse(savedCtx);
-      console.log(view);
       persistCtx.view = view;
     }
 
