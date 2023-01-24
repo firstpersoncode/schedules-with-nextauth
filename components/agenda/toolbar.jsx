@@ -7,6 +7,7 @@ import {
   Card,
   MenuItem,
   Typography,
+  LinearProgress,
 } from "@mui/material";
 
 import {
@@ -32,6 +33,7 @@ export default function Toolbar() {
   const { isMobile } = useGlobalContext();
 
   const {
+    isLoading,
     views,
     view,
     selectView,
@@ -127,33 +129,33 @@ export default function Toolbar() {
           <IconButton onClick={handleNextDate}>
             <ChevronRight />
           </IconButton>
-        </Box>
 
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            open={datePicker}
-            onOpen={toggleDatePicker}
-            onClose={toggleDatePicker}
-            size="small"
-            value={date}
-            closeOnSelect
-            onChange={handleSelectDate}
-            renderInput={({ inputRef }) => {
-              return (
-                <Button
-                  variant="contained"
-                  ref={inputRef}
-                  size="small"
-                  onClick={toggleDatePicker}
-                >
-                  <Typography sx={{ fontSize: 14 }}>
-                    {format(new Date(date), "MMM dd, yyyy")}
-                  </Typography>
-                </Button>
-              );
-            }}
-          />
-        </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              open={datePicker}
+              onOpen={toggleDatePicker}
+              onClose={toggleDatePicker}
+              size="small"
+              value={date}
+              closeOnSelect
+              onChange={handleSelectDate}
+              renderInput={({ inputRef }) => {
+                return (
+                  <Button
+                    variant="contained"
+                    ref={inputRef}
+                    size="small"
+                    onClick={toggleDatePicker}
+                  >
+                    <Typography sx={{ fontSize: 14 }}>
+                      {format(new Date(date), "MMM dd, yyyy")}
+                    </Typography>
+                  </Button>
+                );
+              }}
+            />
+          </LocalizationProvider>
+        </Box>
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
@@ -193,6 +195,7 @@ export default function Toolbar() {
           </IconButton>
         </Box>
       </Box>
+      {isLoading && <LinearProgress />}
     </Card>
   );
 }

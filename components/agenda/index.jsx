@@ -10,7 +10,7 @@ const Event = dynamic(() => import("./event"));
 const Dialog = dynamic(() => import("./dialog"));
 
 export default function Agenda() {
-  const { agendas, eventDialog, agendaDialog } = useAgendaContext();
+  const { eventDialog, agendaDialog } = useAgendaContext();
 
   return (
     <>
@@ -29,7 +29,7 @@ export default function Agenda() {
           }}
         >
           <Toolbar />
-          {agendas.length > 0 && <Calendar />}
+          <Calendar />
         </Box>
         <InfoBar />
       </Box>

@@ -38,6 +38,7 @@ const agendaContext = {
 
   isClient: false,
   isReady: false,
+  isLoading: false,
 
   drawer: false,
   infoDrawer: false,
@@ -47,46 +48,12 @@ const AgendaContext = createContext(agendaContext);
 const useContextController = (context) => {
   const [ctx, setContext] = useState(context);
 
-  useEffect(() => {
-    setContext((v) => ({ ...v, isClient: true }));
-  }, []);
-
-  useEffect(() => {
-    if (!ctx.isClient) return;
-    const labels = [];
-
-    (async () => {
-      try {
-        const res = await axios.get("/api/agenda/list");
-        const agendas = res.data?.agendas.map((a) => {
-          labels.push(...a.labels.map((l) => ({ ...l, checked: true })));
-          return {
-            ...a,
-            start: new Date(a.start),
-            end: a.end && new Date(a.end),
-            checked: true,
-          };
-        });
-
-        const events = res.data?.events.map((e) => ({
-          ...e,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        }));
-
-        setContext((v) => ({
-          ...v,
-          agendas,
-          events,
-          labels,
-          agenda: agendas.length ? agendas[0] : null,
-          isReady: true,
-        }));
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, [ctx.isClient]);
+  function setIsLoading(isLoading) {
+    setContext((v) => ({
+      ...v,
+      isLoading,
+    }));
+  }
 
   const getAgendaByEvent = useCallback(
     (event) => {
@@ -117,6 +84,7 @@ const useContextController = (context) => {
   }
 
   async function addAgenda(agenda) {
+    setIsLoading(true);
     try {
       const res = await axios.post("/api/agenda/create", agenda);
       const newAgenda = res.data?.agenda;
@@ -137,9 +105,11 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   async function updateAgenda(agenda) {
+    setIsLoading(true);
     try {
       const res = await axios.put("/api/agenda/update", agenda);
       const updatedAgenda = res.data?.agenda;
@@ -172,9 +142,11 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   async function deleteAgenda(agenda) {
+    setIsLoading(true);
     try {
       await axios.delete(`/api/agenda/delete?agendaId=${agenda.id}`);
 
@@ -191,6 +163,7 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   function openAgendaDialog(agenda) {
@@ -225,6 +198,7 @@ const useContextController = (context) => {
   }, [ctx.events, ctx.labels, ctx.statuses, ctx.agendas]);
 
   async function addEvent({ agenda, ...event }) {
+    setIsLoading(true);
     try {
       const res = await axios.post("/api/event/create", {
         ...event,
@@ -248,9 +222,11 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   async function updateEvent(event) {
+    setIsLoading(true);
     try {
       await axios.put("/api/event/update", event);
       const currEvents = ctx.events.map((e) => {
@@ -265,9 +241,11 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   async function deleteEvent(event) {
+    setIsLoading(true);
     try {
       await axios.delete(`/api/event/delete?eventId=${event.id}`);
 
@@ -280,6 +258,7 @@ const useContextController = (context) => {
     } catch (err) {
       console.error(err);
     }
+    setIsLoading(false);
   }
 
   function openEventDialog(cell, event) {
@@ -349,6 +328,64 @@ const useContextController = (context) => {
 
     setContext((v) => ({ ...v, statuses: currStatuses }));
   }
+
+  useEffect(() => {
+    setContext((v) => ({ ...v, isClient: true }));
+  }, []);
+
+  useEffect(() => {
+    if (!ctx.isClient) return;
+
+    let persistCtx = {};
+    const savedCtx = localStorage.getItem("ctx");
+    if (savedCtx) {
+      const { view } = JSON.parse(savedCtx);
+      console.log(view);
+      persistCtx.view = view;
+    }
+
+    setContext((v) => ({ ...v, ...persistCtx, isClient: true }));
+
+    (async () => {
+      setIsLoading(true);
+      try {
+        const labels = [];
+        const res = await axios.get("/api/agenda/list");
+        const agendas = res.data?.agendas.map((a) => {
+          labels.push(...a.labels.map((l) => ({ ...l, checked: true })));
+          return {
+            ...a,
+            start: new Date(a.start),
+            end: a.end && new Date(a.end),
+            checked: true,
+          };
+        });
+
+        const events = res.data?.events.map((e) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        }));
+
+        setContext((v) => ({
+          ...v,
+          agendas,
+          events,
+          labels,
+          agenda: agendas.length ? agendas[0] : null,
+          isReady: true,
+        }));
+      } catch (err) {
+        console.error(err);
+      }
+      setIsLoading(false);
+    })();
+  }, [ctx.isClient]);
+
+  useEffect(() => {
+    if (!ctx.isClient) return;
+    localStorage.setItem("ctx", JSON.stringify({ view: ctx.view }));
+  }, [ctx.view, ctx.isClient]);
 
   return {
     ...ctx,

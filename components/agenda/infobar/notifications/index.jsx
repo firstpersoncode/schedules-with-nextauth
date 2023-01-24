@@ -8,6 +8,7 @@ import {
   Collapse,
   IconButton,
   Divider,
+  Skeleton,
 } from "@mui/material";
 import { ExpandLess, ExpandMore, ViewCarousel } from "@mui/icons-material";
 import {
@@ -25,11 +26,13 @@ export default function Notifications() {
   const { getEvents, openEventDialog } = useAgendaContext();
   const events = getEvents();
   const [open, setOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [missedEvents, setMissedEvents] = useState([]);
   const [inComingEvents, setInComingEvents] = useState([]);
 
   const missedChecker = useRef();
   const incomingChecker = useRef();
+  const timeoutRef = useRef();
 
   function toggleOpen() {
     setOpen(!open);
@@ -74,6 +77,20 @@ export default function Notifications() {
 
     return () => clearInterval(incomingChecker.current);
   }, [events]);
+
+  useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    if (missedEvents.length > 0 || inComingEvents.length > 0) {
+      setLoading(false);
+    } else {
+      timeoutRef.current = setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    }
+
+    () => timeoutRef.current && clearTimeout(timeoutRef.current);
+  }, [missedEvents, inComingEvents]);
 
   return (
     <>
@@ -178,6 +195,16 @@ export default function Notifications() {
                 </Alert>
               </CardActionArea>
             ))}
+          </Box>
+        )}
+        {loading && (
+          <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
+            <Skeleton
+              sx={{ p: 0, m: 0, transform: "unset" }}
+              animation="wave"
+              height="120px"
+              width="100%"
+            />
           </Box>
         )}
       </Collapse>

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Card,
@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   Radio,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
@@ -109,6 +110,9 @@ export default function ProgressChart({ agenda }) {
     [allEvents, agenda]
   );
 
+  const timeoutRef = useRef();
+  const [loading, setLoading] = useState(true);
+
   const agendaLabels = useMemo(() => {
     const filteredLabels = labels
       .filter((e) => e.agendaId === agenda.id)
@@ -126,6 +130,22 @@ export default function ProgressChart({ agenda }) {
   function handleSelectAgenda() {
     selectAgenda(agenda);
   }
+
+  useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    if (agendaEvents.length > 0) {
+      timeoutRef.current = setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    } else {
+      timeoutRef.current = setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+
+    () => timeoutRef.current && clearTimeout(timeoutRef.current);
+  }, [agendaEvents]);
 
   return (
     <>
@@ -156,15 +176,44 @@ export default function ProgressChart({ agenda }) {
           px: 2,
         }}
       >
-        {checkedStatuses.map((status, i) => (
-          <Box key={i} sx={{ flex: 1, minWidth: "90%" }}>
-            <Chart
-              status={status}
-              events={agendaEvents}
-              labels={agendaLabels}
-            />
-          </Box>
-        ))}
+        {!loading && agendaEvents.length ? (
+          checkedStatuses.map((status, i) => (
+            <Box key={i} sx={{ flex: 1, minWidth: "90%" }}>
+              <Chart
+                status={status}
+                events={agendaEvents}
+                labels={agendaLabels}
+              />
+            </Box>
+          ))
+        ) : (
+          <>
+            <Box sx={{ flex: 1, minWidth: "90%" }}>
+              <Skeleton
+                sx={{ p: 0, m: 0, transform: "unset" }}
+                animation="wave"
+                height="300px"
+                width="100%"
+              />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: "90%" }}>
+              <Skeleton
+                sx={{ p: 0, m: 0, transform: "unset" }}
+                animation="wave"
+                height="300px"
+                width="100%"
+              />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: "90%" }}>
+              <Skeleton
+                sx={{ p: 0, m: 0, transform: "unset" }}
+                animation="wave"
+                height="300px"
+                width="100%"
+              />
+            </Box>
+          </>
+        )}
       </Box>
     </>
   );
