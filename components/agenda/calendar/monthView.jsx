@@ -33,10 +33,7 @@ function Event({ event }) {
         }}
       >
         {event.labels.map((label, i) => (
-          <Box
-            key={i}
-            sx={{ backgroundColor: label.color, cursor: "pointer", p: 0.8 }}
-          />
+          <Box key={i} sx={{ backgroundColor: label.color, p: 0.8 }} />
         ))}
       </Box>
     </Box>

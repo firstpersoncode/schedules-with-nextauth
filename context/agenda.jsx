@@ -261,12 +261,13 @@ const useContextController = (context) => {
     setIsLoading(false);
   }
 
-  function openEventDialog(cell, event) {
+  function openEventDialog(cell, event, agenda) {
     setContext((v) => ({
       ...v,
+      cell,
       eventDialog: true,
       event,
-      cell,
+      agenda,
     }));
   }
 

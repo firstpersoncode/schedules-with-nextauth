@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
-import { Edit, ExpandLess, ExpandMore } from "@mui/icons-material";
+import {
+  Edit,
+  ExpandLess,
+  ExpandMore,
+  DateRange,
+  Task,
+} from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -10,6 +16,8 @@ import {
   Collapse,
   Typography,
   Chip,
+  Button,
+  Tooltip,
 } from "@mui/material";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { useAgendaContext } from "context/agenda";
@@ -20,6 +28,7 @@ export default function Agenda({ agenda }) {
     // selectAgenda,
     toggleCheckedAgenda,
     openAgendaDialog,
+    openEventDialog,
     getLabelsByAgenda,
     toggleCheckedLabel,
   } = useAgendaContext();
@@ -40,6 +49,10 @@ export default function Agenda({ agenda }) {
 
   function handleClickEditAgenda() {
     openAgendaDialog(agenda);
+  }
+
+  function handleOpenEventDialog() {
+    openEventDialog(null, null, agenda);
   }
 
   function handleCheckedLabel(label) {
@@ -123,10 +136,6 @@ export default function Agenda({ agenda }) {
           label={agenda.title}
         /> */}
 
-        <IconButton onClick={handleClickEditAgenda} size="small">
-          <Edit />
-        </IconButton>
-
         <IconButton onClick={toggleOpen} size="small">
           {expanded ? <ExpandLess /> : <ExpandMore />}
         </IconButton>
@@ -134,7 +143,7 @@ export default function Agenda({ agenda }) {
 
       <Collapse in={expanded}>
         {labels.length > 0 && (
-          <Box sx={{ px: 2 }}>
+          <Box sx={{ p: 2 }}>
             <FormGroup>
               {labels.map((label, i) => (
                 <FormControlLabel
@@ -166,7 +175,44 @@ export default function Agenda({ agenda }) {
           </Box>
         )}
 
-        <Typography sx={{ p: 2, fontSize: 12 }}>{startEndAgenda}</Typography>
+        <Box
+          sx={{
+            px: 2,
+            my: 1,
+            display: "flex",
+            gap: 2,
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 10,
+              flex: 1,
+              justifySelf: "flex-start",
+            }}
+          >
+            {startEndAgenda}
+          </Typography>
+
+          <Tooltip title="Edit">
+            <IconButton onClick={handleClickEditAgenda} size="small">
+              <Edit />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Add timeline">
+            <IconButton size="small" onClick={handleOpenEventDialog}>
+              <DateRange />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Add event">
+            <IconButton size="small" onClick={handleOpenEventDialog}>
+              <Task />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Collapse>
       <Divider />
     </>

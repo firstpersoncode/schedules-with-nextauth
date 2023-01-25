@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   Checkbox,
   Skeleton,
+  Tooltip,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
@@ -32,15 +33,15 @@ export default function Menu() {
 
   return (
     <Box sx={{ overflowY: "auto" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 2 }}>
-        <Button
-          startIcon={<Add />}
-          variant="contained"
-          fullWidth
-          onClick={openAgendaDialog}
-        >
-          Agenda
-        </Button>
+      <Box sx={{ p: 2 }}>
+        <Tooltip title="Add agenda">
+          <Button
+            startIcon={<Add />}
+            variant="contained"
+            fullWidth
+            onClick={openAgendaDialog}
+          />
+        </Tooltip>
       </Box>
 
       <Divider />

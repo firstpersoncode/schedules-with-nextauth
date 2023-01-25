@@ -31,6 +31,7 @@ export default function DateCellWrapper({ children, ...props }) {
     <Box
       onClick={handleClick}
       sx={{
+        cursor: "pointer",
         position: "relative",
         zIndex: 5,
         display: "flex",

@@ -16,6 +16,7 @@ export default function Calendar() {
   return (
     <Box
       sx={{
+        display: "flex",
         pt: "40px",
         "& .rbc-timeslot-group": { minHeight: 60 },
         "& .rbc-label": { fontSize: 10 },
@@ -29,6 +30,7 @@ export default function Calendar() {
         <Box
           className={`${view.value}View`}
           sx={{
+            flex: 1,
             height: "calc(100vh - 40px)",
             overflow: "hidden",
           }}
@@ -41,6 +43,7 @@ export default function Calendar() {
       ) : (
         <Box
           sx={{
+            flex: 1,
             display: "flex",
             height: "calc(100vh - 40px)",
             overflow: "hidden",
@@ -55,17 +58,19 @@ export default function Calendar() {
           >
             <DayView />
           </Box>
-          <Box
-            className={`${view.value}View`}
-            sx={{
-              flex: 1,
-              minWidth: "70%",
-            }}
-          >
-            {view.value === Views.WEEK && <WeekView />}
-            {view.value === Views.MONTH && <MonthView />}
-            {view.value === "table" && <TableView />}
-          </Box>
+          {view.value !== Views.DAY && (
+            <Box
+              className={`${view.value}View`}
+              sx={{
+                flex: 1,
+                minWidth: "70%",
+              }}
+            >
+              {view.value === Views.WEEK && <WeekView />}
+              {view.value === Views.MONTH && <MonthView />}
+              {view.value === "table" && <TableView />}
+            </Box>
+          )}
         </Box>
       )}
     </Box>

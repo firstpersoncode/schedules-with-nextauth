@@ -9,6 +9,7 @@ import {
   IconButton,
   Collapse,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
 
@@ -47,9 +48,11 @@ export default function Report() {
           cursor: "pointer",
         }}
       >
-        <IconButton>
-          <Troubleshoot />
-        </IconButton>
+        <Tooltip title="Report">
+          <IconButton>
+            <Troubleshoot />
+          </IconButton>
+        </Tooltip>
         <IconButton size="small">
           {open ? <ExpandLess /> : <ExpandMore />}
         </IconButton>

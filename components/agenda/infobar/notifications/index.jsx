@@ -9,6 +9,7 @@ import {
   IconButton,
   Divider,
   Skeleton,
+  Tooltip,
 } from "@mui/material";
 import { ExpandLess, ExpandMore, ViewCarousel } from "@mui/icons-material";
 import {
@@ -106,9 +107,11 @@ export default function Notifications() {
           cursor: "pointer",
         }}
       >
-        <IconButton>
-          <ViewCarousel />
-        </IconButton>
+        <Tooltip title="Events">
+          <IconButton>
+            <ViewCarousel />
+          </IconButton>
+        </Tooltip>
         <IconButton size="small">
           {open ? <ExpandLess /> : <ExpandMore />}
         </IconButton>

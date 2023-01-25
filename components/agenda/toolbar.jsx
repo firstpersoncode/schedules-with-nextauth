@@ -1,52 +1,30 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Box,
-  TextField,
   IconButton,
   Button,
   Card,
-  MenuItem,
   Typography,
   LinearProgress,
+  Tooltip,
 } from "@mui/material";
 
 import {
   Adjust,
-  ViewDay,
-  CalendarViewMonth,
-  ViewWeek,
   ChevronLeft,
   ChevronRight,
   Info,
-  Toc,
   Menu,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Views } from "react-big-calendar";
 import { add, format, isEqual, isToday, startOfDay, sub } from "date-fns";
 import { useAgendaContext } from "context/agenda";
-import { useGlobalContext } from "context/global";
 
 export default function Toolbar() {
-  const { isMobile } = useGlobalContext();
-
-  const {
-    isLoading,
-    views,
-    view,
-    selectView,
-    date,
-    selectDate,
-    toggleDrawer,
-    toggleInfoDrawer,
-  } = useAgendaContext();
-
-  const availableViews = useMemo(() => {
-    if (!isMobile) return views.filter((v) => v.value !== Views.DAY);
-    return views;
-  }, [isMobile, views]);
+  const { isLoading, view, date, selectDate, toggleDrawer, toggleInfoDrawer } =
+    useAgendaContext();
 
   const [datePicker, setDatePicker] = useState(false);
 
@@ -77,10 +55,6 @@ export default function Toolbar() {
     const today = isToday(new Date(v));
     if (today) selectDate(new Date());
     else selectDate(startOfDay(new Date(v)));
-  }
-
-  function handleSelectView(e) {
-    selectView(e.target.value);
   }
 
   return (
@@ -114,18 +88,20 @@ export default function Toolbar() {
           <IconButton onClick={handleBackDate}>
             <ChevronLeft />
           </IconButton>
-          <Button
-            onClick={handleSetToday}
-            variant={
-              isEqual(startOfDay(new Date()), startOfDay(new Date(date)))
-                ? "contained"
-                : "outlined"
-            }
-            size="small"
-            sx={{ minWidth: "unset", p: 0, borderRadius: "50%" }}
-          >
-            <Adjust />
-          </Button>
+          <Tooltip title="Today">
+            <Button
+              onClick={handleSetToday}
+              variant={
+                isEqual(startOfDay(new Date()), startOfDay(new Date(date)))
+                  ? "contained"
+                  : "outlined"
+              }
+              size="small"
+              sx={{ minWidth: "unset", p: 0, borderRadius: "50%" }}
+            >
+              <Adjust />
+            </Button>
+          </Tooltip>
           <IconButton onClick={handleNextDate}>
             <ChevronRight />
           </IconButton>
@@ -157,43 +133,11 @@ export default function Toolbar() {
           </LocalizationProvider>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <TextField
-            select
-            variant="standard"
-            size="small"
-            value={view?.value || null}
-            onChange={handleSelectView}
-            fullWidth
-            InputProps={{
-              disableUnderline: true,
-              sx: {
-                "& .MuiSelect-select": {
-                  p: 0,
-                  flexDirection: "unset",
-                  lineHeight: 0,
-                },
-              },
-            }}
-          >
-            {availableViews.map((option, i) => (
-              <MenuItem key={i} value={option.value}>
-                {
-                  {
-                    [Views.DAY]: <ViewDay />,
-                    [Views.WEEK]: <ViewWeek />,
-                    [Views.MONTH]: <CalendarViewMonth />,
-                    table: <Toc />,
-                  }[option.value]
-                }
-              </MenuItem>
-            ))}
-          </TextField>
-
+        <Tooltip placement="left" title="Info">
           <IconButton onClick={toggleInfoDrawer}>
             <Info />
           </IconButton>
-        </Box>
+        </Tooltip>
       </Box>
       {isLoading && <LinearProgress />}
     </Card>

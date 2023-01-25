@@ -9,14 +9,13 @@ import {
   LinearProgress,
   IconButton,
   Typography,
-  Divider,
   List,
   ListItem,
+  Tooltip,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { Delete, Add } from "@mui/icons-material";
-import { isAfter } from "date-fns";
+import { Delete, Add, Close } from "@mui/icons-material";
 import { MuiColorInput } from "mui-color-input";
 import getRandomHex from "utils/getRandomHex";
 import { useAgendaContext } from "context/agenda";
@@ -236,9 +235,11 @@ export default function AgendaDialog() {
                 <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
                   Agenda
                 </Typography>
-                <IconButton disabled={loading} onClick={handleDelete}>
-                  <Delete />
-                </IconButton>
+                <Tooltip title="Delete">
+                  <IconButton disabled={loading} onClick={handleDelete}>
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
               </Box>
             )}
 
@@ -264,103 +265,112 @@ export default function AgendaDialog() {
             />
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateTimePicker
-                // views={["hours", "minutes"]}
-                // openTo="hours"
-                label="Start"
-                value={state.start}
-                onChange={handleDateChange("start")}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    required
-                    sx={{ mb: 2 }}
-                    fullWidth
-                    name="start"
-                    error={Boolean(errors.start)}
-                    helperText={errors.start}
-                  />
-                )}
-              />
-
-              <DateTimePicker
-                // views={["hours", "minutes"]}
-                // openTo="hours"
-                label="End"
-                value={state.end}
-                onChange={handleDateChange("end")}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    sx={{ mb: 2 }}
-                    fullWidth
-                    name="end"
-                    error={Boolean(errors.end)}
-                    helperText={errors.end}
-                  />
-                )}
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  mb: 2,
+                  flexDirection: { xs: "column", lg: "row" },
+                }}
+              >
+                <DateTimePicker
+                  // views={["hours", "minutes"]}
+                  // openTo="hours"
+                  label="Start"
+                  value={state.start}
+                  onChange={handleDateChange("start")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      required
+                      fullWidth
+                      name="start"
+                      error={Boolean(errors.start)}
+                      helperText={errors.start}
+                    />
+                  )}
+                />
+                <DateTimePicker
+                  // views={["hours", "minutes"]}
+                  // openTo="hours"
+                  label="End"
+                  value={state.end}
+                  onChange={handleDateChange("end")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      name="end"
+                      error={Boolean(errors.end)}
+                      helperText={errors.end}
+                    />
+                  )}
+                />
+              </Box>
             </LocalizationProvider>
 
-            <MuiColorInput
-              required
-              sx={{ mb: 2 }}
-              label="Event Color"
-              value={state.eventColor}
-              onChange={handleChange("eventColor")}
-              fullWidth
-              error={Boolean(errors.eventColor)}
-              helperText={errors.eventColor}
-              format="hex"
-              isAlphaHidden
-            />
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", lg: "row" },
+              }}
+            >
+              <MuiColorInput
+                required
+                label="Event Color"
+                value={state.eventColor}
+                onChange={handleChange("eventColor")}
+                error={Boolean(errors.eventColor)}
+                helperText={errors.eventColor}
+                format="hex"
+                isAlphaHidden
+              />
+              <List sx={{ p: 0 }}>
+                {state.labels.map((label, i) => (
+                  <ListItem
+                    key={i}
+                    sx={{ py: 0, pl: 0, mb: 2 }}
+                    secondaryAction={
+                      <Tooltip placement="right" title="Remove">
+                        <IconButton edge="end" onClick={deleteLabel(i)}>
+                          <Close />
+                        </IconButton>
+                      </Tooltip>
+                    }
+                  >
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <TextField
+                        label="Label"
+                        value={label.title}
+                        onChange={handleChangeLabel(i)}
+                        fullWidth
+                      />
+                      <MuiColorInput
+                        label="Color"
+                        value={label.color}
+                        onChange={handleChangeLabelColor(i)}
+                        format="hex"
+                        fullWidth
+                        isAlphaHidden
+                      />
+                    </Box>
+                  </ListItem>
+                ))}
 
-            <Divider>Labels</Divider>
+                {errors.labels && (
+                  <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
+                    {errors.labels}
+                  </Typography>
+                )}
 
-            <List sx={{ maxWidth: 400 }}>
-              {state.labels.map((label, i) => (
-                <ListItem
-                  key={i}
-                  sx={{ pl: 0 }}
-                  secondaryAction={
-                    <IconButton edge="end" onClick={deleteLabel(i)}>
-                      <Delete />
-                    </IconButton>
-                  }
-                >
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <TextField
-                      label="Label"
-                      value={label.title}
-                      onChange={handleChangeLabel(i)}
-                      fullWidth
-                    />
-                    <MuiColorInput
-                      label="Color"
-                      value={label.color}
-                      onChange={handleChangeLabelColor(i)}
-                      format="hex"
-                      fullWidth
-                      isAlphaHidden
-                    />
-                  </Box>
-                </ListItem>
-              ))}
-
-              {errors.labels && (
-                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
-                  {errors.labels}
-                </Typography>
-              )}
-
-              <Button
-                onClick={addLabel}
-                variant="contained"
-                startIcon={<Add />}
-              >
-                Label
-              </Button>
-            </List>
+                <Tooltip placement="right" title="Add label">
+                  <IconButton onClick={addLabel}>
+                    <Add />
+                  </IconButton>
+                </Tooltip>
+              </List>
+            </Box>
           </Box>
         </Box>
 
