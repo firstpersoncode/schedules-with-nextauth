@@ -32,9 +32,8 @@ export default function Menu() {
       <Tooltip title="Add agenda">
         <Button
           variant="contained"
-          sx={{ borderRadius: 0 }}
+          sx={{ borderRadius: 0, justifyContent: "flex-start" }}
           fullWidth
-          size="large"
           startIcon={<Add />}
           onClick={openAgendaDialog}
         >

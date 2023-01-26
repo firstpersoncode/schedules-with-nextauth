@@ -14,27 +14,38 @@ export default function SideBar() {
   return (
     <>
       {isMobile ? (
-        <SwipeableDrawer
-          anchor="left"
-          open={drawer}
-          onClose={toggleDrawer}
-          onOpen={toggleDrawer}
-          sx={{
-            width: "90%",
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: "90%",
-              boxSizing: "border-box",
-            },
-          }}
-        >
-          <Box sx={{ textAlign: "right" }}>
-            <IconButton sx={{ p: 1 }} size="small" onClick={toggleDrawer}>
-              <Close />
-            </IconButton>
-          </Box>
-          {drawer && <Menu />}
-        </SwipeableDrawer>
+        <>
+          <SwipeableDrawer
+            anchor="left"
+            open={drawer}
+            onClose={toggleDrawer}
+            onOpen={toggleDrawer}
+            sx={{
+              width: "80%",
+              flexShrink: 0,
+              "& .MuiDrawer-paper": {
+                width: "80%",
+                boxSizing: "border-box",
+                // overflow: "visible",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                backgroundColor: "#FFF",
+                zIndex: 10000,
+              }}
+            >
+              <IconButton sx={{ p: 1 }} size="small" onClick={toggleDrawer}>
+                <Close />
+              </IconButton>
+            </Box>
+            {drawer && <Menu />}
+          </SwipeableDrawer>
+        </>
       ) : (
         <Drawer
           sx={{

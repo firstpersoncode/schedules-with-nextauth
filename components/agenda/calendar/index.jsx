@@ -31,7 +31,7 @@ export default function Calendar() {
           className={`${view.value}View`}
           sx={{
             flex: 1,
-            height: "calc(100vh - 40px)",
+            height: "calc(100vh - 75px)",
             overflow: "hidden",
           }}
         >
@@ -45,7 +45,7 @@ export default function Calendar() {
           sx={{
             flex: 1,
             display: "flex",
-            height: "calc(100vh - 40px)",
+            height: "calc(100vh - 75px)",
             overflow: "hidden",
           }}
         >

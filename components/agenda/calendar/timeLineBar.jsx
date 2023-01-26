@@ -28,7 +28,8 @@ export default function TimeLineBar({ date }) {
   }, [date, getTimeLines, getAgendaByTimeLine]);
 
   function handleOpenTimeLineDialog(timeLine) {
-    return function () {
+    return function (e) {
+      e.stopPropagation();
       openTimeLineDialog(timeLine);
     };
   }

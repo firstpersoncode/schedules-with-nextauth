@@ -16,15 +16,15 @@ export default function InfoBar() {
       onClose={toggleInfoDrawer}
       onOpen={toggleInfoDrawer}
       sx={{
-        width: { xs: "90%", lg: "25vw" },
+        width: { xs: "80%", lg: "20vw" },
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: { xs: "90%", lg: "25vw" },
+          width: { xs: "80%", lg: "20vw" },
           boxSizing: "border-box",
         },
       }}
     >
-      <Box sx={{ textAlign: "left" }}>
+      <Box>
         <IconButton sx={{ p: 1 }} size="small" onClick={toggleInfoDrawer}>
           <Close />
         </IconButton>
