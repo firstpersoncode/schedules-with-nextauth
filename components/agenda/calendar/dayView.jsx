@@ -58,7 +58,7 @@ export default function DayView() {
   const eventPropGetter = useCallback(
     (event) => ({
       style: {
-        background: getAgenda(event).eventColor || "grey",
+        background: getAgenda(event).color || "grey",
         borderColor: "grey",
         color: "#000",
         boxShadow: "rgb(0 0 0 / 30%) 1px 1px 0.5px 0.5px",

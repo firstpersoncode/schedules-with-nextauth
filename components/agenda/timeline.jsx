@@ -11,7 +11,6 @@ import {
   MenuItem,
   Typography,
   IconButton,
-  Chip,
   Tooltip,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -19,29 +18,29 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete } from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
 import { useDialog } from "components/dialog";
-import validateEventStartEnd, {
-  validateEventStartEndWithinAgenda,
-} from "utils/validateEventStartEnd";
+import validateTimeLineStartEnd, {
+  validateTimeLineStartEndWithinAgenda,
+} from "utils/validateTimeLineStartEnd";
 const Dialog = dynamic(() => import("components/dialog"));
 
-export default function Event() {
+export default function TimeLine() {
   const {
     agenda: activeAgenda,
     agendas,
-    getAgendaByEvent,
-    closeEventDialog,
-    eventDialog,
-    event,
+    getAgendaByTimeLine,
+    closeTimeLineDialog,
+    timeLineDialog,
+    timeLine,
     cell,
-    addEvent,
-    updateEvent,
-    deleteEvent,
-    statuses,
+    addTimeLine,
+    updateTimeLine,
+    deleteTimeLine,
+    timeLineTypes,
   } = useAgendaContext();
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
-  const open = eventDialog;
+  const open = timeLineDialog;
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [state, setState] = useState({
@@ -49,33 +48,27 @@ export default function Event() {
     description: "",
     start: null,
     end: null,
-    labels: [],
-    status: "TODO",
-    type: "TASK",
+    type: "",
   });
 
   const agenda = useMemo(() => {
-    return activeAgenda || getAgendaByEvent(event);
-  }, [activeAgenda, event, getAgendaByEvent]);
+    return activeAgenda || getAgendaByTimeLine(timeLine);
+  }, [activeAgenda, timeLine, getAgendaByTimeLine]);
 
   useEffect(() => {
-    if (event?.id) {
+    if (timeLine?.id) {
       setState((v) => ({
         ...v,
-        title: event.title,
-        description: event.description,
-        start: new Date(event.start),
-        end: new Date(event.end),
-        labels: event.labels,
-        status: event.status,
-        type: event.type,
-        // agenda: event.agenda,
+        title: timeLine.title,
+        description: timeLine.description,
+        start: new Date(timeLine.start),
+        end: new Date(timeLine.end),
+        type: timeLine.type,
       }));
     }
-  }, [event]);
+  }, [timeLine]);
 
   useEffect(() => {
-    // if (state.agenda?.id) return;
     if (agenda?.id) {
       setState((v) => ({
         ...v,
@@ -87,7 +80,7 @@ export default function Event() {
         agenda: agendas[0],
       }));
     }
-  }, [state.agenda, agenda, agendas]);
+  }, [agenda, agendas]);
 
   useEffect(() => {
     if (cell?.start) {
@@ -107,16 +100,14 @@ export default function Event() {
 
   function onClose() {
     if (loading) return;
-    closeEventDialog();
+    closeTimeLineDialog();
     setErrors({});
     setState({
       title: "",
       description: "",
       start: null,
       end: null,
-      labels: [],
-      status: "TODO",
-      type: "TASK",
+      type: "",
     });
   }
 
@@ -167,14 +158,15 @@ export default function Event() {
   function validateForm() {
     let errors = {};
     setErrors(errors);
-    if (!event?.id && !state.agenda) errors.agenda = "Required";
+    if (!timeLine?.id && !state.agenda) errors.agenda = "Required";
     if (!state.title) errors.title = "Required";
+    if (!state.type) errors.type = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
     if (
       state.start &&
       state.end &&
-      !validateEventStartEnd(state.start, state.end)
+      !validateTimeLineStartEnd(state.start, state.end)
     ) {
       errors.start =
         "Invalid date range, start should be lower than ends and no more than 1 day";
@@ -184,7 +176,11 @@ export default function Event() {
       state.start &&
       state.end &&
       state.agenda &&
-      !validateEventStartEndWithinAgenda(state.start, state.end, state.agenda)
+      !validateTimeLineStartEndWithinAgenda(
+        state.start,
+        state.end,
+        state.agenda
+      )
     ) {
       errors.start =
         "Invalid date range, should start within the agenda timeline";
@@ -199,7 +195,7 @@ export default function Event() {
     e.preventDefault();
 
     handleOpenDialog(
-      `<strong>You're about to delete ${event.title}</strong><p>This action can't be undone once deleting complete</p>`,
+      `<strong>You're about to delete ${timeLine.title}</strong><p>This action can't be undone once deleting complete</p>`,
       "warning"
     );
   }
@@ -208,7 +204,7 @@ export default function Event() {
     e.preventDefault();
 
     try {
-      await deleteEvent(event);
+      await deleteTimeLine(timeLine);
       onClose();
       handleCloseDialog();
     } catch (err) {}
@@ -221,25 +217,21 @@ export default function Event() {
     setLoading(true);
 
     try {
-      if (event?.id) {
-        await updateEvent({
-          id: event.id,
+      if (timeLine?.id) {
+        await updateTimeLine({
+          id: timeLine.id,
           title: state.title,
           description: state.description,
           start: state.start,
           end: state.end,
-          labels: state.labels,
-          status: state.status,
           type: state.type,
         });
       } else {
-        await addEvent({
+        await addTimeLine({
           title: state.title,
           description: state.description,
           start: state.start,
           end: state.end,
-          labels: state.labels,
-          status: state.status,
           type: state.type,
           agenda: state.agenda,
         });
@@ -256,7 +248,7 @@ export default function Event() {
         <Box>
           {loading && <LinearProgress />}
           <Box sx={{ p: 2 }}>
-            {event?.id && agenda?.id && (
+            {timeLine?.id && agenda?.id && (
               <Box
                 sx={{
                   display: "flex",
@@ -275,7 +267,7 @@ export default function Event() {
               </Box>
             )}
 
-            {!event?.id && agendas.length > 0 && (
+            {!timeLine?.id && agendas.length > 0 && (
               <Autocomplete
                 sx={{ mb: 2 }}
                 value={state.agenda || null}
@@ -317,44 +309,23 @@ export default function Event() {
               minRows={4}
             />
 
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <Autocomplete
-                disabled={!state.agenda?.labels?.length}
-                multiple
-                options={state.agenda?.labels || []}
-                getOptionLabel={(o) => o.title}
-                value={state.labels}
-                fullWidth
-                renderTags={(v, getTagProps) =>
-                  v.map((val, i) => (
-                    <Chip
-                      {...getTagProps(i)}
-                      key={i}
-                      sx={{ backgroundColor: val.color }}
-                      label={val.title}
-                    />
-                  ))
-                }
-                onChange={handleSelectLabel}
-                renderInput={(params) => (
-                  <TextField {...params} label="Labels" variant="outlined" />
-                )}
-              />
-
-              <TextField
-                select
-                fullWidth
-                label="Status"
-                value={state.status}
-                onChange={handleChange("status")}
-              >
-                {statuses.map((option, i) => (
-                  <MenuItem key={i} value={option.value}>
-                    {option.title}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
+            <TextField
+              required
+              sx={{ mb: 2 }}
+              select
+              fullWidth
+              label="Type"
+              value={state.type}
+              onChange={handleChange("type")}
+              error={Boolean(errors.type)}
+              helperText={errors.type}
+            >
+              {timeLineTypes.map((option, i) => (
+                <MenuItem key={i} value={option.value}>
+                  {option.title}
+                </MenuItem>
+              ))}
+            </TextField>
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Box

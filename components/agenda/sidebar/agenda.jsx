@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { useAgendaContext } from "context/agenda";
+import formatDateRange from "utils/formatDateRange";
 
 export default function Agenda({ agenda }) {
   const {
@@ -28,6 +29,7 @@ export default function Agenda({ agenda }) {
     // selectAgenda,
     toggleCheckedAgenda,
     openAgendaDialog,
+    openTimeLineDialog,
     openEventDialog,
     getLabelsByAgenda,
     toggleCheckedLabel,
@@ -51,6 +53,10 @@ export default function Agenda({ agenda }) {
     openAgendaDialog(agenda);
   }
 
+  function handleOpenTimeLineDialog() {
+    openTimeLineDialog(null, agenda);
+  }
+
   function handleOpenEventDialog() {
     openEventDialog(null, null, agenda);
   }
@@ -62,31 +68,7 @@ export default function Agenda({ agenda }) {
   }
 
   const startEndAgenda = useMemo(() => {
-    if (isSameDay(new Date(agenda.start), new Date(agenda.end)))
-      return `${format(new Date(agenda.start), "iii dd MMM HH:mm")} - ${format(
-        new Date(agenda.end),
-        "HH:mm, yyyy"
-      )}`;
-    let res = "";
-    if (isSameMonth(new Date(agenda.start), new Date(agenda.end)))
-      res = `${format(new Date(agenda.start), "iii dd")} - ${format(
-        new Date(agenda.end),
-        "iii dd MMM, yyyy"
-      )}`;
-    else {
-      if (isSameYear(new Date(agenda.start), new Date(agenda.end)))
-        res = `${format(new Date(agenda.start), "iii dd MMM")} - ${format(
-          new Date(agenda.end),
-          "iii dd MMM, yyyy"
-        )}`;
-      else
-        res = `${format(new Date(agenda.start), "iii dd MMM, yyyy")} - ${format(
-          new Date(agenda.end),
-          "iii dd MMM, yyyy"
-        )}`;
-    }
-
-    return res;
+    return formatDateRange(agenda.start, agenda.end);
   }, [agenda]);
 
   const expanded = open && agenda.checked;
@@ -108,9 +90,9 @@ export default function Agenda({ agenda }) {
           control={
             <Checkbox
               sx={{
-                color: agenda.eventColor,
+                color: agenda.color,
                 "&.Mui-checked": {
-                  color: agenda.eventColor,
+                  color: agenda.color,
                 },
               }}
               checked={agenda.checked}
@@ -125,9 +107,9 @@ export default function Agenda({ agenda }) {
           control={
             <Radio
               sx={{
-                color: agenda.eventColor,
+                color: agenda.color,
                 "&.Mui-checked": {
-                  color: agenda.eventColor,
+                  color: agenda.color,
                 },
               }}
               checked={activeAgenda?.id === agenda.id}
@@ -152,9 +134,9 @@ export default function Agenda({ agenda }) {
                   control={
                     <Checkbox
                       sx={{
-                        color: agenda.eventColor,
+                        color: agenda.color,
                         "&.Mui-checked": {
-                          color: agenda.eventColor,
+                          color: agenda.color,
                         },
                       }}
                       checked={label.checked}
@@ -202,7 +184,7 @@ export default function Agenda({ agenda }) {
           </Tooltip>
 
           <Tooltip title="Add timeline">
-            <IconButton size="small" onClick={handleOpenEventDialog}>
+            <IconButton size="small" onClick={handleOpenTimeLineDialog}>
               <DateRange />
             </IconButton>
           </Tooltip>

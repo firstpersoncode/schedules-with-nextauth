@@ -50,8 +50,7 @@ export default function Event() {
     start: null,
     end: null,
     labels: [],
-    status: "TODO",
-    type: "TASK",
+    status: "",
   });
 
   const agenda = useMemo(() => {
@@ -68,14 +67,11 @@ export default function Event() {
         end: new Date(event.end),
         labels: event.labels,
         status: event.status,
-        type: event.type,
-        // agenda: event.agenda,
       }));
     }
   }, [event]);
 
   useEffect(() => {
-    // if (state.agenda?.id) return;
     if (agenda?.id) {
       setState((v) => ({
         ...v,
@@ -87,7 +83,7 @@ export default function Event() {
         agenda: agendas[0],
       }));
     }
-  }, [state.agenda, agenda, agendas]);
+  }, [agenda, agendas]);
 
   useEffect(() => {
     if (cell?.start) {
@@ -115,7 +111,7 @@ export default function Event() {
       start: null,
       end: null,
       labels: [],
-      status: "TODO",
+      status: "",
       type: "TASK",
     });
   }
@@ -169,6 +165,7 @@ export default function Event() {
     setErrors(errors);
     if (!event?.id && !state.agenda) errors.agenda = "Required";
     if (!state.title) errors.title = "Required";
+    if (!state.status) errors.status = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
     if (
@@ -230,7 +227,6 @@ export default function Event() {
           end: state.end,
           labels: state.labels,
           status: state.status,
-          type: state.type,
         });
       } else {
         await addEvent({
@@ -240,7 +236,6 @@ export default function Event() {
           end: state.end,
           labels: state.labels,
           status: state.status,
-          type: state.type,
           agenda: state.agenda,
         });
       }
@@ -342,11 +337,14 @@ export default function Event() {
               />
 
               <TextField
+                required
                 select
                 fullWidth
                 label="Status"
                 value={state.status}
                 onChange={handleChange("status")}
+                error={Boolean(errors.status)}
+                helperText={errors.status}
               >
                 {statuses.map((option, i) => (
                   <MenuItem key={i} value={option.value}>

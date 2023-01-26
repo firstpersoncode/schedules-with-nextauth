@@ -155,9 +155,9 @@ export default function ProgressChart({ agenda }) {
         control={
           <Radio
             sx={{
-              color: agenda.eventColor,
+              color: agenda.color,
               "&.Mui-checked": {
-                color: agenda.eventColor,
+                color: agenda.color,
               },
             }}
             checked={activeAgenda?.id === agenda.id}

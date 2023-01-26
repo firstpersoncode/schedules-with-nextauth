@@ -43,7 +43,7 @@ export default function AgendaDialog() {
     start: new Date(),
     end: null,
     labels: [],
-    eventColor: getRandomHex(),
+    color: getRandomHex(),
   });
 
   const open = agendaDialog;
@@ -56,7 +56,7 @@ export default function AgendaDialog() {
         start: new Date(agenda.start),
         end: new Date(agenda.end),
         labels: agenda.labels,
-        eventColor: agenda.eventColor,
+        color: agenda.color,
       });
     }
   }, [agenda, open]);
@@ -71,13 +71,13 @@ export default function AgendaDialog() {
       start: new Date(),
       end: null,
       labels: [],
-      eventColor: state.eventColor,
+      color: state.color,
     });
   }
 
   function handleChange(name) {
     return function (e) {
-      const value = name === "eventColor" ? e : e.target.value;
+      const value = name === "color" ? e : e.target.value;
       setState((prev) => {
         return {
           ...prev,
@@ -154,7 +154,7 @@ export default function AgendaDialog() {
       errors.end =
         "Invalid date range, ends should be greater than start and no more than 1 year";
     }
-    if (!state.eventColor) errors.eventColor = "Required";
+    if (!state.color) errors.color = "Required";
     if (state.labels.length) {
       if (state.labels.find((l) => !Boolean(l.color)))
         errors.labels = "Color Required";
@@ -200,7 +200,7 @@ export default function AgendaDialog() {
           start: state.start,
           end: state.end,
           labels: state.labels,
-          eventColor: state.eventColor,
+          color: state.color,
         });
       } else {
         await addAgenda({
@@ -209,7 +209,7 @@ export default function AgendaDialog() {
           start: state.start,
           end: state.end,
           labels: state.labels,
-          eventColor: state.eventColor,
+          color: state.color,
         });
       }
 
@@ -318,11 +318,11 @@ export default function AgendaDialog() {
             >
               <MuiColorInput
                 required
-                label="Event Color"
-                value={state.eventColor}
-                onChange={handleChange("eventColor")}
-                error={Boolean(errors.eventColor)}
-                helperText={errors.eventColor}
+                label="Color"
+                value={state.color}
+                onChange={handleChange("color")}
+                error={Boolean(errors.color)}
+                helperText={errors.color}
                 format="hex"
                 isAlphaHidden
               />

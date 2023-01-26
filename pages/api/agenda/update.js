@@ -9,7 +9,7 @@ export default async function update(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { id, title, description, start, end, labels, eventColor } = req.body;
+    const { id, title, description, start, end, labels, color } = req.body;
 
     if (!validateAgendaStartEnd(start, end))
       throw new Error(
@@ -66,7 +66,7 @@ export default async function update(req, res) {
           description,
           start,
           end,
-          eventColor,
+          color,
         },
       });
 

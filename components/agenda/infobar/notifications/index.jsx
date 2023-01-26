@@ -100,21 +100,21 @@ export default function Notifications() {
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
+          // justifyContent: "flex-end",
           gap: 1,
           px: 2,
           py: 1,
           cursor: "pointer",
         }}
       >
+        <IconButton size="small">
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
         <Tooltip title="Events">
           <IconButton>
             <ViewCarousel />
           </IconButton>
         </Tooltip>
-        <IconButton size="small">
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
       </Box>
 
       <Collapse in={open}>

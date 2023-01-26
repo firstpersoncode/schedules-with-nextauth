@@ -11,7 +11,7 @@ export default async function create(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { title, description, start, end, agendaId, labels, status, type } =
+    const { title, description, start, end, agendaId, labels, status } =
       req.body;
     if (!validateEventStartEnd(start, end))
       throw new Error(
@@ -40,7 +40,6 @@ export default async function create(req, res) {
           agenda: { connect: { id: agendaId } },
           labelIds: labels.map((l) => l.id),
           status,
-          type,
         },
       });
     });

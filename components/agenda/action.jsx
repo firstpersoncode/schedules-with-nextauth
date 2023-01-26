@@ -15,7 +15,8 @@ import { useState } from "react";
 import { Views } from "react-big-calendar";
 
 export default function Action() {
-  const { openEventDialog, selectView } = useAgendaContext();
+  const { agendas, openTimeLineDialog, openEventDialog, selectView } =
+    useAgendaContext();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
@@ -32,11 +33,15 @@ export default function Action() {
 
   function toggleAction() {
     setOpen(!open);
-    if (openView) setOpenView(false);
   }
 
   function toggleOpenView() {
     setOpenView(!openView);
+  }
+
+  function handleOpenTimeLineDialog() {
+    openTimeLineDialog();
+    handleClose();
   }
 
   function handleOpenEventDialog() {
@@ -53,10 +58,14 @@ export default function Action() {
 
   return (
     <Box sx={{ position: "fixed", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Backdrop sx={{ color: "#fff" }} open={open} onClick={handleClose} />
+      <Backdrop
+        sx={{ color: "#fff" }}
+        open={open || openView}
+        onClick={handleClose}
+      />
 
       <Zoom
-        sx={{ position: "fixed", right: 30, bottom: 310 }}
+        sx={{ position: "fixed", right: 30, bottom: 300 }}
         in={openView}
         timeout={transitionDuration}
         unmountOnExit
@@ -68,7 +77,7 @@ export default function Action() {
         </Tooltip>
       </Zoom>
       <Zoom
-        sx={{ position: "fixed", right: 30, bottom: 260 }}
+        sx={{ position: "fixed", right: 30, bottom: 250 }}
         in={openView}
         timeout={transitionDuration}
         unmountOnExit
@@ -80,7 +89,7 @@ export default function Action() {
         </Tooltip>
       </Zoom>
       <Zoom
-        sx={{ position: "fixed", right: 30, bottom: 210 }}
+        sx={{ position: "fixed", right: 30, bottom: 200 }}
         in={openView}
         timeout={transitionDuration}
         unmountOnExit
@@ -92,7 +101,7 @@ export default function Action() {
         </Tooltip>
       </Zoom>
       <Zoom
-        sx={{ position: "fixed", right: 30, bottom: 160 }}
+        sx={{ position: "fixed", right: 30, bottom: 150 }}
         in={openView}
         timeout={transitionDuration}
         unmountOnExit
@@ -104,18 +113,21 @@ export default function Action() {
         </Tooltip>
       </Zoom>
 
-      <Zoom
-        sx={{ position: "fixed", right: 30, bottom: 110 }}
-        in={open}
-        timeout={transitionDuration}
-        unmountOnExit
-      >
-        <Tooltip placement="left" title="View">
-          <Fab color="primary" onClick={toggleOpenView} size="small">
-            <Visibility />
-          </Fab>
-        </Tooltip>
-      </Zoom>
+      <Tooltip placement="left" title="View">
+        <Fab
+          color="primary"
+          sx={{
+            position: "fixed",
+            right: openView ? 30 : -15,
+            transition: "all .3s ease-out",
+            bottom: 100,
+          }}
+          onClick={toggleOpenView}
+          size="small"
+        >
+          <Visibility />
+        </Fab>
+      </Tooltip>
 
       <Zoom
         sx={{ position: "fixed", right: 90, bottom: 90 }}
@@ -124,7 +136,11 @@ export default function Action() {
         unmountOnExit
       >
         <Tooltip placement="left" title="Add timeline">
-          <Fab color="primary" size="small">
+          <Fab
+            disabled={!agendas.length}
+            onClick={handleOpenTimeLineDialog}
+            size="small"
+          >
             <DateRange />
           </Fab>
         </Tooltip>
@@ -137,15 +153,24 @@ export default function Action() {
         unmountOnExit
       >
         <Tooltip placement="left" title="Add event">
-          <Fab color="primary" onClick={handleOpenEventDialog} size="small">
+          <Fab
+            disabled={!agendas.length}
+            onClick={handleOpenEventDialog}
+            size="small"
+          >
             <Task />
           </Fab>
         </Tooltip>
       </Zoom>
 
-      <Tooltip title="Actions">
+      <Tooltip placement="left" title="Actions">
         <Fab
-          sx={{ position: "fixed", right: 30, bottom: 30 }}
+          sx={{
+            position: "fixed",
+            right: open ? 30 : -25,
+            bottom: 30,
+            transition: "all .3s ease-out",
+          }}
           color="primary"
           onClick={toggleAction}
         >

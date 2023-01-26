@@ -9,7 +9,7 @@ export default async function create(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
     const userId = session.user.id;
-    const { title, description, start, end, labels, eventColor } = req.body;
+    const { title, description, start, end, labels, color } = req.body;
 
     if (!validateAgendaStartEnd(start, end))
       throw new Error(
@@ -23,7 +23,7 @@ export default async function create(req, res) {
           description,
           start,
           end,
-          eventColor,
+          color,
           userIds: [userId],
         },
       });

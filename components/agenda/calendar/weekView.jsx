@@ -5,6 +5,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { useAgendaContext } from "context/agenda";
 import DateCellWrapper from "./dateCellWrapper";
+import TimeSlotWrapper from "./timeSlotWrapper";
 
 const locales = {
   "en-US": enUS,
@@ -51,7 +52,7 @@ export default function WeekView({}) {
   const eventPropGetter = useCallback(
     (event) => ({
       style: {
-        background: getAgenda(event).eventColor || "grey",
+        background: getAgenda(event).color || "grey",
         borderColor: "grey",
         color: "#000",
         boxShadow: "rgb(0 0 0 / 30%) 1px 1px 0.5px 0.5px",
@@ -73,7 +74,7 @@ export default function WeekView({}) {
       components={{
         event: Event,
         dateCellWrapper: DateCellWrapper,
-        timeSlotWrapper: DateCellWrapper,
+        timeSlotWrapper: TimeSlotWrapper,
       }}
     />
   );

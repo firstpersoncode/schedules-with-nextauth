@@ -8,7 +8,7 @@ import {
   Skeleton,
   Tooltip,
 } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Add, Schedule } from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
 import Agenda from "./agenda";
 
@@ -21,10 +21,6 @@ export default function Menu() {
     toggleEventStatuses,
   } = useAgendaContext();
 
-  function handleCreateAgenda() {
-    openAgendaDialog(null);
-  }
-
   function handleCheckedStatus(status) {
     return function (_, checked) {
       toggleEventStatuses(status, checked);
@@ -33,16 +29,18 @@ export default function Menu() {
 
   return (
     <Box sx={{ overflowY: "auto" }}>
-      <Box sx={{ p: 2 }}>
-        <Tooltip title="Add agenda">
-          <Button
-            startIcon={<Add />}
-            variant="contained"
-            fullWidth
-            onClick={openAgendaDialog}
-          />
-        </Tooltip>
-      </Box>
+      <Tooltip title="Add agenda">
+        <Button
+          variant="contained"
+          sx={{ borderRadius: 0 }}
+          fullWidth
+          size="large"
+          startIcon={<Add />}
+          onClick={openAgendaDialog}
+        >
+          Agenda
+        </Button>
+      </Tooltip>
 
       <Divider />
 

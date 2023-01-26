@@ -13,11 +13,21 @@ const agendaContext = {
   agenda: null,
   agendaDialog: false,
 
+  timeLines: [],
+  timeLineDialog: false,
+  timeLine: null,
+
   events: [],
   eventDialog: false,
   event: null,
 
   labels: [],
+
+  timeLineTypes: [
+    { title: "Availability", value: "AVAILABILITY", checked: true },
+    { title: "Unavailability", value: "UNAVAILABILITY", checked: true },
+    { title: "Others", value: "OTHERS", checked: true },
+  ],
 
   statuses: [
     { title: "To Do", value: "TODO", checked: true },
@@ -48,12 +58,16 @@ const AgendaContext = createContext(agendaContext);
 const useContextController = (context) => {
   const [ctx, setContext] = useState(context);
 
-  function setIsLoading(isLoading) {
-    setContext((v) => ({
-      ...v,
-      isLoading,
-    }));
-  }
+  const getAgendaByTimeLine = useCallback(
+    (timeLine) => {
+      if (!timeLine) return;
+      const selectedAgenda = ctx.agendas.find(
+        (a) => a.id === timeLine.agendaId
+      );
+      return selectedAgenda;
+    },
+    [ctx.agendas]
+  );
 
   const getAgendaByEvent = useCallback(
     (event) => {
@@ -182,6 +196,96 @@ const useContextController = (context) => {
     }));
   }
 
+  const getTimeLines = useCallback(() => {
+    const checkedAgendas = ctx.agendas.filter((a) => a.checked);
+    const checkedTypes = ctx.timeLineTypes.filter((s) => s.checked);
+
+    return ctx.timeLines
+      .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
+      .filter((e) => checkedTypes.find((s) => s.value === e.type));
+  }, [ctx.timeLines, ctx.timeLineTypes, ctx.agendas]);
+
+  async function addTimeLine({ agenda, ...timeLine }) {
+    setIsLoading(true);
+    try {
+      const res = await axios.post("/api/timeLine/create", {
+        ...timeLine,
+        agendaId: agenda.id,
+      });
+
+      const newTimeLineId = res.data?.timeLine;
+      const newTimeLine = {
+        id: newTimeLineId,
+        agendaId: agenda.id,
+        ...timeLine,
+      };
+
+      const currTimeLines = ctx.timeLines;
+      currTimeLines.push(newTimeLine);
+
+      setContext((v) => ({
+        ...v,
+        timeLines: currTimeLines,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+    setIsLoading(false);
+  }
+
+  async function updateTimeLine(timeLine) {
+    setIsLoading(true);
+    try {
+      await axios.put("/api/timeLine/update", timeLine);
+      const currTimeLines = ctx.timeLines.map((e) => {
+        if (e.id === timeLine.id) e = { ...e, ...timeLine };
+        return e;
+      });
+
+      setContext((v) => ({
+        ...v,
+        timeLines: currTimeLines,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+    setIsLoading(false);
+  }
+
+  async function deleteTimeLine(timeLine) {
+    setIsLoading(true);
+    try {
+      await axios.delete(`/api/timeLine/delete?timeLineId=${timeLine.id}`);
+
+      const currTimeLines = ctx.timeLines.filter((e) => e.id !== timeLine.id);
+
+      setContext((v) => ({
+        ...v,
+        timeLines: currTimeLines,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+    setIsLoading(false);
+  }
+
+  function openTimeLineDialog(timeLine, agenda) {
+    setContext((v) => ({
+      ...v,
+      timeLineDialog: true,
+      timeLine,
+      agenda,
+    }));
+  }
+
+  function closeTimeLineDialog() {
+    setContext((v) => ({
+      ...v,
+      timeLineDialog: false,
+      timeLine: null,
+    }));
+  }
+
   const getEvents = useCallback(() => {
     const checkedAgendas = ctx.agendas.filter((a) => a.checked);
     const checkedLabels = ctx.labels.filter((l) => l.checked);
@@ -297,6 +401,13 @@ const useContextController = (context) => {
     setContext((v) => ({ ...v, labels: currLabels }));
   }
 
+  function setIsLoading(isLoading) {
+    setContext((v) => ({
+      ...v,
+      isLoading,
+    }));
+  }
+
   function selectView(view) {
     const selectedView = ctx.views.find((p) => p.value === view);
     setContext((v) => ({ ...v, view: selectedView }));
@@ -361,6 +472,12 @@ const useContextController = (context) => {
           };
         });
 
+        const timeLines = res.data?.timeLines.map((e) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        }));
+
         const events = res.data?.events.map((e) => ({
           ...e,
           start: new Date(e.start),
@@ -370,6 +487,7 @@ const useContextController = (context) => {
         setContext((v) => ({
           ...v,
           agendas,
+          timeLines,
           events,
           labels,
           agenda: agendas.length ? agendas[0] : null,
@@ -389,6 +507,7 @@ const useContextController = (context) => {
 
   return {
     ...ctx,
+    getAgendaByTimeLine,
     getAgendaByEvent,
     selectAgenda,
     toggleCheckedAgenda,
@@ -397,6 +516,12 @@ const useContextController = (context) => {
     deleteAgenda,
     openAgendaDialog,
     closeAgendaDialog,
+    getTimeLines,
+    addTimeLine,
+    updateTimeLine,
+    deleteTimeLine,
+    openTimeLineDialog,
+    closeTimeLineDialog,
     getEvents,
     addEvent,
     updateEvent,
