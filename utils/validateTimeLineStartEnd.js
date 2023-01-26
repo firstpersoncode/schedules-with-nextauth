@@ -1,5 +1,6 @@
 import {
   add,
+  areIntervalsOverlapping,
   differenceInMilliseconds,
   getDaysInMonth,
   isAfter,
@@ -37,4 +38,21 @@ export function validateTimeLineStartEndWithinAgenda(start, end, agenda) {
     return false;
 
   return true;
+}
+
+export function validateTimeLineStartEndOverlapping(start, end, timeLines) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  let isOverlap = false;
+
+  for (const timeLine of timeLines) {
+    isOverlap = areIntervalsOverlapping(
+      { start: startDate, end: endDate },
+      { start: new Date(timeLine.start), end: new Date(timeLine.end) }
+    );
+
+    if (isOverlap) break;
+  }
+
+  return !isOverlap;
 }

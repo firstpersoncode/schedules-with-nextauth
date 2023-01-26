@@ -1,6 +1,7 @@
 import { getSession } from "next-auth/react";
 import { makeDBConnection } from "prisma/db";
 import validateTimeLineStartEnd, {
+  validateTimeLineStartEndOverlapping,
   validateTimeLineStartEndWithinAgenda,
 } from "utils/validateTimeLineStartEnd";
 
@@ -20,7 +21,7 @@ export default async function create(req, res) {
     const newTimeLine = await makeDBConnection(async (db) => {
       const agenda = await db.agenda.findUnique({
         where: { id: agendaId },
-        select: { start: true, end: true },
+        select: { start: true, end: true, timeLines: true },
       });
 
       if (!agenda) throw new Error("Agenda not found");
@@ -29,6 +30,9 @@ export default async function create(req, res) {
         throw new Error(
           "TimeLine should start and ends within the agenda timeline"
         );
+
+      if (!validateTimeLineStartEndOverlapping(start, end, agenda.timeLines))
+        throw new Error("TimeLine should not overlap with other timelines");
 
       return await db.timeLine.create({
         data: {

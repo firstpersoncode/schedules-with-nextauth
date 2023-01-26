@@ -19,6 +19,7 @@ import { Delete } from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
 import { useDialog } from "components/dialog";
 import validateTimeLineStartEnd, {
+  validateTimeLineStartEndOverlapping,
   validateTimeLineStartEndWithinAgenda,
 } from "utils/validateTimeLineStartEnd";
 const Dialog = dynamic(() => import("components/dialog"));
@@ -30,6 +31,7 @@ export default function TimeLine() {
     getAgendaByTimeLine,
     closeTimeLineDialog,
     timeLineDialog,
+    timeLines,
     timeLine,
     cell,
     addTimeLine,
@@ -185,6 +187,20 @@ export default function TimeLine() {
       errors.start =
         "Invalid date range, should start within the agenda timeline";
       errors.end = "Invalid date range, should ends within the agenda timeline";
+    } else if (
+      state.start &&
+      state.end &&
+      state.agenda &&
+      !validateTimeLineStartEndOverlapping(
+        state.start,
+        state.end,
+        timeLines.filter((t) => t.agendaId === state.agenda.id)
+      )
+    ) {
+      errors.start =
+        "Invalid date range, should not overlap with other timelines";
+      errors.end =
+        "Invalid date range, should not overlap with other timelines";
     }
 
     setErrors(errors);
