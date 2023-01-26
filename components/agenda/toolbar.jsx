@@ -13,7 +13,7 @@ import {
   Adjust,
   ChevronLeft,
   ChevronRight,
-  Info,
+  Notifications,
   Menu,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -135,7 +135,7 @@ export default function Toolbar() {
 
         <Tooltip placement="left" title="Info">
           <IconButton onClick={toggleInfoDrawer}>
-            <Info />
+            <Notifications />
           </IconButton>
         </Tooltip>
       </Box>

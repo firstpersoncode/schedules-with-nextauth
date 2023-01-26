@@ -283,7 +283,7 @@ export default function TimeLine() {
               </Box>
             )}
 
-            {!timeLine?.id && agendas.length > 0 && (
+            {!timeLine?.id && (
               <Autocomplete
                 sx={{ mb: 2 }}
                 value={state.agenda || null}

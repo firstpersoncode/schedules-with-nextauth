@@ -1,7 +1,13 @@
 import { Views } from "react-big-calendar";
 import { Box, Button, Card, Tooltip } from "@mui/material";
 
-import { CalendarViewMonth, Toc, ViewDay, ViewWeek } from "@mui/icons-material";
+import {
+  CalendarViewMonth,
+  Info,
+  Toc,
+  ViewDay,
+  ViewWeek,
+} from "@mui/icons-material";
 import { useAgendaContext } from "context/agenda";
 
 export default function Viewbar() {
@@ -67,6 +73,17 @@ export default function Viewbar() {
             onClick={handleSelectView("table")}
           >
             <Toc />
+          </Button>
+        </Tooltip>
+        <Tooltip title="Report">
+          <Button
+            sx={{ borderRadius: 0 }}
+            fullWidth
+            size="small"
+            variant={view.value === "report" ? "contained" : undefined}
+            onClick={handleSelectView("report")}
+          >
+            <Info />
           </Button>
         </Tooltip>
       </Box>

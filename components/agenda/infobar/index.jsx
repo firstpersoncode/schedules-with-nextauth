@@ -4,7 +4,6 @@ import { SwipeableDrawer, IconButton, Box } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
 
 const Notifications = dynamic(() => import("./notifications"));
-const Report = dynamic(() => import("./report"));
 
 export default function InfoBar() {
   const { infoDrawer, toggleInfoDrawer } = useAgendaContext();
@@ -29,10 +28,7 @@ export default function InfoBar() {
           <Close />
         </IconButton>
       </Box>
-      <Box sx={{ overflowY: "auto" }}>
-        {infoDrawer && <Notifications />}
-        {infoDrawer && <Report />}
-      </Box>
+      <Box sx={{ overflowY: "auto" }}>{infoDrawer && <Notifications />}</Box>
     </SwipeableDrawer>
   );
 }

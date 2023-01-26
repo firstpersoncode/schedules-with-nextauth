@@ -5,13 +5,8 @@ import {
   Alert,
   AlertTitle,
   CardActionArea,
-  Collapse,
-  IconButton,
-  Divider,
   Skeleton,
-  Tooltip,
 } from "@mui/material";
-import { ExpandLess, ExpandMore, ViewCarousel } from "@mui/icons-material";
 import {
   format,
   isBefore,
@@ -26,7 +21,6 @@ import Countdown from "./countdown";
 export default function Notifications() {
   const { getEvents, openEventDialog } = useAgendaContext();
   const events = getEvents();
-  const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [missedEvents, setMissedEvents] = useState([]);
   const [inComingEvents, setInComingEvents] = useState([]);
@@ -34,10 +28,6 @@ export default function Notifications() {
   const missedChecker = useRef();
   const incomingChecker = useRef();
   const timeoutRef = useRef();
-
-  function toggleOpen() {
-    setOpen(!open);
-  }
 
   function handleSelectEvent(event) {
     return function () {
@@ -95,30 +85,8 @@ export default function Notifications() {
 
   return (
     <>
-      <Box
-        onClick={toggleOpen}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          // justifyContent: "flex-end",
-          gap: 1,
-          px: 2,
-          py: 1,
-          cursor: "pointer",
-        }}
-      >
-        <IconButton size="small">
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
-        <Tooltip title="Events">
-          <IconButton>
-            <ViewCarousel />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Collapse in={open}>
-        {loading && (
+      {loading && (
+        <>
           <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
             <Skeleton
               sx={{ p: 0, m: 0, transform: "unset" }}
@@ -127,93 +95,107 @@ export default function Notifications() {
               width="100%"
             />
           </Box>
-        )}
-
-        {missedEvents.length > 0 && (
-          <Box
-            sx={{
-              width: "100%",
-              overflowX: "auto",
-              display: "flex",
-              alignItems: "stretch",
-              flexWrap: "nowrap",
-              gap: 1,
-              px: 2,
-              my: 1,
-            }}
-          >
-            {missedEvents.map((event, i) => (
-              <CardActionArea
-                key={`missed-${i}`}
-                onClick={handleSelectEvent(event)}
-                sx={{ flex: 1, minWidth: "90%" }}
-              >
-                <Alert severity="error">
-                  <AlertTitle sx={{ fontSize: 12 }}>
-                    Missed{" "}
-                    {isToday(new Date(event.start))
-                      ? "today"
-                      : isYesterday(new Date(event.start))
-                      ? "yesterday"
-                      : `on ${format(
-                          new Date(event.start),
-                          "iiii, MMM dd yyyy"
-                        )}`}
-                  </AlertTitle>
-                  <Typography sx={{ fontWeight: "bold", mb: 1 }}>
-                    {event.title}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12 }}>Ends at</Typography>
-                  <Countdown targetDate={new Date(event.end)} />
-                </Alert>
-              </CardActionArea>
-            ))}
+          <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
+            <Skeleton
+              sx={{ p: 0, m: 0, transform: "unset" }}
+              animation="wave"
+              height="120px"
+              width="100%"
+            />
           </Box>
-        )}
-        {inComingEvents.length > 0 && (
-          <Box
-            sx={{
-              width: "100%",
-              overflowX: "auto",
-              display: "flex",
-              alignItems: "stretch",
-              flexWrap: "nowrap",
-              gap: 1,
-              px: 2,
-              my: 1,
-            }}
-          >
-            {inComingEvents.map((event, i) => (
-              <CardActionArea
-                key={`incoming-${i}`}
-                onClick={handleSelectEvent(event)}
-                sx={{ flex: 1, minWidth: "90%" }}
-              >
-                <Alert severity="warning">
-                  <AlertTitle sx={{ fontSize: 12 }}>
-                    Incoming{" "}
-                    {isToday(new Date(event.start))
-                      ? "today"
-                      : isTomorrow(new Date(event.start))
-                      ? "tomorrow"
-                      : `on ${format(
-                          new Date(event.start),
-                          "iiii, MMM dd yyyy"
-                        )}`}
-                  </AlertTitle>
-                  <Typography sx={{ fontWeight: "bold", mb: 1 }}>
-                    {event.title}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12 }}>Started at</Typography>
-                  <Countdown targetDate={new Date(event.start)} />
-                </Alert>
-              </CardActionArea>
-            ))}
+          <Box sx={{ px: 2, my: 1, minWidth: "90%" }}>
+            <Skeleton
+              sx={{ p: 0, m: 0, transform: "unset" }}
+              animation="wave"
+              height="120px"
+              width="100%"
+            />
           </Box>
-        )}
-      </Collapse>
+        </>
+      )}
 
-      <Divider />
+      {missedEvents.length > 0 && (
+        <Box
+          sx={{
+            width: "100%",
+            overflowX: "auto",
+            display: "flex",
+            alignItems: "stretch",
+            flexWrap: "nowrap",
+            gap: 1,
+            px: 2,
+            my: 1,
+          }}
+        >
+          {missedEvents.map((event, i) => (
+            <CardActionArea
+              key={`missed-${i}`}
+              onClick={handleSelectEvent(event)}
+              sx={{ flex: 1, minWidth: "90%" }}
+            >
+              <Alert severity="error">
+                <AlertTitle sx={{ fontSize: 12 }}>
+                  Missed{" "}
+                  {isToday(new Date(event.start))
+                    ? "today"
+                    : isYesterday(new Date(event.start))
+                    ? "yesterday"
+                    : `on ${format(
+                        new Date(event.start),
+                        "iiii, MMM dd yyyy"
+                      )}`}
+                </AlertTitle>
+                <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                  {event.title}
+                </Typography>
+                <Typography sx={{ fontSize: 12 }}>Ends at</Typography>
+                <Countdown targetDate={new Date(event.end)} />
+              </Alert>
+            </CardActionArea>
+          ))}
+        </Box>
+      )}
+      {inComingEvents.length > 0 && (
+        <Box
+          sx={{
+            width: "100%",
+            overflowX: "auto",
+            display: "flex",
+            alignItems: "stretch",
+            flexWrap: "nowrap",
+            gap: 1,
+            px: 2,
+            my: 1,
+          }}
+        >
+          {inComingEvents.map((event, i) => (
+            <CardActionArea
+              key={`incoming-${i}`}
+              onClick={handleSelectEvent(event)}
+              sx={{ flex: 1, minWidth: "90%" }}
+            >
+              <Alert severity="warning">
+                <AlertTitle sx={{ fontSize: 12 }}>
+                  Incoming{" "}
+                  {isToday(new Date(event.start))
+                    ? "today"
+                    : isTomorrow(new Date(event.start))
+                    ? "tomorrow"
+                    : `on ${format(
+                        new Date(event.start),
+                        "iiii, MMM dd yyyy"
+                      )}`}
+                </AlertTitle>
+                <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                  {event.title}
+                </Typography>
+                <Typography sx={{ fontSize: 12 }}>Started at</Typography>
+                <Countdown targetDate={new Date(event.start)} />
+              </Alert>
+            </CardActionArea>
+          ))}
+        </Box>
+      )}
     </>
   );
 }

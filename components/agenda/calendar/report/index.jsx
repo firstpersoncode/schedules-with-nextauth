@@ -1,16 +1,6 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { ExpandLess, ExpandMore, Troubleshoot } from "@mui/icons-material";
-import {
-  Box,
-  Tab,
-  Tabs,
-  Typography,
-  IconButton,
-  Collapse,
-  Divider,
-  Tooltip,
-} from "@mui/material";
+import { Box, Tab, Tabs, Typography, Divider   } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
 
 const BurnDownChart = dynamic(() => import("./burndownChart"));
@@ -26,44 +16,20 @@ export default function Report() {
     [agendas]
   );
 
-  function toggleOpen() {
-    setOpen(!open);
-  }
-
   const handleChangeTab = (_, v) => {
     setTab(v);
   };
 
   return (
     <>
-      <Box
-        onClick={toggleOpen}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          // justifyContent: "flex-end",
-          gap: 1,
-          px: 2,
-          py: 1,
-          cursor: "pointer",
-        }}
-      >
-        <IconButton size="small">
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
-        <Tooltip title="Report">
-          <IconButton>
-            <Troubleshoot />
-          </IconButton>
-        </Tooltip>
-      </Box>
+      <Tabs value={tab} onChange={handleChangeTab}>
+        <Tab label="Progress" />
+        <Tab label="Burndown" />
+      </Tabs>
 
-      <Collapse in={open}>
-        <Tabs value={tab} onChange={handleChangeTab}>
-          <Tab label="Progress" />
-          <Tab label="Burndown" />
-        </Tabs>
+      <Divider />
 
+      <Box sx={{ height: "calc(100vh - 75px)", pb: "75px", overflowY: "auto" }}>
         {tab === 0 &&
           activeAgendas.map((agenda, i) => (
             <ProgressChart key={i} agenda={agenda} />
@@ -75,8 +41,7 @@ export default function Report() {
               <BurnDownChart agenda={agenda} />
             </Box>
           ))}
-      </Collapse>
-      <Divider />
+      </Box>
     </>
   );
 }

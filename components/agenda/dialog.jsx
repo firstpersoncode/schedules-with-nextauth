@@ -300,6 +300,7 @@ export default function AgendaDialog() {
                     <TextField
                       {...params}
                       fullWidth
+                      required
                       name="end"
                       error={Boolean(errors.end)}
                       helperText={errors.end}

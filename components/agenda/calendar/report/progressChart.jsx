@@ -176,9 +176,9 @@ export default function ProgressChart({ agenda }) {
           px: 2,
         }}
       >
-        {loading && (
+        {loading ? (
           <>
-            <Box sx={{ flex: 1, minWidth: "90%" }}>
+            <Box sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
               <Skeleton
                 sx={{ p: 0, m: 0, transform: "unset" }}
                 animation="wave"
@@ -186,7 +186,7 @@ export default function ProgressChart({ agenda }) {
                 width="100%"
               />
             </Box>
-            <Box sx={{ flex: 1, minWidth: "90%" }}>
+            <Box sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
               <Skeleton
                 sx={{ p: 0, m: 0, transform: "unset" }}
                 animation="wave"
@@ -194,7 +194,7 @@ export default function ProgressChart({ agenda }) {
                 width="100%"
               />
             </Box>
-            <Box sx={{ flex: 1, minWidth: "90%" }}>
+            <Box sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
               <Skeleton
                 sx={{ p: 0, m: 0, transform: "unset" }}
                 animation="wave"
@@ -203,18 +203,18 @@ export default function ProgressChart({ agenda }) {
               />
             </Box>
           </>
-        )}
-
-        {agendaEvents.length > 0 &&
+        ) : (
+          agendaEvents.length > 0 &&
           checkedStatuses.map((status, i) => (
-            <Box key={i} sx={{ flex: 1, minWidth: "90%" }}>
+            <Box key={i} sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
               <Chart
                 status={status}
                 events={agendaEvents}
                 labels={agendaLabels}
               />
             </Box>
-          ))}
+          ))
+        )}
       </Box>
     </>
   );

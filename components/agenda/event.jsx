@@ -270,7 +270,7 @@ export default function Event() {
               </Box>
             )}
 
-            {!event?.id && agendas.length > 0 && (
+            {!event?.id && (
               <Autocomplete
                 sx={{ mb: 2 }}
                 value={state.agenda || null}

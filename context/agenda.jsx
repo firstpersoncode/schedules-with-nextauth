@@ -40,6 +40,7 @@ const agendaContext = {
     { title: "Week", value: Views.WEEK },
     { title: "Day", value: Views.DAY },
     { title: "Table", value: "table" },
+    { title: "Report", value: "report" },
   ],
   view: { title: "Month", value: Views.MONTH },
 

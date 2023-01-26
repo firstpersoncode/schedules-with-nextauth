@@ -8,6 +8,7 @@ const DayView = dynamic(() => import("./dayView"));
 const WeekView = dynamic(() => import("./weekView"));
 const MonthView = dynamic(() => import("./monthView"));
 const TableView = dynamic(() => import("./tableView"));
+const Report = dynamic(() => import("./report"));
 
 export default function Calendar() {
   const { isMobile } = useGlobalContext();
@@ -39,6 +40,7 @@ export default function Calendar() {
           {view.value === Views.WEEK && <WeekView />}
           {view.value === Views.MONTH && <MonthView />}
           {view.value === "table" && <TableView />}
+          {view.value === "report" && <Report />}
         </Box>
       ) : (
         <Box
@@ -49,15 +51,17 @@ export default function Calendar() {
             overflow: "hidden",
           }}
         >
-          <Box
-            className="dayView"
-            sx={{
-              flex: 1,
-              minWidth: "30%",
-            }}
-          >
-            <DayView />
-          </Box>
+          {view.value !== "report" && (
+            <Box
+              className="dayView"
+              sx={{
+                flex: 1,
+                minWidth: "30%",
+              }}
+            >
+              <DayView />
+            </Box>
+          )}
           {view.value !== Views.DAY && (
             <Box
               className={`${view.value}View`}
@@ -69,6 +73,7 @@ export default function Calendar() {
               {view.value === Views.WEEK && <WeekView />}
               {view.value === Views.MONTH && <MonthView />}
               {view.value === "table" && <TableView />}
+              {view.value === "report" && <Report />}
             </Box>
           )}
         </Box>
