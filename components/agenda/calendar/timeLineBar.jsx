@@ -48,7 +48,7 @@ export default function TimeLineBar({ date }) {
             sx={{
               flex: 1,
               backgroundColor: agenda.color,
-              opacity: 0.5,
+              opacity: 0.35,
             }}
           />
         </Tooltip>
