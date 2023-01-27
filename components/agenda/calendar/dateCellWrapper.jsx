@@ -32,25 +32,44 @@ export default function DateCellWrapper({ children, ...props }) {
       onClick={handleClick}
       sx={{
         cursor: "pointer",
-        position: "relative",
-        zIndex: 5,
-        // display: "flex",
         flex: 1,
-        borderLeft: "1px solid #DDD",
-        ...(isSameDay(
-          startOfDay(new Date(props.value)),
-          startOfDay(new Date(date))
-        ) && {
-          border: "2px solid rgba(0, 146, 255, 1)",
-        }),
-        ...(isToday(startOfDay(new Date(props.value))) && {
-          backgroundColor: "rgba(0, 146, 255, 0.1)",
-        }),
-        "& .rbc-day-bg": { backgroundColor: "transparent" },
+        width: "100%",
+        height: "100%",
+        position: "relative",
       }}
     >
-      <TimeLineBar date={props.value} />
-      {children}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          // zIndex: 5,
+          ...(isSameDay(
+            startOfDay(new Date(props.value)),
+            startOfDay(new Date(date))
+          )
+            ? {
+                border: "2px solid rgba(0, 146, 255, 1)",
+              }
+            : isToday(startOfDay(new Date(props.value)))
+            ? {
+                border: "1px solid #000",
+              }
+            : {
+                border: "1px solid #CCC",
+              }),
+        }}
+      >
+        <TimeLineBar date={props.value} />
+      </Box>
+
+      <Box
+        sx={{
+          "& .rbc-day-bg": { backgroundColor: "transparent" },
+        }}
+      >
+        {children}
+      </Box>
 
       {open && (
         <FloatDayView

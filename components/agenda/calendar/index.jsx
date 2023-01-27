@@ -25,6 +25,9 @@ export default function Calendar() {
         "& .rbc-current-time-indicator": {
           backgroundColor: (theme) => theme.palette.primary.main,
         },
+        "& .rbc-row-content": {
+          pointerEvents: "none",
+        },
       }}
     >
       {isMobile ? (

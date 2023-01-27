@@ -18,12 +18,6 @@ export default async function list(req, res) {
         },
       });
 
-      const timeLines = await db.timeLine.findMany({
-        where: {
-          agendaId: { in: agendas.map((a) => a.id) },
-        },
-      });
-
       const events = await db.event.findMany({
         where: {
           agendaId: { in: agendas.map((a) => a.id) },
@@ -33,7 +27,7 @@ export default async function list(req, res) {
         },
       });
 
-      return { agendas, timeLines, events };
+      return { agendas, events };
     });
 
     res.status(200).json(data);

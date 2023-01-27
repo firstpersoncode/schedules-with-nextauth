@@ -1,46 +1,34 @@
-import { Box, Tooltip } from "@mui/material";
-import { isWithinInterval } from "date-fns";
-import { useAgendaContext } from "context/agenda";
 import { useMemo } from "react";
+import { Box, Tooltip } from "@mui/material";
+import { endOfDay, isWithinInterval, startOfDay } from "date-fns";
+import { useAgendaContext } from "context/agenda";
 import formatDateRange from "utils/formatDateRange";
 
 export default function TimeLineBar({ date }) {
-  const { getTimeLines, getAgendaByTimeLine, openTimeLineDialog } =
-    useAgendaContext();
+  const { agendas } = useAgendaContext();
 
   const selectedTimeLines = useMemo(() => {
-    const timeLines = getTimeLines();
-
-    let selectedTimeLines = timeLines.filter((timeLine) => {
-      return isWithinInterval(new Date(date), {
-        start: new Date(timeLine.start),
-        end: new Date(timeLine.end),
-      });
+    let selectedTimeLines = agendas.filter((agenda) => {
+      return (
+        agenda.checked &&
+        isWithinInterval(new Date(date), {
+          start: startOfDay(new Date(agenda.start)),
+          end: endOfDay(new Date(agenda.end)),
+        })
+      );
     });
 
-    if (selectedTimeLines.length)
-      selectedTimeLines = selectedTimeLines.map((t) => ({
-        ...t,
-        agenda: getAgendaByTimeLine(t),
-      }));
-
     return selectedTimeLines;
-  }, [date, getTimeLines, getAgendaByTimeLine]);
-
-  function handleOpenTimeLineDialog(timeLine) {
-    return function (e) {
-      e.stopPropagation();
-      openTimeLineDialog(timeLine);
-    };
-  }
+  }, [date, agendas]);
 
   return (
     <Box
       sx={{
+        flex: 1,
         position: "absolute",
-        bottom: 0,
+        top: 0,
         left: 0,
-        height: "33%",
+        height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -48,20 +36,18 @@ export default function TimeLineBar({ date }) {
         // alignItems: "flex-start",
       }}
     >
-      {selectedTimeLines.map((timeLine, i) => (
+      {selectedTimeLines.map((agenda, i) => (
         <Tooltip
           key={i}
-          title={`${timeLine.title} - ${formatDateRange(
-            timeLine.start,
-            timeLine.end
+          title={`${agenda.title} - ${formatDateRange(
+            agenda.start,
+            agenda.end
           )}`}
         >
           <Box
-            onClick={handleOpenTimeLineDialog(timeLine)}
             sx={{
               flex: 1,
-              minHeight: 15,
-              backgroundColor: timeLine.agenda.color,
+              backgroundColor: agenda.color,
               opacity: 0.5,
             }}
           />

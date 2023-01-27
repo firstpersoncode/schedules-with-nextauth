@@ -80,8 +80,7 @@ model Agenda {
   description String?
 
   color String?
-  
-  timeLines TimeLine[]
+
   events Event[]
   labels Label[]
 
@@ -94,32 +93,6 @@ model Agenda {
  archived Boolean @default(false)
 
  @@map("agendas")
-}
-
-
-enum TimeLineType {
-  AVAILABILITY
-  UNAVAILABILITY
-  OTHERS
-}
-
-model TimeLine {
-  id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  title String
-  start DateTime
-  end DateTime
-  description String?
-  type TimeLineType
-
-  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
-  agendaId String @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  archived Boolean @default(false)
-
- @@map("timeLines")
 }
 
 model Label {

@@ -5,14 +5,13 @@ import SideBar from "./sidebar";
 import Calendar from "./calendar";
 import Toolbar from "./toolbar";
 import InfoBar from "./infobar";
-import TimeLine from "./timeline";
 import Viewbar from "./viewbar";
 
 const Event = dynamic(() => import("./event"));
 const Dialog = dynamic(() => import("./dialog"));
 
 export default function Agenda() {
-  const { eventDialog, timeLineDialog, agendaDialog } = useAgendaContext();
+  const { eventDialog, agendaDialog } = useAgendaContext();
 
   return (
     <>
@@ -38,7 +37,6 @@ export default function Agenda() {
       </Box>
 
       {eventDialog && <Event />}
-      {timeLineDialog && <TimeLine />}
       {agendaDialog && <Dialog />}
     </>
   );

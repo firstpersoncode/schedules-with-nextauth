@@ -1,11 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Edit,
-  ExpandLess,
-  ExpandMore,
-  DateRange,
-  Task,
-} from "@mui/icons-material";
+import { Edit, ExpandLess, ExpandMore, Task } from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -16,10 +10,8 @@ import {
   Collapse,
   Typography,
   Chip,
-  Button,
   Tooltip,
 } from "@mui/material";
-import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 import formatDateRange from "utils/formatDateRange";
 
@@ -29,7 +21,6 @@ export default function Agenda({ agenda }) {
     // selectAgenda,
     toggleCheckedAgenda,
     openAgendaDialog,
-    openTimeLineDialog,
     openEventDialog,
     getLabelsByAgenda,
     toggleCheckedLabel,
@@ -51,10 +42,6 @@ export default function Agenda({ agenda }) {
 
   function handleClickEditAgenda() {
     openAgendaDialog(agenda);
-  }
-
-  function handleOpenTimeLineDialog() {
-    openTimeLineDialog(null, agenda);
   }
 
   function handleOpenEventDialog() {
@@ -180,12 +167,6 @@ export default function Agenda({ agenda }) {
           <Tooltip title="Edit">
             <IconButton onClick={handleClickEditAgenda} size="small">
               <Edit />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Add timeline">
-            <IconButton size="small" onClick={handleOpenTimeLineDialog}>
-              <DateRange />
             </IconButton>
           </Tooltip>
 
