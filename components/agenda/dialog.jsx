@@ -224,24 +224,24 @@ export default function AgendaDialog() {
         <Box>
           {loading && <LinearProgress />}
           <Box sx={{ p: 2 }}>
-            {agenda?.id && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
-                  Agenda
-                </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
+                Agenda
+              </Typography>
+              {agenda?.id && (
                 <Tooltip title="Delete">
                   <IconButton disabled={loading} onClick={handleDelete}>
                     <Delete />
                   </IconButton>
                 </Tooltip>
-              </Box>
-            )}
+              )}
+            </Box>
 
             <TextField
               required
