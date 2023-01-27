@@ -311,22 +311,26 @@ export default function Event() {
       <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
         <Box>
           {loading && <LinearProgress />}
+
           <Box sx={{ p: 2 }}>
-            {event?.id && agenda?.id && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  mb: 2,
-                }}
-              >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
+                Event
+              </Typography>
+              {event?.id && (
                 <Tooltip title="Delete">
                   <IconButton disabled={loading} onClick={handleDelete}>
                     <Delete />
                   </IconButton>
                 </Tooltip>
-              </Box>
-            )}
+              )}
+            </Box>
 
             <Autocomplete
               sx={{ mb: 2 }}
@@ -453,26 +457,25 @@ export default function Event() {
               </Box>
             </LocalizationProvider>
 
-            {!event?.id && (
-              <TextField
-                required
-                sx={{ mt: 2 }}
-                select
-                fullWidth
-                label="Repeat"
-                value={state.repeat || ""}
-                onChange={handleChange("repeat")}
-                error={Boolean(errors.repeat)}
-                helperText={errors.repeat}
-              >
-                <MenuItem value={null}>One time</MenuItem>
-                {repeatOptions.map((option, i) => (
-                  <MenuItem key={i} value={option.value}>
-                    {option.title}
-                  </MenuItem>
-                ))}
-              </TextField>
-            )}
+            <TextField
+              required
+              sx={{ mt: 2 }}
+              select
+              fullWidth
+              label="Repeat"
+              disabled={event?.id}
+              value={state.repeat || ""}
+              onChange={handleChange("repeat")}
+              error={Boolean(errors.repeat)}
+              helperText={errors.repeat}
+            >
+              <MenuItem value={null}>One time</MenuItem>
+              {repeatOptions.map((option, i) => (
+                <MenuItem key={i} value={option.value}>
+                  {option.title}
+                </MenuItem>
+              ))}
+            </TextField>
           </Box>
         </Box>
 
