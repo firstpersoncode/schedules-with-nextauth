@@ -11,8 +11,17 @@ export default async function create(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { title, description, start, end, agendaId, labels, status } =
-      req.body;
+    const {
+      title,
+      description,
+      start,
+      end,
+      agendaId,
+      labels,
+      status,
+      repeat,
+      cancelledAt,
+    } = req.body;
     if (!validateEventStartEnd(start, end))
       throw new Error(
         "Invalid Event date range format, end date should be greater than start date and should no more than 1 day"
@@ -40,6 +49,8 @@ export default async function create(req, res) {
           agenda: { connect: { id: agendaId } },
           labelIds: labels.map((l) => l.id),
           status,
+          repeat,
+          cancelledAt,
         },
       });
     });

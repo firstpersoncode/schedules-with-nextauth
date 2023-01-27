@@ -17,7 +17,8 @@ import {
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete } from "@mui/icons-material";
-import { useAgendaContext } from "context/agenda";
+import { add, isAfter, isBefore } from "date-fns";
+import { useAgendaContext, repeats, repeatOptions } from "context/agenda";
 import { useDialog } from "components/dialog";
 import validateEventStartEnd, {
   validateEventStartEndWithinAgenda,
@@ -36,6 +37,7 @@ export default function Event() {
     addEvent,
     updateEvent,
     deleteEvent,
+    cancelEvent,
     statuses,
   } = useAgendaContext();
 
@@ -45,12 +47,13 @@ export default function Event() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [state, setState] = useState({
-    title: "",
-    description: "",
+    title: null,
+    description: null,
     start: null,
     end: null,
     labels: [],
-    status: "",
+    status: null,
+    repeat: null,
   });
 
   const agenda = useMemo(() => {
@@ -67,6 +70,7 @@ export default function Event() {
         end: new Date(event.end),
         labels: event.labels,
         status: event.status,
+        repeat: event.repeat,
       }));
     }
   }, [event]);
@@ -106,13 +110,13 @@ export default function Event() {
     closeEventDialog();
     setErrors({});
     setState({
-      title: "",
-      description: "",
+      title: null,
+      description: null,
       start: null,
       end: null,
       labels: [],
-      status: "",
-      type: "TASK",
+      status: null,
+      repeat: null,
     });
   }
 
@@ -194,21 +198,57 @@ export default function Event() {
 
   async function handleDelete(e) {
     e.preventDefault();
+    let dialog = `<strong>You're about to delete ${event.title}</strong><p>This action can't be undone once deleting complete</p>`;
 
-    handleOpenDialog(
-      `<strong>You're about to delete ${event.title}</strong><p>This action can't be undone once deleting complete</p>`,
-      "warning"
-    );
+    if (event.repeat) {
+      dialog = `<strong>You're about to delete ${event.title}</strong><p>This is repeated events, choose what to delete.</p>`;
+    }
+
+    handleOpenDialog(dialog, "warning");
   }
 
-  async function confirmDelete(e) {
-    e.preventDefault();
+  function confirmDelete(deleteType) {
+    return async function (e) {
+      e.preventDefault();
 
-    try {
-      await deleteEvent(event);
-      onClose();
-      handleCloseDialog();
-    } catch (err) {}
+      try {
+        let eventStart = new Date(event.start);
+        event.cancelledAt.push(eventStart);
+
+        switch (deleteType) {
+          case "this": {
+            await cancelEvent({
+              id: event.id,
+              cancelledAt: event.cancelledAt,
+            });
+            break;
+          }
+          case "thisAndOthers": {
+            const agendaEnd = new Date(state.agenda.end);
+            while (isBefore(eventStart, agendaEnd)) {
+              eventStart = add(eventStart, {
+                [repeats[event.repeat]]: 1,
+              });
+              if (isAfter(eventStart, agendaEnd)) break;
+              event.cancelledAt.push(eventStart);
+            }
+            await cancelEvent({
+              id: event.id,
+              cancelledAt: event.cancelledAt,
+            });
+            break;
+          }
+          case "all": {
+            await deleteEvent(event);
+            break;
+          }
+        }
+        onClose();
+        handleCloseDialog();
+      } catch (err) {
+        console.error(err);
+      }
+    };
   }
 
   async function handleSubmit(e) {
@@ -219,15 +259,34 @@ export default function Event() {
 
     try {
       if (event?.id) {
-        await updateEvent({
-          id: event.id,
-          title: state.title,
-          description: state.description,
-          start: state.start,
-          end: state.end,
-          labels: state.labels,
-          status: state.status,
-        });
+        if (event.repeat) {
+          event.cancelledAt.push(new Date(event.start));
+          await cancelEvent({
+            id: event.id,
+            cancelledAt: event.cancelledAt,
+          });
+
+          await addEvent({
+            title: state.title,
+            description: state.description,
+            start: state.start,
+            end: state.end,
+            labels: state.labels,
+            agenda: state.agenda,
+            status: state.status,
+            cancelledAt: [],
+          });
+        } else {
+          await updateEvent({
+            id: event.id,
+            title: state.title,
+            description: state.description,
+            start: state.start,
+            end: state.end,
+            labels: state.labels,
+            status: state.status,
+          });
+        }
       } else {
         await addEvent({
           title: state.title,
@@ -237,6 +296,8 @@ export default function Event() {
           labels: state.labels,
           status: state.status,
           agenda: state.agenda,
+          repeat: state.repeat,
+          cancelledAt: [],
         });
       }
 
@@ -255,13 +316,10 @@ export default function Event() {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
+                  justifyContent: "flex-end",
+                  mb: 2,
                 }}
               >
-                <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
-                  {agenda.title}
-                </Typography>
                 <Tooltip title="Delete">
                   <IconButton disabled={loading} onClick={handleDelete}>
                     <Delete />
@@ -270,32 +328,31 @@ export default function Event() {
               </Box>
             )}
 
-            {!event?.id && (
-              <Autocomplete
-                sx={{ mb: 2 }}
-                value={state.agenda || null}
-                options={agendas}
-                getOptionLabel={(o) => o.title}
-                onChange={handleSelectAgenda}
-                disableClearable
-                blurOnSelect
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Agenda"
-                    variant="outlined"
-                    error={Boolean(errors.agenda)}
-                    helperText={errors.agenda}
-                  />
-                )}
-              />
-            )}
+            <Autocomplete
+              sx={{ mb: 2 }}
+              disabled={event?.id && agenda?.id}
+              value={state.agenda || null}
+              options={agendas}
+              getOptionLabel={(o) => o.title}
+              onChange={handleSelectAgenda}
+              disableClearable
+              blurOnSelect
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Agenda"
+                  variant="outlined"
+                  error={Boolean(errors.agenda)}
+                  helperText={errors.agenda}
+                />
+              )}
+            />
 
             <TextField
               required
               sx={{ mb: 2 }}
               label="Title"
-              value={state.title}
+              value={state.title || ""}
               onChange={handleChange("title")}
               error={Boolean(errors.title)}
               helperText={errors.title}
@@ -305,7 +362,7 @@ export default function Event() {
             <TextField
               label="Description"
               sx={{ mb: 2 }}
-              value={state.description}
+              value={state.description || ""}
               onChange={handleChange("description")}
               fullWidth
               multiline
@@ -341,7 +398,7 @@ export default function Event() {
                 select
                 fullWidth
                 label="Status"
-                value={state.status}
+                value={state.status || ""}
                 onChange={handleChange("status")}
                 error={Boolean(errors.status)}
                 helperText={errors.status}
@@ -395,6 +452,27 @@ export default function Event() {
                 />
               </Box>
             </LocalizationProvider>
+
+            {!event?.id && (
+              <TextField
+                required
+                sx={{ mt: 2 }}
+                select
+                fullWidth
+                label="Repeat"
+                value={state.repeat || ""}
+                onChange={handleChange("repeat")}
+                error={Boolean(errors.repeat)}
+                helperText={errors.repeat}
+              >
+                <MenuItem value={null}>One time</MenuItem>
+                {repeatOptions.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
+                    {option.title}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
           </Box>
         </Box>
 
@@ -414,9 +492,53 @@ export default function Event() {
             <Button disabled={loading} onClick={handleCloseDialog}>
               Cancel
             </Button>
-            <Button disabled={loading} onClick={confirmDelete}>
-              Delete
-            </Button>
+            {event?.repeat ? (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    fontSize: 12,
+                    textTransform: "unset",
+                    textAlign: "left",
+                  }}
+                  disabled={loading}
+                  onClick={confirmDelete("this")}
+                >
+                  Only for this event
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    fontSize: 12,
+                    textTransform: "unset",
+                    textAlign: "left",
+                  }}
+                  disabled={loading}
+                  onClick={confirmDelete("thisAndOthers")}
+                >
+                  This event and other repeated events
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    fontSize: 12,
+                    textTransform: "unset",
+                    textAlign: "left",
+                  }}
+                  disabled={loading}
+                  onClick={confirmDelete("all")}
+                >
+                  All repeated events
+                </Button>
+              </Box>
+            ) : (
+              <Button disabled={loading} onClick={confirmDelete("all")}>
+                Delete
+              </Button>
+            )}
           </DialogActions>
         </Dialog>
       )}

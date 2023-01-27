@@ -7,6 +7,34 @@ import {
 } from "react";
 import axios from "axios";
 import { Views } from "react-big-calendar";
+import { add, differenceInMinutes, isAfter, isBefore } from "date-fns";
+
+export const repeats = { DAILY: "days", WEEKLY: "weeks", MONTHLY: "months" };
+export const repeatOptions = [
+  { title: "Daily", value: "DAILY" },
+  { title: "Weekly", value: "WEEKLY" },
+  { title: "Monthly", value: "MONTHLY" },
+];
+
+export const views = [
+  { title: "Month", value: Views.MONTH },
+  { title: "Week", value: Views.WEEK },
+  { title: "Day", value: Views.DAY },
+  { title: "Table", value: "table" },
+  { title: "Report", value: "report" },
+];
+
+const timeLineTypes = [
+  { title: "Availability", value: "AVAILABILITY", checked: true },
+  { title: "Unavailability", value: "UNAVAILABILITY", checked: true },
+  { title: "Others", value: "OTHERS", checked: true },
+];
+
+const statuses = [
+  { title: "To Do", value: "TODO", checked: true },
+  { title: "In Progress", value: "INPROGRESS", checked: true },
+  { title: "Completed", value: "COMPLETED", checked: true },
+];
 
 const agendaContext = {
   agendas: [],
@@ -23,26 +51,9 @@ const agendaContext = {
 
   labels: [],
 
-  timeLineTypes: [
-    { title: "Availability", value: "AVAILABILITY", checked: true },
-    { title: "Unavailability", value: "UNAVAILABILITY", checked: true },
-    { title: "Others", value: "OTHERS", checked: true },
-  ],
-
-  statuses: [
-    { title: "To Do", value: "TODO", checked: true },
-    { title: "In Progress", value: "INPROGRESS", checked: true },
-    { title: "Completed", value: "COMPLETED", checked: true },
-  ],
-
-  views: [
-    { title: "Month", value: Views.MONTH },
-    { title: "Week", value: Views.WEEK },
-    { title: "Day", value: Views.DAY },
-    { title: "Table", value: "table" },
-    { title: "Report", value: "report" },
-  ],
-  view: { title: "Month", value: Views.MONTH },
+  timeLineTypes,
+  statuses,
+  view: views[0],
 
   cell: null,
   date: new Date(),
@@ -287,12 +298,62 @@ const useContextController = (context) => {
     }));
   }
 
+  const duplicateRepeatedEvent = useCallback((agendaEnd, event) => {
+    let events = [event];
+    let eventStart = new Date(event.start);
+    let eventEnd = new Date(event.end);
+    const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
+
+    while (isBefore(eventStart, agendaEnd)) {
+      eventStart = add(eventStart, {
+        [repeats[event.repeat]]: 1,
+      });
+
+      if (isAfter(eventStart, agendaEnd)) break;
+
+      eventEnd = add(eventStart, { minutes: durationInMinutes });
+
+      const repeatedEvent = {
+        ...event,
+        start: eventStart,
+        end: eventEnd,
+        isDuplicate: true,
+      };
+
+      events.push(repeatedEvent);
+    }
+
+    if (event.cancelledAt.length) {
+      events = events.filter((e) => {
+        return !Boolean(
+          event.cancelledAt.find((d) => {
+            return new Date(d).getTime() === new Date(e.start).getTime();
+          })
+        );
+      });
+    }
+
+    return events;
+  }, []);
+
   const getEvents = useCallback(() => {
+    if (!ctx.events.length) return [];
+    let events = [...ctx.events];
+
     const checkedAgendas = ctx.agendas.filter((a) => a.checked);
     const checkedLabels = ctx.labels.filter((l) => l.checked);
     const checkedStatuses = ctx.statuses.filter((s) => s.checked);
 
-    return ctx.events
+    events.forEach((event) => {
+      if (event.repeat) {
+        events = events.filter((e) => e.id !== event.id);
+        const agenda = getAgendaByEvent(event);
+        const duplicates = duplicateRepeatedEvent(agenda.end, event);
+        events = [...events, ...duplicates];
+      }
+    });
+
+    return events
       .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
       .filter(
         (e) =>
@@ -300,7 +361,14 @@ const useContextController = (context) => {
           checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
       )
       .filter((e) => checkedStatuses.find((s) => s.value === e.status));
-  }, [ctx.events, ctx.labels, ctx.statuses, ctx.agendas]);
+  }, [
+    ctx.events,
+    ctx.labels,
+    ctx.statuses,
+    ctx.agendas,
+    getAgendaByEvent,
+    duplicateRepeatedEvent,
+  ]);
 
   async function addEvent({ agenda, ...event }) {
     setIsLoading(true);
@@ -366,6 +434,25 @@ const useContextController = (context) => {
     setIsLoading(false);
   }
 
+  async function cancelEvent(event) {
+    setIsLoading(true);
+    try {
+      await axios.put("/api/event/cancel", event);
+      const currEvents = ctx.events.map((e) => {
+        if (e.id === event.id) e = { ...e, ...event };
+        return e;
+      });
+
+      setContext((v) => ({
+        ...v,
+        events: currEvents,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+    setIsLoading(false);
+  }
+
   function openEventDialog(cell, event, agenda) {
     setContext((v) => ({
       ...v,
@@ -410,7 +497,7 @@ const useContextController = (context) => {
   }
 
   function selectView(view) {
-    const selectedView = ctx.views.find((p) => p.value === view);
+    const selectedView = views.find((p) => p.value === view);
     setContext((v) => ({ ...v, view: selectedView }));
   }
 
@@ -527,6 +614,7 @@ const useContextController = (context) => {
     addEvent,
     updateEvent,
     deleteEvent,
+    cancelEvent,
     openEventDialog,
     closeEventDialog,
     getLabelsByAgenda,

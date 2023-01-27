@@ -38,8 +38,8 @@ export default function AgendaDialog() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [state, setState] = useState({
-    title: "",
-    description: "",
+    title: null,
+    description: null,
     start: new Date(),
     end: null,
     labels: [],
@@ -66,8 +66,8 @@ export default function AgendaDialog() {
     closeAgendaDialog();
     setErrors({});
     setState({
-      title: "",
-      description: "",
+      title: null,
+      description: null,
       start: new Date(),
       end: null,
       labels: [],
@@ -247,7 +247,7 @@ export default function AgendaDialog() {
               required
               sx={{ mb: 2 }}
               label="Title"
-              value={state.title}
+              value={state.title || ""}
               onChange={handleChange("title")}
               error={Boolean(errors.title)}
               helperText={errors.title}
@@ -257,7 +257,7 @@ export default function AgendaDialog() {
             <TextField
               label="Description"
               sx={{ mb: 2 }}
-              value={state.description}
+              value={state.description || ""}
               onChange={handleChange("description")}
               fullWidth
               multiline

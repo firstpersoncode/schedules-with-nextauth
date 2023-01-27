@@ -143,7 +143,7 @@ enum EventStatus {
   COMPLETED
 }
 
-enum EventRecurring {
+enum EventRepeat {
   DAILY
   WEEKLY
   MONTHLY
@@ -157,7 +157,8 @@ model Event {
   description String?
   
   status EventStatus
-  recurring EventRecurring?
+  repeat EventRepeat?
+  cancelledAt DateTime[]
 
   agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
   agendaId String @db.ObjectId
