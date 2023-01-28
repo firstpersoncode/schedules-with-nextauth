@@ -21,7 +21,7 @@ const localizer = dateFnsLocalizer({
 
 function Event({ event }) {
   return (
-    <>
+    <Box sx={{ position: "relative", height: "100%" }}>
       <Typography sx={{ fontSize: 12, lineHeight: 1 }}>
         {event.title}
       </Typography>
@@ -40,7 +40,7 @@ function Event({ event }) {
           />
         ))}
       </Box>
-    </>
+    </Box>
   );
 }
 
