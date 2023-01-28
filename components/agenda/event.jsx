@@ -185,6 +185,7 @@ export default function Event() {
       return {
         ...prev,
         agenda,
+        labels: [],
       };
     });
     setErrors((v) => ({ ...v, agenda: undefined }));
@@ -360,14 +361,14 @@ export default function Event() {
 
           <Box sx={{ p: 2 }}>
             {event?.id && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
                   mb: 4,
-              }}
-            >
+                }}
+              >
                 <TextField
                   required
                   select
@@ -388,7 +389,7 @@ export default function Event() {
                     <Delete />
                   </IconButton>
                 </Tooltip>
-            </Box>
+              </Box>
             )}
 
             <Box
@@ -399,25 +400,25 @@ export default function Event() {
                 flexDirection: { xs: "column", lg: "row" },
               }}
             >
-            <Autocomplete
-              disabled={event?.id && agenda?.id}
-              value={state.agenda || null}
-              options={agendas}
-              getOptionLabel={(o) => o.title}
-              onChange={handleSelectAgenda}
-              disableClearable
-              blurOnSelect
+              <Autocomplete
+                disabled={event?.id && agenda?.id}
+                value={state.agenda || null}
+                options={agendas}
+                getOptionLabel={(o) => o.title}
+                onChange={handleSelectAgenda}
+                disableClearable
+                blurOnSelect
                 fullWidth
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Agenda"
-                  variant="outlined"
-                  error={Boolean(errors.agenda)}
-                  helperText={errors.agenda}
-                />
-              )}
-            />
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Agenda"
+                    variant="outlined"
+                    error={Boolean(errors.agenda)}
+                    helperText={errors.agenda}
+                  />
+                )}
+              />
 
               <Autocomplete
                 disabled={!state.agenda?.labels?.length}
@@ -443,15 +444,15 @@ export default function Event() {
               />
             </Box>
 
-              <TextField
-                required
+            <TextField
+              required
               sx={{ mb: 2 }}
               label="Title"
               value={state.title || ""}
               onChange={handleChange("title")}
               error={Boolean(errors.title)}
               helperText={errors.title}
-                fullWidth
+              fullWidth
             />
 
             <TextField
