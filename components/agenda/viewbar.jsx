@@ -1,5 +1,5 @@
 import { Views } from "react-big-calendar";
-import { Box, Button, Card, Tooltip } from "@mui/material";
+import { Box, Button, Card, Divider, Tooltip } from "@mui/material";
 
 import {
   CalendarViewMonth,
@@ -29,6 +29,7 @@ export default function Viewbar() {
         right: 0,
       }}
     >
+      <Divider />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Tooltip title="Day view">
           <Button
