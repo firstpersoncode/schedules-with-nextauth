@@ -20,7 +20,6 @@ export const views = [
   { title: "Month", value: Views.MONTH },
   { title: "Week", value: Views.WEEK },
   { title: "Day", value: Views.DAY },
-  { title: "Table", value: "table" },
   { title: "Report", value: "report" },
 ];
 

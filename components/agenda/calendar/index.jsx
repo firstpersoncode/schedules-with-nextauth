@@ -7,7 +7,6 @@ import { useGlobalContext } from "context/global";
 const DayView = dynamic(() => import("./dayView"));
 const WeekView = dynamic(() => import("./weekView"));
 const MonthView = dynamic(() => import("./monthView"));
-const TableView = dynamic(() => import("./tableView"));
 const Report = dynamic(() => import("./report"));
 
 export default function Calendar() {
@@ -42,7 +41,6 @@ export default function Calendar() {
           {view.value === Views.DAY && <DayView />}
           {view.value === Views.WEEK && <WeekView />}
           {view.value === Views.MONTH && <MonthView />}
-          {view.value === "table" && <TableView />}
           {view.value === "report" && <Report />}
         </Box>
       ) : (
@@ -75,7 +73,6 @@ export default function Calendar() {
             >
               {view.value === Views.WEEK && <WeekView />}
               {view.value === Views.MONTH && <MonthView />}
-              {view.value === "table" && <TableView />}
               {view.value === "report" && <Report />}
             </Box>
           )}

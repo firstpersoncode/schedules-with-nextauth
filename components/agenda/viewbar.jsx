@@ -4,7 +4,6 @@ import { Box, Button, Card, Tooltip } from "@mui/material";
 import {
   CalendarViewMonth,
   Info,
-  Toc,
   ViewDay,
   ViewWeek,
 } from "@mui/icons-material";
@@ -62,17 +61,6 @@ export default function Viewbar() {
             onClick={handleSelectView(Views.MONTH)}
           >
             <CalendarViewMonth />
-          </Button>
-        </Tooltip>
-        <Tooltip title="Table view">
-          <Button
-            sx={{ borderRadius: 0 }}
-            fullWidth
-            size="small"
-            variant={view.value === "table" ? "contained" : undefined}
-            onClick={handleSelectView("table")}
-          >
-            <Toc />
           </Button>
         </Tooltip>
         <Tooltip title="Report">
