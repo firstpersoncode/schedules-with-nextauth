@@ -458,7 +458,6 @@ export default function Event() {
             </LocalizationProvider>
 
             <TextField
-              required
               sx={{ mt: 2 }}
               select
               fullWidth
@@ -492,9 +491,6 @@ export default function Event() {
       {dialog && (
         <Dialog dialog={dialog} onClose={handleCloseDialog}>
           <DialogActions>
-            <Button disabled={loading} onClick={handleCloseDialog}>
-              Cancel
-            </Button>
             {event?.repeat ? (
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                 <Button
@@ -521,7 +517,7 @@ export default function Event() {
                   disabled={loading}
                   onClick={confirmDelete("thisAndOthers")}
                 >
-                  This event and other repeated events
+                  This event and next repeated events
                 </Button>
                 <Button
                   size="small"
@@ -536,11 +532,19 @@ export default function Event() {
                 >
                   All repeated events
                 </Button>
+                <Button disabled={loading} onClick={handleCloseDialog}>
+                  Cancel
+                </Button>
               </Box>
             ) : (
-              <Button disabled={loading} onClick={confirmDelete("all")}>
-                Delete
-              </Button>
+              <>
+                <Button disabled={loading} onClick={confirmDelete("all")}>
+                  Delete
+                </Button>
+                <Button disabled={loading} onClick={handleCloseDialog}>
+                  Cancel
+                </Button>
+              </>
             )}
           </DialogActions>
         </Dialog>
