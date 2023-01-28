@@ -24,7 +24,7 @@ export default function Calendar() {
         "& .rbc-current-time-indicator": {
           backgroundColor: (theme) => theme.palette.primary.main,
         },
-        "& .rbc-row-content": {
+        "& .monthView .rbc-row-content, & .weekView .rbc-row-content": {
           pointerEvents: "none",
         },
       }}
