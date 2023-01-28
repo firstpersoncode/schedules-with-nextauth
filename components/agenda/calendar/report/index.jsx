@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Box, Tab, Tabs, Typography, Divider   } from "@mui/material";
+import { Box, Tab, Tabs, Divider } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
 
 const BurnDownChart = dynamic(() => import("./burndownChart"));
@@ -36,10 +36,7 @@ export default function Report() {
           ))}
         {tab === 1 &&
           activeAgendas.map((agenda, i) => (
-            <Box key={i}>
-              <Typography sx={{ px: 2, mt: 2 }}>{agenda.title}</Typography>
-              <BurnDownChart agenda={agenda} />
-            </Box>
+            <BurnDownChart key={i} agenda={agenda} />
           ))}
       </Box>
     </>

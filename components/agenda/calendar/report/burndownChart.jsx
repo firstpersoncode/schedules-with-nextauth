@@ -1,4 +1,10 @@
-import { Box, MenuItem, TextField } from "@mui/material";
+import {
+  Box,
+  MenuItem,
+  TextField,
+  Radio,
+  FormControlLabel,
+} from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,8 +30,8 @@ ChartJS.register(
 );
 
 const scaleOptions = [
-  { title: "Weeks", value: "weeks" },
   { title: "Months", value: "months" },
+  { title: "Weeks", value: "weeks" },
 ];
 
 const options = {
@@ -50,7 +56,12 @@ const options = {
 };
 
 export default function BurnDownChart({ agenda }) {
-  const { labels, getEvents } = useAgendaContext();
+  const {
+    agenda: activeAgenda,
+    labels,
+    getEvents,
+    selectAgenda,
+  } = useAgendaContext();
   const [scale, setScale] = useState(scaleOptions[0].value);
 
   const allEvents = getEvents();
@@ -143,9 +154,29 @@ export default function BurnDownChart({ agenda }) {
     setScale(e.target.value);
   }
 
+  function handleSelectAgenda() {
+    selectAgenda(agenda);
+  }
+
   return (
     <>
-      <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
+      <FormControlLabel
+        sx={{ px: 2, mt: 2 }}
+        onChange={handleSelectAgenda}
+        control={
+          <Radio
+            sx={{
+              color: agenda.color,
+              "&.Mui-checked": {
+                color: agenda.color,
+              },
+            }}
+            checked={activeAgenda?.id === agenda.id}
+          />
+        }
+        label={agenda.title}
+      />
+      <Box sx={{ px: 2, display: "flex", justifyContent: "flex-end" }}>
         <TextField
           select
           label="Scale"
