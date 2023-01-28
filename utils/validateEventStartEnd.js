@@ -5,13 +5,13 @@ export default function validateEventStartEnd(start, end) {
   const endDate = new Date(end);
   if (isAfter(startDate, endDate)) return false;
 
-  const dayInMilliseconds = 24 * 60 * 60 * 1000;
+  // const dayInMilliseconds = 24 * 60 * 60 * 1000;
 
-  const diffMilliSeconds = Math.abs(
-    differenceInMilliseconds(startDate, endDate)
-  );
+  // const diffMilliSeconds = Math.abs(
+  //   differenceInMilliseconds(startDate, endDate)
+  // );
 
-  if (diffMilliSeconds > dayInMilliseconds) return false;
+  // if (diffMilliSeconds > dayInMilliseconds) return false;
 
   return true;
 }

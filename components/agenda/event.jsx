@@ -9,7 +9,6 @@ import {
   LinearProgress,
   Autocomplete,
   MenuItem,
-  Typography,
   IconButton,
   Chip,
   Tooltip,
@@ -17,7 +16,7 @@ import {
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete } from "@mui/icons-material";
-import { add, isAfter, isBefore } from "date-fns";
+import { add, differenceInMinutes, isAfter, isBefore, sub } from "date-fns";
 import { useAgendaContext, repeats, repeatOptions } from "context/agenda";
 import { useDialog } from "components/dialog";
 import validateEventStartEnd, {
@@ -105,6 +104,54 @@ export default function Event() {
     }
   }, [cell]);
 
+  useEffect(() => {
+    if (event?.id) {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      if (event.status !== state.status) {
+        const now = new Date();
+        if (state.status === "COMPLETED") {
+          if (isAfter(eventStart, now)) {
+            const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
+            setState((v) => ({
+              ...v,
+              start: sub(now, { minutes: durationInMinutes }),
+              end: now,
+            }));
+          } else {
+            const durationInMinutes = differenceInMinutes(now, eventStart);
+            setState((v) => ({
+              ...v,
+              start: eventStart,
+              end: add(eventStart, { minutes: durationInMinutes }),
+            }));
+          }
+        } else {
+          if (isBefore(eventEnd, now)) {
+            const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
+            setState((v) => ({
+              ...v,
+              start: now,
+              end: add(now, { minutes: durationInMinutes }),
+            }));
+          } else {
+            setState((v) => ({
+              ...v,
+              start: now,
+              end: eventEnd,
+            }));
+          }
+        }
+      } else {
+        setState((v) => ({
+          ...v,
+          start: eventStart,
+          end: eventEnd,
+        }));
+      }
+    }
+  }, [state.status, event]);
+
   function onClose() {
     if (loading) return;
     closeEventDialog();
@@ -169,7 +216,6 @@ export default function Event() {
     setErrors(errors);
     if (!event?.id && !state.agenda) errors.agenda = "Required";
     if (!state.title) errors.title = "Required";
-    if (!state.status) errors.status = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
     if (
@@ -177,20 +223,20 @@ export default function Event() {
       state.end &&
       !validateEventStartEnd(state.start, state.end)
     ) {
-      errors.start =
-        "Invalid date range, start should be lower than ends and no more than 1 day";
-      errors.end =
-        "Invalid date range, ends should be greater than start and no more than 1 day";
-    } else if (
-      state.start &&
-      state.end &&
-      state.agenda &&
-      !validateEventStartEndWithinAgenda(state.start, state.end, state.agenda)
-    ) {
-      errors.start =
-        "Invalid date range, should start within the agenda timeline";
-      errors.end = "Invalid date range, should ends within the agenda timeline";
+      errors.start = "Invalid date range, start should be lower than ends";
+      errors.end = "Invalid date range, ends should be greater than start";
     }
+    // if (
+    //   !event?.id &&
+    //   state.start &&
+    //   state.end &&
+    //   state.agenda &&
+    //   !validateEventStartEndWithinAgenda(state.start, state.end, state.agenda)
+    // ) {
+    //   errors.start =
+    //     "Invalid date range, should start within the agenda timeline";
+    //   errors.end = "Invalid date range, should ends within the agenda timeline";
+    // }
 
     setErrors(errors);
     return errors;
@@ -294,7 +340,7 @@ export default function Event() {
           start: state.start,
           end: state.end,
           labels: state.labels,
-          status: state.status,
+          status: "TODO",
           agenda: state.agenda,
           repeat: state.repeat,
           cancelledAt: [],
@@ -313,27 +359,47 @@ export default function Event() {
           {loading && <LinearProgress />}
 
           <Box sx={{ p: 2 }}>
+            {event?.id && (
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
+                  mb: 4,
               }}
             >
-              <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
-                Event
-              </Typography>
-              {event?.id && (
+                <TextField
+                  required
+                  select
+                  label="Status"
+                  value={state.status || ""}
+                  onChange={handleChange("status")}
+                  error={Boolean(errors.status)}
+                  helperText={errors.status}
+                >
+                  {statuses.map((option, i) => (
+                    <MenuItem key={i} value={option.value}>
+                      {option.title}
+                    </MenuItem>
+                  ))}
+                </TextField>
                 <Tooltip title="Delete">
                   <IconButton disabled={loading} onClick={handleDelete}>
                     <Delete />
                   </IconButton>
                 </Tooltip>
-              )}
             </Box>
+            )}
 
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", lg: "row" },
+              }}
+            >
             <Autocomplete
-              sx={{ mb: 2 }}
               disabled={event?.id && agenda?.id}
               value={state.agenda || null}
               options={agendas}
@@ -341,6 +407,7 @@ export default function Event() {
               onChange={handleSelectAgenda}
               disableClearable
               blurOnSelect
+                fullWidth
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -352,28 +419,6 @@ export default function Event() {
               )}
             />
 
-            <TextField
-              required
-              sx={{ mb: 2 }}
-              label="Title"
-              value={state.title || ""}
-              onChange={handleChange("title")}
-              error={Boolean(errors.title)}
-              helperText={errors.title}
-              fullWidth
-            />
-
-            <TextField
-              label="Description"
-              sx={{ mb: 2 }}
-              value={state.description || ""}
-              onChange={handleChange("description")}
-              fullWidth
-              multiline
-              minRows={4}
-            />
-
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
               <Autocomplete
                 disabled={!state.agenda?.labels?.length}
                 multiple
@@ -396,24 +441,28 @@ export default function Event() {
                   <TextField {...params} label="Labels" variant="outlined" />
                 )}
               />
+            </Box>
 
               <TextField
                 required
-                select
+              sx={{ mb: 2 }}
+              label="Title"
+              value={state.title || ""}
+              onChange={handleChange("title")}
+              error={Boolean(errors.title)}
+              helperText={errors.title}
                 fullWidth
-                label="Status"
-                value={state.status || ""}
-                onChange={handleChange("status")}
-                error={Boolean(errors.status)}
-                helperText={errors.status}
-              >
-                {statuses.map((option, i) => (
-                  <MenuItem key={i} value={option.value}>
-                    {option.title}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
+            />
+
+            <TextField
+              label="Description"
+              sx={{ mb: 2 }}
+              value={state.description || ""}
+              onChange={handleChange("description")}
+              fullWidth
+              multiline
+              minRows={4}
+            />
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Box
@@ -427,6 +476,7 @@ export default function Event() {
                   label="Start"
                   value={state.start}
                   onChange={handleDateChange("start")}
+                  disabled={state.status && state.status !== "TODO"}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -443,6 +493,7 @@ export default function Event() {
                   label="End"
                   value={state.end}
                   onChange={handleDateChange("end")}
+                  disabled={state.status && state.status !== "TODO"}
                   renderInput={(params) => (
                     <TextField
                       {...params}

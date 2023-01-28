@@ -15,31 +15,31 @@ export default async function update(req, res) {
 
     if (!validateEventStartEnd(start, end))
       throw new Error(
-        "Invalid Event date range format, end date should be greater than start date and should no more than 1 day"
+        "Invalid Event date range format, end date should be greater than start date"
       );
 
     await makeDBConnection(async (db) => {
-      const currEvent = await db.event.findUnique({
-        where: { id },
-        include: {
-          agenda: true,
-        },
-      });
+      // const currEvent = await db.event.findUnique({
+      //   where: { id },
+      //   include: {
+      //     agenda: true,
+      //   },
+      // });
 
-      if (!currEvent) throw new Error("Event not found");
+      // if (!currEvent) throw new Error("Event not found");
 
-      const { agenda } = currEvent;
+      // const { agenda } = currEvent;
 
-      if (!agenda) throw new Error("Agenda not found");
+      // if (!agenda) throw new Error("Agenda not found");
 
-      if (!validateEventStartEndWithinAgenda(start, end, agenda))
-        throw new Error(
-          "Event should start and ends within the agenda timeline"
-        );
+      // if (!validateEventStartEndWithinAgenda(start, end, agenda))
+      //   throw new Error(
+      //     "Event should start and ends within the agenda timeline"
+      //   );
 
       await db.event.update({
         where: {
-          id: currEvent.id,
+          id,
         },
         data: {
           title,

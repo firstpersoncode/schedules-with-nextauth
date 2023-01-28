@@ -24,21 +24,21 @@ export default async function create(req, res) {
     } = req.body;
     if (!validateEventStartEnd(start, end))
       throw new Error(
-        "Invalid Event date range format, end date should be greater than start date and should no more than 1 day"
+        "Invalid Event date range format, end date should be greater than start date"
       );
 
     const newEvent = await makeDBConnection(async (db) => {
-      const agenda = await db.agenda.findUnique({
-        where: { id: agendaId },
-        select: { start: true, end: true },
-      });
+      // const agenda = await db.agenda.findUnique({
+      //   where: { id: agendaId },
+      //   select: { start: true, end: true },
+      // });
 
-      if (!agenda) throw new Error("Agenda not found");
+      // if (!agenda) throw new Error("Agenda not found");
 
-      if (!validateEventStartEndWithinAgenda(start, end, agenda))
-        throw new Error(
-          "Event should start and ends within the agenda timeline"
-        );
+      // if (!validateEventStartEndWithinAgenda(start, end, agenda))
+      //   throw new Error(
+      //     "Event should start and ends within the agenda timeline"
+      //   );
 
       return await db.event.create({
         data: {
