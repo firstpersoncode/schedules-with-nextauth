@@ -89,7 +89,7 @@ function Chart({ status, events, labels }) {
             {totalEventsWithMultiLabels} with multiple labels
           </Typography>
         )}
-        <Doughnut data={data} />
+        <Doughnut options={{ title: { display: false } }} data={data} />
       </CardContent>
     </Card>
   );
@@ -117,7 +117,7 @@ export default function ProgressChart({ agenda }) {
     const filteredLabels = labels
       .filter((e) => e.agendaId === agenda.id)
       .filter((e) => e.checked);
-    filteredLabels.unshift({ title: "No label", color: "#ddd" });
+    filteredLabels.unshift({ title: "No label", color: "#ccc" });
     return filteredLabels;
   }, [labels, agenda]);
 
