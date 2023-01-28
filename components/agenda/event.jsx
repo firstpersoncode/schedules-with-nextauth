@@ -461,7 +461,7 @@ export default function Event() {
               sx={{ mt: 2 }}
               select
               fullWidth
-              label="Repeat"
+              label={state.repeat ? "Repeat" : "One time"}
               disabled={event?.id}
               value={state.repeat || ""}
               onChange={handleChange("repeat")}
