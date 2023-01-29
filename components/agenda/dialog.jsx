@@ -31,6 +31,7 @@ export default function AgendaDialog() {
     addAgenda,
     updateAgenda,
     deleteAgenda,
+    deleteEventsByAgenda,
   } = useAgendaContext();
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
@@ -180,6 +181,7 @@ export default function AgendaDialog() {
 
     try {
       await deleteAgenda(agenda);
+      deleteEventsByAgenda(agenda);
       onClose();
       handleCloseDialog();
     } catch (err) {}
