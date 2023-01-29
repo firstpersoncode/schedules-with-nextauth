@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useDialog } from "components/dialog";
+import Meta from "components/meta";
 import Signin from "./signin";
 
 const Dialog = dynamic(() => import("components/dialog"));
@@ -41,6 +42,7 @@ export default function Auth() {
 
   return (
     <>
+      <Meta title="Auth" index={false} />
       <Signin />
       {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
     </>

@@ -1,15 +1,8 @@
 import { getSession } from "next-auth/react";
-import GlobalContextProvider, { getGlobalContext } from "context/global";
 import Auth from "components/auth";
-import Meta from "components/meta";
 
-export default function AuthPage({ global }) {
-  return (
-    <GlobalContextProvider context={global}>
-      <Meta title="Auth" index={false} />
-      <Auth />
-    </GlobalContextProvider>
-  );
+export default function AuthPage() {
+  return <Auth />;
 }
 
 export async function getServerSideProps(context) {
@@ -22,8 +15,6 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: {
-      global: getGlobalContext(context),
-    },
+    props: {},
   };
 }
