@@ -4,6 +4,7 @@ import { Box, Tab, Tabs, Divider } from "@mui/material";
 import { useAgendaContext } from "context/agenda";
 
 const BurnDownChart = dynamic(() => import("./burndownChart"));
+const CommitmentChart = dynamic(() => import("./commitmentChart"));
 const ProgressChart = dynamic(() => import("./progressChart"));
 
 export default function Report() {
@@ -24,6 +25,7 @@ export default function Report() {
     <>
       <Tabs value={tab} onChange={handleChangeTab}>
         <Tab label="Progress" />
+        <Tab label="Commitment" />
         <Tab label="Burndown" />
       </Tabs>
 
@@ -35,6 +37,10 @@ export default function Report() {
             <ProgressChart key={i} agenda={agenda} />
           ))}
         {tab === 1 &&
+          activeAgendas.map((agenda, i) => (
+            <CommitmentChart key={i} agenda={agenda} />
+          ))}
+        {tab === 2 &&
           activeAgendas.map((agenda, i) => (
             <BurnDownChart key={i} agenda={agenda} />
           ))}

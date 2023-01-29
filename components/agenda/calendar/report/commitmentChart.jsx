@@ -1,29 +1,29 @@
-import { useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Box,
-  MenuItem,
-  TextField,
-  Radio,
   FormControlLabel,
+  Radio,
+  TextField,
+  MenuItem,
 } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
+  Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
-import { add, format, isAfter, isBefore, isWithinInterval } from "date-fns";
+import { Bar } from "react-chartjs-2";
+import { add, format, isAfter, isBefore } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
+  Title,
   Tooltip,
   Legend
 );
@@ -38,7 +38,6 @@ const options = {
   scales: {
     y: {
       beginAtZero: true,
-      reverse: true,
       ticks: {
         stepSize: 1,
       },
@@ -54,13 +53,8 @@ const options = {
   },
 };
 
-export default function BurnDownChart({ agenda }) {
-  const {
-    agenda: activeAgenda,
-    labels,
-    getEvents,
-    selectAgenda,
-  } = useAgendaContext();
+export default function CommitmentChart({ agenda }) {
+  const { agenda: activeAgenda, getEvents, selectAgenda } = useAgendaContext();
   const [scale, setScale] = useState(scaleOptions[0].value);
 
   const allEvents = getEvents();
@@ -69,14 +63,6 @@ export default function BurnDownChart({ agenda }) {
     () => allEvents.filter((e) => e.agendaId === agenda.id),
     [allEvents, agenda]
   );
-
-  const agendaLabels = useMemo(() => {
-    const filteredLabels = labels
-      .filter((e) => e.agendaId === agenda.id)
-      .filter((e) => e.checked);
-    filteredLabels.unshift({ title: "No label", color: "#ccc" });
-    return filteredLabels;
-  }, [labels, agenda]);
 
   const dateInterval = useMemo(() => {
     const arr = [];
@@ -116,37 +102,34 @@ export default function BurnDownChart({ agenda }) {
     };
   }, [agenda.start, agenda.end, agendaEvents, scale]);
 
-  const datasets = useMemo(() => {
-    return agendaLabels.map((label) => {
-      const eventsByLabel = agendaEvents.filter((e) => {
-        if (!label.id) return !e.labels.length;
-        return e.labels.find((l) => l.id === label.id);
+  const getData = useCallback(
+    (type) => (date) => {
+      let events = agendaEvents.filter((e) => {
+        return isBefore(new Date(date), new Date(e.end));
       });
 
-      const data = dateInterval.arr.map((date) => {
-        return eventsByLabel.filter((e) => {
-          return (
-            e.status === "COMPLETED" &&
-            isWithinInterval(new Date(e.end), {
-              start: new Date(dateInterval.arr[0]),
-              end: new Date(date),
-            })
-          );
-        }).length;
-      });
+      if (type === "completed")
+        events = events.filter((e) => e.status === "COMPLETED");
 
-      return {
-        label: label.title,
-        data,
-        borderColor: label.color,
-        backgroundColor: label.color,
-      };
-    });
-  }, [dateInterval, agendaEvents, agendaLabels]);
+      return events.length;
+    },
+    [agendaEvents]
+  );
 
   const data = {
     labels: dateInterval.labels,
-    datasets,
+    datasets: [
+      {
+        label: "Created",
+        data: dateInterval.arr.map(getData("created")),
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+      {
+        label: "Completed",
+        data: dateInterval.arr.map(getData("completed")),
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
   };
 
   function handleScaleChange(e) {
@@ -191,7 +174,7 @@ export default function BurnDownChart({ agenda }) {
       </Box>
       <Box sx={{ overflowX: "auto" }}>
         <Box sx={{ minWidth: 700 }}>
-          <Line options={options} data={data} />
+          <Bar options={options} data={data} />;
         </Box>
       </Box>
     </>
