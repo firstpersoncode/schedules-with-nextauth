@@ -31,7 +31,7 @@ export default function Event() {
     agendas,
     getAgendaByEvent,
     closeEventDialog,
-    cell,
+    slot,
     event,
     addEvent,
     updateEvent,
@@ -89,20 +89,20 @@ export default function Event() {
   }, [agenda, agendas]);
 
   useEffect(() => {
-    if (cell?.start) {
-      const { start } = cell;
+    if (slot?.start) {
+      const { start } = slot;
       setState((v) => ({ ...v, start: new Date(start) }));
     }
 
-    if (cell?.start && cell?.end) {
-      let { start, end } = cell;
+    if (slot?.start && slot?.end) {
+      let { start, end } = slot;
       const dateStart = new Date(start);
       const hour = dateStart.getHours();
       if (hour > 22)
         end = new Date(new Date(new Date().setHours(hour)).setMinutes(59));
       setState((v) => ({ ...v, end: new Date(end) }));
     }
-  }, [cell]);
+  }, [slot]);
 
   useEffect(() => {
     if (event?.id) {

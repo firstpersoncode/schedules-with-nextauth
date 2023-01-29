@@ -17,7 +17,7 @@ const statuses = [
 ];
 
 const initialState = {
-  cell: null,
+  slot: null,
   events: [],
   event: null,
   statuses,
@@ -202,12 +202,12 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     setIsLoading(false);
   }
 
-  function openEventDialog(cell, event, agenda) {
+  function openEventDialog(slot, event, agenda) {
     selectAgenda(agenda);
     setState((v) => ({
       ...v,
       event,
-      cell,
+      slot,
     }));
     openEvent();
   }
@@ -217,7 +217,7 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     setState((v) => ({
       ...v,
       event: null,
-      cell: null,
+      slot: null,
     }));
     closeEvent();
   }
