@@ -31,6 +31,12 @@ const useController = () => {
         const labels = [];
         const res = await axios.get("/api/agenda/list");
         const agendas = res.data?.agendas.map((a) => {
+          labels.push({
+            title: "No label",
+            color: "#CCC",
+            agendaId: a.id,
+            checked: true,
+          });
           labels.push(...a.labels.map((l) => ({ ...l, checked: true })));
           return {
             ...a,

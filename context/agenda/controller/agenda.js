@@ -58,6 +58,12 @@ const useAgenda = ({ setIsLoading }) => {
       const currAgendas = state.agendas;
       currAgendas.push(newAgenda);
       const labels = state.labels;
+      labels.push({
+        title: "No label",
+        color: "#CCC",
+        agendaId: newAgenda.id,
+        checked: true,
+      });
       labels.push(...newAgenda.labels.map((l) => ({ ...l, checked: true })));
 
       setState((v) => ({
@@ -155,9 +161,9 @@ const useAgenda = ({ setIsLoading }) => {
     }));
   }, []);
 
-  function toggleCheckedLabel(label, checked) {
+  function toggleCheckedLabel(label, checked, agenda) {
     const currLabels = state.labels.map((l) => {
-      if (l.id === label.id) {
+      if (agenda.id === l.agendaId && l.id === label.id) {
         l.checked = checked;
       }
 

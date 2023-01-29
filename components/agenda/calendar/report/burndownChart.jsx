@@ -74,7 +74,6 @@ export default function BurnDownChart({ agenda }) {
     const filteredLabels = labels
       .filter((e) => e.agendaId === agenda.id)
       .filter((e) => e.checked);
-    filteredLabels.unshift({ title: "No label", color: "#ccc" });
     return filteredLabels;
   }, [labels, agenda]);
 

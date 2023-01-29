@@ -50,7 +50,7 @@ export default function Agenda({ agenda }) {
 
   function handleCheckedLabel(label) {
     return function (_, checked) {
-      toggleCheckedLabel(label, checked);
+      toggleCheckedLabel(label, checked, agenda);
     };
   }
 

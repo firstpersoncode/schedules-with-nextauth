@@ -89,11 +89,11 @@ const useEvent = ({
 
     return events
       .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
-      .filter(
-        (e) =>
-          !e.labels.length ||
-          checkedLabels.find((l) => e.labels.find((el) => el.id === l.id))
-      )
+      .filter((e) => {
+        if (!e.labels.length)
+          return checkedLabels.find((l) => !l.id && l.agendaId === e.agendaId);
+        return checkedLabels.find((l) => e.labels.find((el) => el.id === l.id));
+      })
       .filter((e) => checkedStatuses.find((s) => s.value === e.status));
   }, [
     state.events,
