@@ -53,7 +53,7 @@ export default function DateCellWrapper({ children, ...props }) {
               }
             : isToday(startOfDay(new Date(props.value)))
             ? {
-                border: "1px solid #000",
+                border: "2px solid #000",
               }
             : {
                 border: "1px solid #CCC",
