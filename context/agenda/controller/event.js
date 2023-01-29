@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 import { add, differenceInMinutes, isAfter, isBefore } from "date-fns";
 import { useCommonContext } from "context/common";
-import { useCalendarContext } from "context/calendar";
 
 export const repeats = { DAILY: "days", WEEKLY: "weeks", MONTHLY: "months" };
 export const repeatOptions = [
@@ -30,8 +29,6 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     openEventDialog: openEvent,
     closeEventDialog: closeEvent,
   } = useCommonContext();
-
-  const { selectCell } = useCalendarContext();
 
   const [state, setState] = useState(initialState);
 
