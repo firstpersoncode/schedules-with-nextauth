@@ -9,16 +9,11 @@ const views = [
 
 export const initialContext = {
   view: views[0],
-  cell: null,
   date: new Date(),
 };
 
 const useController = (context) => {
   const [ctx, setContext] = useState(context);
-
-  function selectCell(cell) {
-    setContext((v) => ({ ...v, cell }));
-  }
 
   function selectView(view) {
     const selectedView = views.find((p) => p.value === view);
@@ -31,7 +26,6 @@ const useController = (context) => {
 
   return {
     ...ctx,
-    selectCell,
     selectView,
     selectDate,
   };
