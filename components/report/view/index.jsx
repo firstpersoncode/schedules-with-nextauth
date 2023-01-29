@@ -20,6 +20,7 @@ export default function Report() {
   return (
     <Box
       sx={{
+        pt: "40px",
         height: "calc(100vh - 40px)",
         overflowY: "auto",
       }}

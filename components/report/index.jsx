@@ -5,6 +5,7 @@ import ReportContextProvider from "context/report";
 import AgendaContextProvider from "context/agenda";
 import Meta from "components/meta";
 
+import Toolbar from "./toolbar";
 import View from "./view";
 import Viewbar from "./viewbar";
 
@@ -34,6 +35,7 @@ function ReportLayout() {
             overflow: "hidden",
           }}
         >
+          <Toolbar />
           <View />
           <Viewbar />
         </Box>
