@@ -400,7 +400,7 @@ export default function Event() {
               }}
             >
               <Autocomplete
-                disabled={event?.id && agenda?.id}
+                disabled={Boolean(event?.id && agenda?.id)}
                 value={state.agenda || null}
                 options={agendas}
                 getOptionLabel={(o) => o.title}
@@ -476,7 +476,7 @@ export default function Event() {
                   label="Start"
                   value={state.start}
                   onChange={handleDateChange("start")}
-                  disabled={state.status && state.status !== "TODO"}
+                  disabled={Boolean(state.status && state.status !== "TODO")}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -493,7 +493,7 @@ export default function Event() {
                   label="End"
                   value={state.end}
                   onChange={handleDateChange("end")}
-                  disabled={state.status && state.status !== "TODO"}
+                  disabled={Boolean(state.status && state.status !== "TODO")}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -513,7 +513,7 @@ export default function Event() {
               select
               fullWidth
               label={state.repeat ? "Repeat" : "One time"}
-              disabled={event?.id}
+              disabled={Boolean(event?.id)}
               value={state.repeat || ""}
               onChange={handleChange("repeat")}
               error={Boolean(errors.repeat)}
