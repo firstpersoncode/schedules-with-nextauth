@@ -8,15 +8,21 @@ export default function Home({ session }) {
     <>
       <Meta title="Home" index={false} />
       <Container maxWidth="md">
-        <h1>App Schedule</h1>
+        <h1>App</h1>
         {!Boolean(session) ? (
           <Link href="/auth">
             <Button>Sign in</Button>
           </Link>
         ) : (
           <>
-            <Link href="/agenda">
-              <Button>Agenda</Button>
+            <Link href="/calendar">
+              <Button>Calendar</Button>
+            </Link>
+            <Link href="/board">
+              <Button>Board</Button>
+            </Link>
+            <Link href="/report">
+              <Button>Report</Button>
             </Link>
             <Button onClick={() => signOut()}>Sign out</Button>
           </>

@@ -38,7 +38,15 @@ export default function _App({ Component, pageProps }) {
   return (
     <>
       {loading && (
-        <Box sx={{ position: "fixed", width: "100%", left: 0, top: 0 }}>
+        <Box
+          sx={{
+            position: "fixed",
+            width: "100%",
+            left: 0,
+            top: 0,
+            zIndex: 10000,
+          }}
+        >
           <LinearProgress />
         </Box>
       )}
