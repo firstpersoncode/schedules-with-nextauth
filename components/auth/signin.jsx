@@ -77,12 +77,12 @@ export default function Signin() {
       });
       if (!res.ok) throw res;
       handleOpenDialog(
-        "<strong>Signed in!</strong><p>You'll be redirected to your project.</p><a href='/agenda'>Or click this if nothing happen.</a>",
+        "<strong>Signed in!</strong><p>You'll be redirected to your project.</p><a href='/'>Or click this if nothing happen.</a>",
         "success"
       );
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        push("/agenda");
+        push("/");
       }, 3000);
     } catch (err) {
       // console.error(err?.response?.data || err?.error || err);
@@ -96,7 +96,7 @@ export default function Signin() {
     try {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
-        signIn("google", { callbackUrl: `${process.env.SITE_URL}/agenda` });
+        signIn("google", { callbackUrl: `${process.env.SITE_URL}/` });
       }, 1000);
     } catch (err) {
       console.error(err);

@@ -1,16 +1,11 @@
 import { Views } from "react-big-calendar";
 import { Box, Button, Card, Divider, Tooltip } from "@mui/material";
 
-import {
-  CalendarViewMonth,
-  Info,
-  ViewDay,
-  ViewWeek,
-} from "@mui/icons-material";
-import { useAgendaContext } from "context/agenda";
+import { CalendarViewMonth, ViewDay, ViewWeek } from "@mui/icons-material";
+import { useCalendarContext } from "context/calendar";
 
 export default function Viewbar() {
-  const { view, selectView } = useAgendaContext();
+  const { view, selectView } = useCalendarContext();
 
   function handleSelectView(selectedView) {
     return function () {
@@ -62,17 +57,6 @@ export default function Viewbar() {
             onClick={handleSelectView(Views.MONTH)}
           >
             <CalendarViewMonth />
-          </Button>
-        </Tooltip>
-        <Tooltip title="Report">
-          <Button
-            sx={{ borderRadius: 0 }}
-            fullWidth
-            size="small"
-            variant={view.value === "report" ? "contained" : undefined}
-            onClick={handleSelectView("report")}
-          >
-            <Info />
           </Button>
         </Tooltip>
       </Box>

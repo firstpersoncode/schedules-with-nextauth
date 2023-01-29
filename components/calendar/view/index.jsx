@@ -1,17 +1,16 @@
 import dynamic from "next/dynamic";
 import { Views } from "react-big-calendar";
 import { Box } from "@mui/material";
-import { useAgendaContext } from "context/agenda";
-import { useGlobalContext } from "context/global";
+import { useCommonContext } from "context/common";
+import { useCalendarContext } from "context/calendar";
 
 const DayView = dynamic(() => import("./dayView"));
 const WeekView = dynamic(() => import("./weekView"));
 const MonthView = dynamic(() => import("./monthView"));
-const Report = dynamic(() => import("./report"));
 
-export default function Calendar() {
-  const { isMobile } = useGlobalContext();
-  const { view } = useAgendaContext();
+export default function View() {
+  const { isMobile } = useCommonContext();
+  const { view } = useCalendarContext();
 
   return (
     <Box
@@ -41,7 +40,6 @@ export default function Calendar() {
           {view.value === Views.DAY && <DayView />}
           {view.value === Views.WEEK && <WeekView />}
           {view.value === Views.MONTH && <MonthView />}
-          {view.value === "report" && <Report />}
         </Box>
       ) : (
         <Box
@@ -73,7 +71,6 @@ export default function Calendar() {
             >
               {view.value === Views.WEEK && <WeekView />}
               {view.value === Views.MONTH && <MonthView />}
-              {view.value === "report" && <Report />}
             </Box>
           )}
         </Box>

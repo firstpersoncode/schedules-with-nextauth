@@ -13,18 +13,19 @@ import {
   Adjust,
   ChevronLeft,
   ChevronRight,
-  Notifications,
   Menu,
+  Info,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { add, format, isEqual, isToday, startOfDay, sub } from "date-fns";
-import { useAgendaContext } from "context/agenda";
+import { useCommonContext } from "context/common";
+import { useCalendarContext } from "context/calendar";
 
 export default function Toolbar() {
-  const { isLoading, view, date, selectDate, toggleDrawer, toggleInfoDrawer } =
-    useAgendaContext();
+  const { isLoading, toggleDrawer, toggleInfoDrawer } = useCommonContext();
+  const { view, date, selectDate } = useCalendarContext();
 
   const [datePicker, setDatePicker] = useState(false);
 
@@ -135,7 +136,7 @@ export default function Toolbar() {
 
         <Tooltip placement="left" title="Info">
           <IconButton onClick={toggleInfoDrawer}>
-            <Notifications />
+            <Info />
           </IconButton>
         </Tooltip>
       </Box>

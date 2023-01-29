@@ -1,29 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
+import { useCommonContext } from "context/common";
 import useAgenda from "./agenda";
 import useEvent from "./event";
-import useCommon from "./common";
 
 export const initialContext = {};
 
 const useController = () => {
-  const [ctx, setContext] = useState(initialContext);
-  const commonState = useCommon();
-  const agendaState = useAgenda({ ...commonState });
-  const eventState = useEvent({
-    ...commonState,
-    ...agendaState,
-  });
-  const { setIsReady, setIsLoading } = commonState;
+  const { isReady, setIsLoading } = useCommonContext();
+  const agendaState = useAgenda();
+  const eventState = useEvent({ ...agendaState });
   const { setAgendas, selectAgenda, setLabels } = agendaState;
   const { setEvents } = eventState;
 
   useEffect(() => {
-    setContext((v) => ({ ...v, isClient: true }));
-  }, []);
-
-  useEffect(() => {
-    if (!ctx.isClient) return;
+    if (!isReady) return;
 
     (async () => {
       setIsLoading(true);
@@ -56,25 +47,14 @@ const useController = () => {
         selectAgenda(agendas.length ? agendas[0] : null);
         setLabels(labels);
         setEvents(events);
-        setIsReady(true);
       } catch (err) {
         console.error(err);
       }
       setIsLoading(false);
     })();
-  }, [
-    ctx.isClient,
-    setIsReady,
-    setIsLoading,
-    setAgendas,
-    selectAgenda,
-    setLabels,
-    setEvents,
-  ]);
+  }, [isReady, setIsLoading, setAgendas, selectAgenda, setLabels, setEvents]);
 
   return {
-    ...ctx,
-    ...commonState,
     ...agendaState,
     ...eventState,
   };

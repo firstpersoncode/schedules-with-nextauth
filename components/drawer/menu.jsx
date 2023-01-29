@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   Box,
   Divider,
@@ -7,19 +9,25 @@ import {
   Checkbox,
   Skeleton,
   Tooltip,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import { Add, Schedule } from "@mui/icons-material";
+import {
+  Add,
+  Assessment,
+  CalendarMonth,
+  TableChart,
+} from "@mui/icons-material";
+import { useCommonContext } from "context/common";
 import { useAgendaContext } from "context/agenda";
 import Agenda from "./agenda";
 
 export default function Menu() {
-  const {
-    isLoading,
-    agendas,
-    openAgendaDialog,
-    statuses,
-    toggleEventStatuses,
-  } = useAgendaContext();
+  const { asPath } = useRouter();
+  const { isLoading, openAgendaDialog } = useCommonContext();
+  const { agendas, statuses, toggleEventStatuses } = useAgendaContext();
 
   function handleCheckedStatus(status) {
     return function (_, checked) {
@@ -86,6 +94,35 @@ export default function Menu() {
           </FormGroup>
         </Box>
       )}
+
+      <Divider />
+
+      <List>
+        <Link href="/calendar">
+          <ListItemButton selected={asPath === "/calendar"}>
+            <ListItemIcon>
+              <CalendarMonth />
+            </ListItemIcon>
+            <ListItemText primary="Calendar" />
+          </ListItemButton>
+        </Link>
+        <Link href="/board">
+          <ListItemButton selected={asPath === "/board"}>
+            <ListItemIcon>
+              <TableChart />
+            </ListItemIcon>
+            <ListItemText primary="Board" />
+          </ListItemButton>
+        </Link>
+        <Link href="/report">
+          <ListItemButton selected={asPath === "/report"}>
+            <ListItemIcon>
+              <Assessment />
+            </ListItemIcon>
+            <ListItemText primary="Report" />
+          </ListItemButton>
+        </Link>
+      </List>
     </Box>
   );
 }

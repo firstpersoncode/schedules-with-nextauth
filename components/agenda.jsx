@@ -18,14 +18,15 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete, Add, Close } from "@mui/icons-material";
 import { MuiColorInput } from "mui-color-input";
 import getRandomHex from "utils/getRandomHex";
-import { useAgendaContext } from "context/agenda";
-import { useDialog } from "components/dialog";
 import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
+import { useAgendaContext } from "context/agenda";
+import { useCommonContext } from "context/common";
+import { useDialog } from "components/dialog";
 const Dialog = dynamic(() => import("components/dialog"));
 
-export default function AgendaDialog() {
+export default function Agenda() {
+  const { agendaDialog } = useCommonContext();
   const {
-    agendaDialog,
     agenda,
     closeAgendaDialog,
     addAgenda,

@@ -17,21 +17,22 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete } from "@mui/icons-material";
 import { add, differenceInMinutes, isAfter, isBefore, sub } from "date-fns";
+import validateEventStartEnd from "utils/validateEventStartEnd";
+import { useCommonContext } from "context/common";
 import { useAgendaContext } from "context/agenda";
 import { repeats, repeatOptions } from "context/agenda/controller/event";
 import { useDialog } from "components/dialog";
-import validateEventStartEnd from "utils/validateEventStartEnd";
 const Dialog = dynamic(() => import("components/dialog"));
 
 export default function Event() {
+  const { eventDialog } = useCommonContext();
   const {
     agenda: activeAgenda,
     agendas,
     getAgendaByEvent,
     closeEventDialog,
-    eventDialog,
-    event,
     cell,
+    event,
     addEvent,
     updateEvent,
     deleteEvent,

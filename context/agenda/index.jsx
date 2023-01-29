@@ -4,7 +4,7 @@ import useController, { initialContext } from "./controller";
 const AgendaContext = createContext(initialContext);
 
 export default function AgendaContextProvider({ children }) {
-  const controlledContext = useController();
+  const controlledContext = useController(initialContext);
   return (
     <AgendaContext.Provider value={controlledContext}>
       {children}

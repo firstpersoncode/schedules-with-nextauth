@@ -3,6 +3,7 @@ import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { Box, Typography } from "@mui/material";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
+import { useCalendarContext } from "context/calendar";
 import { useAgendaContext } from "context/agenda";
 import DateCellWrapper from "./dateCellWrapper";
 import TimeSlotWrapper from "./timeSlotWrapper";
@@ -45,7 +46,8 @@ function Event({ event }) {
 }
 
 export default function WeekView({}) {
-  const { date, getEvents, getAgendaByEvent } = useAgendaContext();
+  const { date } = useCalendarContext();
+  const { getEvents, getAgendaByEvent } = useAgendaContext();
   const events = getEvents();
   const getAgenda = useCallback((e) => getAgendaByEvent(e), [getAgendaByEvent]);
 

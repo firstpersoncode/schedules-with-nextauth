@@ -2,15 +2,15 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Box } from "@mui/material";
 import { startOfDay, isToday, isSameDay } from "date-fns";
-import { useAgendaContext } from "context/agenda";
-import { useGlobalContext } from "context/global";
+import { useCommonContext } from "context/common";
+import { useCalendarContext } from "context/calendar";
 
 const TimeLineBar = dynamic(() => import("./timeLineBar"));
 const FloatDayView = dynamic(() => import("./floatDayView"));
 
 export default function DateCellWrapper({ children, ...props }) {
-  const { isMobile } = useGlobalContext();
-  const { selectDate, date } = useAgendaContext();
+  const { isMobile } = useCommonContext();
+  const { selectDate, date } = useCalendarContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

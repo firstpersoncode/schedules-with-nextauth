@@ -1,12 +1,12 @@
 import dynamic from "next/dynamic";
 import { Close } from "@mui/icons-material";
 import { SwipeableDrawer, IconButton, Box } from "@mui/material";
-import { useAgendaContext } from "context/agenda";
+import { useCommonContext } from "context/common";
 
 const Notifications = dynamic(() => import("./notifications"));
 
-export default function InfoBar() {
-  const { infoDrawer, toggleInfoDrawer } = useAgendaContext();
+export default function Infobar() {
+  const { infoDrawer, toggleInfoDrawer } = useCommonContext();
 
   return (
     <SwipeableDrawer

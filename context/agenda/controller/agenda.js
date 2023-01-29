@@ -1,14 +1,19 @@
 import { useCallback, useState } from "react";
 import axios from "axios";
+import { useCommonContext } from "context/common";
 
 const initialState = {
   agendas: [],
   agenda: null,
-  agendaDialog: false,
   labels: [],
 };
 
-const useAgenda = ({ setIsLoading }) => {
+const useAgenda = () => {
+  const {
+    setIsLoading,
+    openAgendaDialog: openAgenda,
+    closeAgendaDialog: closeAgenda,
+  } = useCommonContext();
   const [state, setState] = useState(initialState);
 
   const getAgendaByEvent = useCallback(
@@ -136,17 +141,19 @@ const useAgenda = ({ setIsLoading }) => {
   function openAgendaDialog(agenda) {
     setState((v) => ({
       ...v,
-      agendaDialog: true,
       agenda,
     }));
+
+    openAgenda();
   }
 
   function closeAgendaDialog() {
     setState((v) => ({
       ...v,
-      agendaDialog: false,
       agenda: null,
     }));
+
+    closeAgenda();
   }
 
   const getLabelsByAgenda = useCallback(

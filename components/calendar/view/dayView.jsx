@@ -3,6 +3,7 @@ import { Typography, Chip, Box } from "@mui/material";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, isToday } from "date-fns";
 import enUS from "date-fns/locale/en-US";
+import { useCalendarContext } from "context/calendar";
 import { useAgendaContext } from "context/agenda";
 
 const locales = {
@@ -50,8 +51,8 @@ function Event({ event }) {
 }
 
 export default function DayView() {
-  const { view, openEventDialog, date, getEvents, getAgendaByEvent } =
-    useAgendaContext();
+  const { view, date } = useCalendarContext();
+  const { openEventDialog, getEvents, getAgendaByEvent } = useAgendaContext();
   const timeoutScrollRef = useRef();
   const events = getEvents();
   const getAgenda = useCallback((e) => getAgendaByEvent(e), [getAgendaByEvent]);

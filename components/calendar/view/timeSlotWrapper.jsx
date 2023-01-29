@@ -1,15 +1,15 @@
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Box } from "@mui/material";
 import { startOfDay, isToday } from "date-fns";
-import { useAgendaContext } from "context/agenda";
-import { useGlobalContext } from "context/global";
-import dynamic from "next/dynamic";
+import { useCommonContext } from "context/common";
+import { useCalendarContext } from "context/calendar";
 
 const FloatDayView = dynamic(() => import("./floatDayView"));
 
 export default function TimeSlotWrapper({ children, ...props }) {
-  const { isMobile } = useGlobalContext();
-  const { selectDate, date } = useAgendaContext();
+  const { isMobile } = useCommonContext();
+  const { selectDate } = useCalendarContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

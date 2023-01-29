@@ -17,24 +17,19 @@ import formatDateRange from "utils/formatDateRange";
 
 export default function Agenda({ agenda }) {
   const {
-    // agenda: activeAgenda,
-    // selectAgenda,
     toggleCheckedAgenda,
-    openAgendaDialog,
-    openEventDialog,
     getLabelsByAgenda,
     toggleCheckedLabel,
+    openAgendaDialog,
+    openEventDialog,
   } = useAgendaContext();
+
   const labels = getLabelsByAgenda(agenda);
   const [open, setOpen] = useState(true);
 
   function toggleOpen() {
     setOpen(!open);
   }
-
-  // function handleSelectAgenda() {
-  //   selectAgenda(agenda);
-  // }
 
   function handleCheckedAgenda(_, checked) {
     toggleCheckedAgenda(agenda, checked);
@@ -87,23 +82,6 @@ export default function Agenda({ agenda }) {
           }
           label={agenda.title}
         />
-
-        {/* <FormControlLabel
-          sx={{ flex: 1 }}
-          onChange={handleSelectAgenda}
-          control={
-            <Radio
-              sx={{
-                color: agenda.color,
-                "&.Mui-checked": {
-                  color: agenda.color,
-                },
-              }}
-              checked={activeAgenda?.id === agenda.id}
-            />
-          }
-          label={agenda.title}
-        /> */}
 
         <IconButton onClick={toggleOpen} size="small">
           {expanded ? <ExpandLess /> : <ExpandMore />}

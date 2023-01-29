@@ -1,15 +1,18 @@
 import dynamic from "next/dynamic";
 import { Close } from "@mui/icons-material";
-import { SwipeableDrawer, Drawer, IconButton, Box } from "@mui/material";
-import { useGlobalContext } from "context/global";
-import { useAgendaContext } from "context/agenda";
+import {
+  SwipeableDrawer,
+  Drawer as MuiDrawer,
+  IconButton,
+  Box,
+} from "@mui/material";
+import { useCommonContext } from "context/common";
 
 const Menu = dynamic(() => import("./menu"));
 const drawerWidth = "20vw";
 
-export default function SideBar() {
-  const { isMobile } = useGlobalContext();
-  const { drawer, toggleDrawer } = useAgendaContext();
+export default function Drawer() {
+  const { isMobile, drawer, toggleDrawer } = useCommonContext();
 
   return (
     <>
@@ -47,7 +50,7 @@ export default function SideBar() {
           </SwipeableDrawer>
         </>
       ) : (
-        <Drawer
+        <MuiDrawer
           sx={{
             width: drawerWidth,
             flexShrink: 0,
@@ -60,7 +63,7 @@ export default function SideBar() {
           anchor="left"
         >
           <Menu />
-        </Drawer>
+        </MuiDrawer>
       )}
     </>
   );

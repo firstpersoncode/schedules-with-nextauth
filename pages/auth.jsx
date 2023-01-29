@@ -16,7 +16,7 @@ export async function getServerSideProps(context) {
   const session = await getSession(context);
   if (session) {
     context.res.writeHead(302, {
-      Location: "/agenda",
+      Location: "/",
     });
     context.res.end();
   }
