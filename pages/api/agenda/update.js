@@ -9,17 +9,31 @@ export default async function update(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { id, title, description, start, end, labels, color } = req.body;
+    const { id, title, description, start, end, labels, statuses, color } =
+      req.body;
 
     if (!validateAgendaStartEnd(start, end))
       throw new Error(
         "Invalid Agenda start and end format, end date should be greater than start date and should no more than 1 year"
       );
 
+    if (
+      !(
+        statuses.length &&
+        statuses.length >= 3 &&
+        ["TODO", "INPROGRESS", "COMPLETED"].every((type) =>
+          statuses.map((s) => s.type).includes(type)
+        )
+      )
+    )
+      throw new Error(
+        "Agenda should have at least 3 statuses: todo, inprogress, and completed"
+      );
+
     const data = await makeDBConnection(async (db) => {
       const currAgenda = await db.agenda.findUnique({
         where: { id },
-        include: { labels: true },
+        include: { labels: true, statuses: true },
       });
 
       if (!currAgenda) throw new Error("Agenda not found");
@@ -57,6 +71,39 @@ export default async function update(req, res) {
         });
       }
 
+      const deletedStatuses = currAgenda.statuses.filter(
+        (status) => !statuses.find((s) => s.id === status.id)
+      );
+
+      if (deletedStatuses.length) {
+        await db.status.deleteMany({
+          where: { id: { in: deletedStatuses.map((s) => s.id) } },
+        });
+      }
+
+      const newStatuses = statuses.filter((s) => !s.id);
+
+      if (newStatuses.length) {
+        await db.status.createMany({
+          data: newStatuses.map((s) => ({
+            ...s,
+            agendaId: currAgenda.id,
+          })),
+        });
+      }
+
+      const updatedStatuses = statuses.filter((s) => s.id);
+
+      for (const status of updatedStatuses) {
+        const updatedStatus = status;
+        const id = updatedStatus.id;
+        delete updatedStatus.id;
+        await db.status.update({
+          where: { id },
+          data: updatedStatus,
+        });
+      }
+
       await db.agenda.update({
         where: {
           id: currAgenda.id,
@@ -72,7 +119,7 @@ export default async function update(req, res) {
 
       return await db.agenda.findUnique({
         where: { id: currAgenda.id },
-        include: { labels: true },
+        include: { labels: true, statuses: true },
       });
     });
 

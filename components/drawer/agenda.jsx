@@ -20,11 +20,14 @@ export default function Agenda({ agenda }) {
     toggleCheckedAgenda,
     getLabelsByAgenda,
     toggleCheckedLabel,
+    getStatusesByAgenda,
+    toggleCheckedStatus,
     openAgendaDialog,
     openEventDialog,
   } = useAgendaContext();
 
   const labels = getLabelsByAgenda(agenda);
+  const statuses = getStatusesByAgenda(agenda);
   const [open, setOpen] = useState(true);
 
   function toggleOpen() {
@@ -46,6 +49,12 @@ export default function Agenda({ agenda }) {
   function handleCheckedLabel(label) {
     return function (_, checked) {
       toggleCheckedLabel(label, checked, agenda);
+    };
+  }
+
+  function handleCheckedStatus(status) {
+    return function (_, checked) {
+      toggleCheckedStatus(status, checked, agenda);
     };
   }
 
@@ -89,8 +98,44 @@ export default function Agenda({ agenda }) {
       </Box>
 
       <Collapse in={expanded}>
+        <Box
+          sx={{
+            px: 2,
+            my: 1,
+            display: "flex",
+            gap: 2,
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 11,
+              flex: 1,
+              justifySelf: "flex-start",
+            }}
+          >
+            {startEndAgenda}
+          </Typography>
+
+          <Tooltip title="Edit">
+            <IconButton onClick={handleClickEditAgenda} size="small">
+              <Edit />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Add event">
+            <IconButton size="small" onClick={handleOpenEventDialog}>
+              <Task />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
         {labels.length > 0 && (
           <Box sx={{ p: 2 }}>
+            <Divider textAlign="left" sx={{ fontSize: 10 }}>
+              Labels
+            </Divider>
             <FormGroup>
               {labels.map((label, i) => (
                 <FormControlLabel
@@ -122,38 +167,33 @@ export default function Agenda({ agenda }) {
           </Box>
         )}
 
-        <Box
-          sx={{
-            px: 2,
-            my: 1,
-            display: "flex",
-            gap: 2,
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: 10,
-              flex: 1,
-              justifySelf: "flex-start",
-            }}
-          >
-            {startEndAgenda}
-          </Typography>
-
-          <Tooltip title="Edit">
-            <IconButton onClick={handleClickEditAgenda} size="small">
-              <Edit />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Add event">
-            <IconButton size="small" onClick={handleOpenEventDialog}>
-              <Task />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {statuses.length > 0 && (
+          <Box sx={{ p: 2 }}>
+            <Divider textAlign="left" sx={{ fontSize: 10 }}>
+              Statuses
+            </Divider>
+            <FormGroup>
+              {statuses.map((status, i) => (
+                <FormControlLabel
+                  key={i}
+                  onChange={handleCheckedStatus(status)}
+                  control={
+                    <Checkbox
+                      sx={{
+                        color: agenda.color,
+                        "&.Mui-checked": {
+                          color: agenda.color,
+                        },
+                      }}
+                      checked={status.checked}
+                    />
+                  }
+                  label={status.title}
+                />
+              ))}
+            </FormGroup>
+          </Box>
+        )}
       </Collapse>
       <Divider />
     </>

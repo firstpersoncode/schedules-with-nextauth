@@ -15,6 +15,7 @@ export default async function list(req, res) {
         },
         include: {
           labels: true,
+          statuses: true,
         },
       });
 

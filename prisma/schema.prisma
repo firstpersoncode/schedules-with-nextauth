@@ -83,6 +83,7 @@ model Agenda {
 
   events Event[]
   labels Label[]
+  statuses Status[]
 
   users User[] @relation(fields: [userIds], references: [id])
   userIds String[] @db.ObjectId
@@ -129,16 +130,14 @@ model Event {
   end DateTime
   description String?
   
-  status EventStatus
+  status Status @relation(fields: [statusId], references: [id])
+  statusId String @db.ObjectId
+
   repeat EventRepeat?
   cancelledAt DateTime[]
 
   agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
   agendaId String @db.ObjectId
-
-  parent Event? @relation("ParentEvent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  parentId String? @db.ObjectId
-  subEvents Event[] @relation("ParentEvent")
 
   labels Label[] @relation(fields: [labelIds], references: [id])
   labelIds String[] @db.ObjectId
@@ -149,6 +148,30 @@ model Event {
  archived Boolean @default(false)
 
  @@map("events")
+}
+
+enum StatusType {
+  TODO
+  INPROGRESS
+  COMPLETED
+}
+
+model Status {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  type StatusType
+
+  events Event[]
+
+  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+ archived Boolean @default(false)
+
+  @@map("statuses")
 }
 
 

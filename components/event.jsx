@@ -469,7 +469,7 @@ export default function Event() {
               <Box
                 sx={{
                   display: "flex",
-                  gap: 2,
+                  gap: 1,
                   flexDirection: { xs: "column", lg: "row" },
                 }}
               >

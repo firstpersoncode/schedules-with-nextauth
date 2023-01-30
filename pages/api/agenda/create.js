@@ -9,11 +9,25 @@ export default async function create(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
     const userId = session.user.id;
-    const { title, description, start, end, labels, color } = req.body;
+    const { title, description, start, end, labels, statuses, color } =
+      req.body;
 
     if (!validateAgendaStartEnd(start, end))
       throw new Error(
         "Invalid Agenda start and end format, end date should be greater than start date and should no more than 1 year"
+      );
+
+    if (
+      !(
+        statuses.length &&
+        statuses.length >= 3 &&
+        ["TODO", "INPROGRESS", "COMPLETED"].every((type) =>
+          statuses.map((s) => s.type).includes(type)
+        )
+      )
+    )
+      throw new Error(
+        "Agenda should have at least 3 statuses: todo, inprogress, and completed"
       );
 
     const data = await makeDBConnection(async (db) => {
@@ -37,9 +51,16 @@ export default async function create(req, res) {
         });
       }
 
+      await db.status.createMany({
+        data: statuses.map((s) => ({
+          ...s,
+          agendaId: newAgenda.id,
+        })),
+      });
+
       const agenda = await db.agenda.findUnique({
         where: { id: newAgenda.id },
-        include: { labels: true },
+        include: { labels: true, statuses: true },
       });
 
       return agenda;

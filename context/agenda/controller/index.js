@@ -10,7 +10,7 @@ const useController = () => {
   const { isReady, setIsLoading } = useCommonContext();
   const agendaState = useAgenda();
   const eventState = useEvent({ ...agendaState });
-  const { setAgendas, selectAgenda, setLabels } = agendaState;
+  const { setAgendas, selectAgenda, setLabels, setStatuses } = agendaState;
   const { setEvents } = eventState;
 
   useEffect(() => {
@@ -19,9 +19,11 @@ const useController = () => {
     (async () => {
       setIsLoading(true);
       try {
+        const statuses = [];
         const labels = [];
         const res = await axios.get("/api/agenda/list");
         const agendas = res.data?.agendas.map((a) => {
+          statuses.push(...a.statuses.map((s) => ({ ...s, checked: true })));
           labels.push({
             title: "No label",
             color: "#CCC",
@@ -29,6 +31,7 @@ const useController = () => {
             checked: true,
           });
           labels.push(...a.labels.map((l) => ({ ...l, checked: true })));
+
           return {
             ...a,
             start: new Date(a.start),
@@ -45,6 +48,7 @@ const useController = () => {
 
         setAgendas(agendas);
         selectAgenda(agendas.length ? agendas[0] : null);
+        setStatuses(statuses);
         setLabels(labels);
         setEvents(events);
       } catch (err) {
@@ -52,7 +56,15 @@ const useController = () => {
       }
       setIsLoading(false);
     })();
-  }, [isReady, setIsLoading, setAgendas, selectAgenda, setLabels, setEvents]);
+  }, [
+    isReady,
+    setIsLoading,
+    setAgendas,
+    selectAgenda,
+    setLabels,
+    setStatuses,
+    setEvents,
+  ]);
 
   return {
     ...agendaState,

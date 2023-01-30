@@ -12,6 +12,8 @@ import {
   List,
   ListItem,
   Tooltip,
+  MenuItem,
+  Divider,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -45,6 +47,7 @@ export default function Agenda() {
     start: new Date(),
     end: null,
     labels: [],
+    statuses: [],
     color: getRandomHex(),
   });
 
@@ -58,6 +61,7 @@ export default function Agenda() {
         start: new Date(agenda.start),
         end: new Date(agenda.end),
         labels: agenda.labels,
+        statuses: agenda.statuses,
         color: agenda.color,
       });
     }
@@ -73,6 +77,7 @@ export default function Agenda() {
       start: new Date(),
       end: null,
       labels: [],
+      statuses: [],
       color: state.color,
     });
   }
@@ -139,6 +144,43 @@ export default function Agenda() {
     };
   }
 
+  function addStatus() {
+    setState((v) => ({
+      ...v,
+      statuses: [...v.statuses, { title: "", type: "TODO" }],
+    }));
+  }
+
+  function deleteStatus(i) {
+    return function () {
+      const statuses = [...state.statuses];
+      statuses.splice(i, 1);
+      setState((v) => ({ ...v, statuses }));
+    };
+  }
+
+  function handleChangeStatus(i) {
+    return function (e) {
+      const statuses = state.statuses;
+      const status = statuses[i];
+      status.title = e.target.value;
+      statuses[i] = status;
+      setState((v) => ({ ...v, statuses }));
+      setErrors({ statuses: undefined });
+    };
+  }
+
+  function handleChangeStatusType(i) {
+    return function (e) {
+      const statuses = state.statuses;
+      const status = statuses[i];
+      status.type = e.target.value;
+      statuses[i] = status;
+      setState((v) => ({ ...v, statuses }));
+      setErrors({ statuses: undefined });
+    };
+  }
+
   function validateForm() {
     let errors = {};
     setErrors(errors);
@@ -163,7 +205,23 @@ export default function Agenda() {
       if (state.labels.find((l) => !Boolean(l.title)))
         errors.labels = "Name Required";
     }
-
+    if (
+      !(
+        state.statuses.length &&
+        state.statuses.length >= 3 &&
+        ["TODO", "INPROGRESS", "COMPLETED"].every((type) =>
+          state.statuses.map((s) => s.type).includes(type)
+        )
+      )
+    )
+      errors.statuses =
+        "Should have at least 3 statuses: todo, inprogress, and completed";
+    else {
+      if (state.statuses.find((s) => !Boolean(s.type)))
+        errors.statuses = "Type Required";
+      if (state.statuses.find((s) => !Boolean(s.title)))
+        errors.statuses = "Name Required";
+    }
     setErrors(errors);
     return errors;
   }
@@ -203,6 +261,7 @@ export default function Agenda() {
           start: state.start,
           end: state.end,
           labels: state.labels,
+          statuses: state.statuses,
           color: state.color,
         });
       } else {
@@ -212,6 +271,7 @@ export default function Agenda() {
           start: state.start,
           end: state.end,
           labels: state.labels,
+          statuses: state.statuses,
           color: state.color,
         });
       }
@@ -271,7 +331,7 @@ export default function Agenda() {
               <Box
                 sx={{
                   display: "flex",
-                  gap: 2,
+                  gap: 1,
                   mb: 2,
                   flexDirection: { xs: "column", lg: "row" },
                 }}
@@ -313,68 +373,138 @@ export default function Agenda() {
               </Box>
             </LocalizationProvider>
 
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", lg: "row" },
-              }}
-            >
-              <MuiColorInput
-                required
-                label="Color"
-                value={state.color}
-                onChange={handleChange("color")}
-                error={Boolean(errors.color)}
-                helperText={errors.color}
-                format="hex"
-                isAlphaHidden
-              />
-              <List sx={{ p: 0 }}>
-                {state.labels.map((label, i) => (
-                  <ListItem
-                    key={i}
-                    sx={{ py: 0, pl: 0, mb: 2 }}
-                    secondaryAction={
-                      <Tooltip placement="right" title="Remove">
-                        <IconButton edge="end" onClick={deleteLabel(i)}>
-                          <Close />
-                        </IconButton>
-                      </Tooltip>
-                    }
+            <MuiColorInput
+              required
+              label="Color"
+              value={state.color}
+              onChange={handleChange("color")}
+              error={Boolean(errors.color)}
+              helperText={errors.color}
+              format="hex"
+              isAlphaHidden
+              sx={{ mb: 2, width: "50%" }}
+            />
+
+            <Divider sx={{ mb: 2 }}>Labels</Divider>
+
+            <List sx={{ p: 0 }}>
+              {state.labels.map((label, i) => (
+                <ListItem
+                  key={i}
+                  sx={{
+                    p: 0,
+                    mb: 2,
+                    display: "flex",
+                    gap: 1,
+                    flexDirection: { xs: "column", lg: "row" },
+                  }}
+                >
+                  <Tooltip placement="right" title="Remove">
+                    <IconButton
+                      sx={{ alignSelf: { xs: "flex-end", lg: "unset" } }}
+                      onClick={deleteLabel(i)}
+                    >
+                      <Close />
+                    </IconButton>
+                  </Tooltip>
+                  <TextField
+                    required
+                    label="Label"
+                    value={label.title}
+                    onChange={handleChangeLabel(i)}
+                    fullWidth
+                  />
+                  <MuiColorInput
+                    required
+                    label="Color"
+                    value={label.color}
+                    onChange={handleChangeLabelColor(i)}
+                    format="hex"
+                    fullWidth
+                    isAlphaHidden
+                  />
+                </ListItem>
+              ))}
+
+              {errors.labels && (
+                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
+                  {errors.labels}
+                </Typography>
+              )}
+
+              <Tooltip title="Add label">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  onClick={addLabel}
+                >
+                  <Add />
+                </Button>
+              </Tooltip>
+            </List>
+
+            <Divider sx={{ my: 2 }}>Statuses *</Divider>
+
+            <List sx={{ p: 0 }}>
+              {state.statuses.map((status, i) => (
+                <ListItem
+                  key={i}
+                  sx={{
+                    p: 0,
+                    mb: 2,
+                    display: "flex",
+                    gap: 1,
+                    flexDirection: { xs: "column", lg: "row" },
+                  }}
+                >
+                  <Tooltip placement="right" title="Remove">
+                    <IconButton
+                      sx={{ alignSelf: { xs: "flex-end", lg: "unset" } }}
+                      onClick={deleteStatus(i)}
+                    >
+                      <Close />
+                    </IconButton>
+                  </Tooltip>
+                  <TextField
+                    required
+                    label="Status"
+                    value={status.title}
+                    onChange={handleChangeStatus(i)}
+                    fullWidth
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    select
+                    label="Type"
+                    value={status.type}
+                    onChange={handleChangeStatusType(i)}
                   >
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <TextField
-                        label="Label"
-                        value={label.title}
-                        onChange={handleChangeLabel(i)}
-                        fullWidth
-                      />
-                      <MuiColorInput
-                        label="Color"
-                        value={label.color}
-                        onChange={handleChangeLabelColor(i)}
-                        format="hex"
-                        fullWidth
-                        isAlphaHidden
-                      />
-                    </Box>
-                  </ListItem>
-                ))}
+                    <MenuItem value="TODO">To Do</MenuItem>
+                    <MenuItem value="INPROGRESS">In Progress</MenuItem>
+                    <MenuItem value="COMPLETED">Completed</MenuItem>
+                  </TextField>
+                </ListItem>
+              ))}
 
-                {errors.labels && (
-                  <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
-                    {errors.labels}
-                  </Typography>
-                )}
+              {errors.statuses && (
+                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
+                  {errors.statuses}
+                </Typography>
+              )}
 
-                <Tooltip placement="right" title="Add label">
-                  <IconButton onClick={addLabel}>
-                    <Add />
-                  </IconButton>
-                </Tooltip>
-              </List>
-            </Box>
+              <Tooltip title="Add Status">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  onClick={addStatus}
+                >
+                  <Add />
+                </Button>
+              </Tooltip>
+            </List>
           </Box>
         </Box>
 

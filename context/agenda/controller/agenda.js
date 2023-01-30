@@ -6,6 +6,7 @@ const initialState = {
   agendas: [],
   agenda: null,
   labels: [],
+  statuses: [],
 };
 
 const useAgenda = () => {
@@ -70,11 +71,16 @@ const useAgenda = () => {
         checked: true,
       });
       labels.push(...newAgenda.labels.map((l) => ({ ...l, checked: true })));
+      const statuses = state.statuses;
+      statuses.push(
+        ...newAgenda.statuses.map((s) => ({ ...s, checked: true }))
+      );
 
       setState((v) => ({
         ...v,
         agendas: currAgendas,
         labels,
+        statuses,
       }));
     } catch (err) {
       console.error(err);
@@ -95,7 +101,7 @@ const useAgenda = () => {
         return e;
       });
 
-      const labels = state.labels.map((l) => {
+      let labels = state.labels.map((l) => {
         const updatedLabel = updatedAgenda.labels.find((el) => el.id === l.id);
         if (updatedLabel) l = { ...l, ...updatedLabel, checked: true };
         return l;
@@ -108,10 +114,50 @@ const useAgenda = () => {
       if (newLabels.length)
         labels.push(...newLabels.map((l) => ({ ...l, checked: true })));
 
+      const deletedLabels = labels
+        .filter((label) => label.agendaId === updatedAgenda.id)
+        .filter(
+          (label) =>
+            label.id && !updatedAgenda.labels.find((l) => l.id === label.id)
+        );
+
+      if (deletedLabels.length)
+        labels = labels.filter(
+          (label) => !deletedLabels.find((l) => l.id === label.id)
+        );
+
+      let statuses = state.statuses.map((status) => {
+        const updatedStatus = updatedAgenda.statuses.find(
+          (s) => s.id === status.id
+        );
+        if (updatedStatus)
+          status = { ...status, ...updatedStatus, checked: true };
+        return status;
+      });
+
+      const newStatuses = updatedAgenda.statuses.filter(
+        (status) => !Boolean(statuses.find((s) => s.id === status.id))
+      );
+
+      if (newStatuses.length)
+        statuses.push(...newStatuses.map((s) => ({ ...s, checked: true })));
+
+      const deletedStatuses = statuses
+        .filter((status) => status.agendaId === updatedAgenda.id)
+        .filter(
+          (status) => !updatedAgenda.statuses.find((s) => s.id === status.id)
+        );
+
+      if (deletedStatuses.length)
+        statuses = statuses.filter(
+          (status) => !deletedStatuses.find((s) => s.id === status.id)
+        );
+
       setState((v) => ({
         ...v,
         agendas: currAgendas,
         labels,
+        statuses,
       }));
     } catch (err) {
       console.error(err);
@@ -126,11 +172,15 @@ const useAgenda = () => {
 
       const currAgendas = state.agendas.filter((e) => e.id !== agenda.id);
       const currLabels = state.labels.filter((e) => e.agendaId !== agenda.id);
+      const currStatuses = state.statuses.filter(
+        (e) => e.agendaId !== agenda.id
+      );
 
       setState((v) => ({
         ...v,
         agendas: currAgendas,
         labels: currLabels,
+        statuses: currStatuses,
       }));
     } catch (err) {
       console.error(err);
@@ -180,6 +230,30 @@ const useAgenda = () => {
     setState((v) => ({ ...v, labels: currLabels }));
   }
 
+  const getStatusesByAgenda = useCallback(
+    (agenda) => state.statuses.filter((s) => s.agendaId === agenda.id),
+    [state.statuses]
+  );
+
+  const setStatuses = useCallback((statuses) => {
+    setState((v) => ({
+      ...v,
+      statuses,
+    }));
+  }, []);
+
+  function toggleCheckedStatus(status, checked, agenda) {
+    const currLabels = state.statuses.map((s) => {
+      if (agenda.id === s.agendaId && s.id === status.id) {
+        s.checked = checked;
+      }
+
+      return s;
+    });
+
+    setState((v) => ({ ...v, statuses: currLabels }));
+  }
+
   return {
     ...state,
     getAgendaByEvent,
@@ -194,6 +268,9 @@ const useAgenda = () => {
     getLabelsByAgenda,
     setLabels,
     toggleCheckedLabel,
+    getStatusesByAgenda,
+    setStatuses,
+    toggleCheckedStatus,
   };
 };
 
