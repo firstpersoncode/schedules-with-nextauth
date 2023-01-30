@@ -5,7 +5,7 @@ import useIsMobile from "hooks/useIsMobile";
 export const initialContext = {
   userAgent: "",
   isLoading: false,
-  isReady: false,
+  isClientSide: false,
   agendaDialog: false,
   eventDialog: false,
   drawer: false,
@@ -62,7 +62,7 @@ const useController = (context) => {
   }
 
   useEffect(() => {
-    setContext((v) => ({ ...v, isReady: true }));
+    setContext((v) => ({ ...v, isClientSide: true }));
   }, []);
 
   return {

@@ -1,21 +1,31 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useCommonContext } from "context/common";
 import useAgenda from "./agenda";
 import useEvent from "./event";
 
-export const initialContext = {};
+export const initialContext = {
+  agendaReady: false,
+};
 
-const useController = () => {
-  const { isReady, setIsLoading } = useCommonContext();
+const useController = (context) => {
+  const { isClientSide, setIsLoading } = useCommonContext();
   const agendaState = useAgenda();
   const eventState = useEvent({ ...agendaState });
-  const { setAgendaOptions, setAgendas, selectAgenda, setLabels, setStatuses } =
-    agendaState;
+  const {
+    setAgendaOptions,
+    setAgendas,
+    setLabels,
+    setStatuses,
+    agendas,
+    labels,
+    statuses,
+  } = agendaState;
   const { setEvents } = eventState;
+  const [ctx, setContext] = useState(context);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isClientSide) return;
 
     (async () => {
       setIsLoading(true);
@@ -51,21 +61,127 @@ const useController = () => {
         setStatuses(statuses);
         setLabels(labels);
         setEvents(events);
+
+        const persistAgendaIds = localStorage.getItem("agenda.agendas");
+        if (persistAgendaIds) {
+          const ids = JSON.parse(persistAgendaIds);
+          if (ids.length) {
+            setAgendas(
+              ids
+                .filter((agenda) => agendas.find((a) => a.id === agenda.id))
+                .map((agenda) => {
+                  const matchAgenda = agendas.find((a) => a.id === agenda.id);
+
+                  return {
+                    ...matchAgenda,
+                    checked: agenda.checked,
+                  };
+                })
+            );
+
+            setAgendaOptions(
+              agendas.filter((a) => !ids.map((a) => a.id).includes(a.id))
+            );
+          }
+        }
+
+        const persistLabelIds = localStorage.getItem("agenda.labels");
+        if (persistLabelIds) {
+          const ids = JSON.parse(persistLabelIds);
+          if (ids.length)
+            setLabels(
+              ids
+                .filter((label) =>
+                  labels.find(
+                    (a) => a.id === label.id && a.agendaId === label.agendaId
+                  )
+                )
+                .map((label) => {
+                  const matchLabel = labels.find(
+                    (a) => a.id === label.id && a.agendaId === label.agendaId
+                  );
+
+                  return {
+                    ...matchLabel,
+                    checked: label.checked,
+                  };
+                })
+            );
+        }
+
+        const persistStatusIds = localStorage.getItem("agenda.statuses");
+        if (persistStatusIds) {
+          const ids = JSON.parse(persistStatusIds);
+          if (ids.length)
+            setStatuses(
+              ids
+                .filter((status) =>
+                  statuses.find(
+                    (a) => a.id === status.id && a.agendaId === status.agendaId
+                  )
+                )
+                .map((status) => {
+                  const matchLabel = statuses.find(
+                    (a) => a.id === status.id && a.agendaId === status.agendaId
+                  );
+
+                  return {
+                    ...matchLabel,
+                    checked: status.checked,
+                  };
+                })
+            );
+        }
+
+        setContext((v) => ({ ...v, agendaReady: true }));
       } catch (err) {
         console.error(err);
       }
       setIsLoading(false);
     })();
   }, [
-    isReady,
+    isClientSide,
     setIsLoading,
     setAgendaOptions,
+    setAgendas,
     setLabels,
     setStatuses,
     setEvents,
   ]);
 
+  useEffect(() => {
+    if (ctx.agendaReady) {
+      localStorage.setItem(
+        "agenda.agendas",
+        JSON.stringify(agendas.map((a) => ({ id: a.id, checked: a.checked })))
+      );
+
+      localStorage.setItem(
+        "agenda.labels",
+        JSON.stringify(
+          labels.map((a) => ({
+            id: a.id,
+            agendaId: a.agendaId,
+            checked: a.checked,
+          }))
+        )
+      );
+
+      localStorage.setItem(
+        "agenda.statuses",
+        JSON.stringify(
+          statuses.map((a) => ({
+            id: a.id,
+            agendaId: a.agendaId,
+            checked: a.checked,
+          }))
+        )
+      );
+    }
+  }, [ctx.agendaReady, agendas, labels, statuses]);
+
   return {
+    ...ctx,
     ...agendaState,
     ...eventState,
   };

@@ -136,7 +136,7 @@ const useEvent = ({
         ...event,
       };
 
-      const currEvents = state.events;
+      const currEvents = [...state.events];
       currEvents.push(newEvent);
 
       setState((v) => ({

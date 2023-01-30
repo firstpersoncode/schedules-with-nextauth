@@ -93,24 +93,26 @@ const useAgenda = () => {
       newAgenda.end = new Date(newAgenda.end);
       newAgenda.checked = true;
 
-      const currAgendas = state.agendas;
-      currAgendas.push(newAgenda);
-      const labels = state.labels;
-      labels.push({
-        title: "No label",
-        color: "#CCC",
-        agendaId: newAgenda.id,
-        checked: true,
-      });
-      labels.push(...newAgenda.labels.map((l) => ({ ...l, checked: true })));
-      const statuses = state.statuses;
-      statuses.push(
-        ...newAgenda.statuses.map((s) => ({ ...s, checked: true }))
-      );
+      const agendas = [...state.agendas, newAgenda];
+      const labels = [
+        ...state.labels,
+        {
+          title: "No label",
+          color: "#CCC",
+          agendaId: newAgenda.id,
+          checked: true,
+        },
+        ...newAgenda.labels.map((l) => ({ ...l, checked: true })),
+      ];
+
+      const statuses = [
+        ...state.statuses,
+        ...newAgenda.statuses.map((s) => ({ ...s, checked: true })),
+      ];
 
       setState((v) => ({
         ...v,
-        agendas: currAgendas,
+        agendas,
         labels,
         statuses,
       }));
