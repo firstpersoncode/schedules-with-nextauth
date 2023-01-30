@@ -92,7 +92,7 @@ const useAgenda = () => {
       newAgenda.end = new Date(newAgenda.end);
       newAgenda.checked = true;
 
-      const agendas = [...state.agendas, newAgenda];
+      const agendas = [newAgenda, ...state.agendas];
       const labels = [
         ...state.labels,
         {
