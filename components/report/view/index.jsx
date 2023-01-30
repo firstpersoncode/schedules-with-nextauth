@@ -29,8 +29,12 @@ export default function Report() {
         activeAgendas.map((agenda, i) => (
           <ProgressChart key={i} agenda={agenda} />
         ))}
-      {view.value === "commitment" && <CommitmentChart />}
-      {view.value === "burndown" && <BurnDownChart />}
+      {view.value === "commitment" && activeAgendas.length > 0 && (
+        <CommitmentChart />
+      )}
+      {view.value === "burndown" && activeAgendas.length > 0 && (
+        <BurnDownChart />
+      )}
     </Box>
   );
 }
