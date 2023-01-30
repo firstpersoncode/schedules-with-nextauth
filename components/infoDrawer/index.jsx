@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
-import { SwipeableDrawer, Box } from "@mui/material";
+import { SwipeableDrawer, Box, Card, IconButton } from "@mui/material";
+import { Close } from "@mui/icons-material";
 import { useCommonContext } from "context/common";
 
 const Notifications = dynamic(() => import("./notifications"));
@@ -22,6 +23,19 @@ export default function Infobar() {
         },
       }}
     >
+      <Card
+        sx={{
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          overflow: "visible",
+          minHeight: 40,
+        }}
+      >
+        <IconButton size="small" onClick={toggleInfoDrawer}>
+          <Close />
+        </IconButton>
+      </Card>
       <Box sx={{ overflowY: "auto" }}>{infoDrawer && <Notifications />}</Box>
     </SwipeableDrawer>
   );

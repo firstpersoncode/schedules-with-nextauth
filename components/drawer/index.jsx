@@ -1,5 +1,11 @@
 import dynamic from "next/dynamic";
-import { SwipeableDrawer, Drawer as MuiDrawer } from "@mui/material";
+import {
+  SwipeableDrawer,
+  Drawer as MuiDrawer,
+  Card,
+  IconButton,
+} from "@mui/material";
+import { Close } from "@mui/icons-material";
 import { useCommonContext } from "context/common";
 
 const Menu = dynamic(() => import("./menu"));
@@ -19,14 +25,25 @@ export default function Drawer() {
             onOpen={toggleDrawer}
             sx={{
               width: "80%",
-              flexShrink: 0,
               "& .MuiDrawer-paper": {
                 width: "80%",
                 boxSizing: "border-box",
-                // overflow: "visible",
               },
             }}
           >
+            <Card
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                overflow: "visible",
+                minHeight: 40,
+              }}
+            >
+              <IconButton size="small" onClick={toggleDrawer}>
+                <Close />
+              </IconButton>
+            </Card>
             {drawer && <Menu />}
           </SwipeableDrawer>
         </>
@@ -34,7 +51,6 @@ export default function Drawer() {
         <MuiDrawer
           sx={{
             width: drawerWidth,
-            flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
@@ -43,6 +59,19 @@ export default function Drawer() {
           variant="permanent"
           anchor="left"
         >
+          <Card
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              overflow: "visible",
+              minHeight: 40,
+            }}
+          >
+            {/* <IconButton size="small" onClick={toggleDrawer}>
+              <Close />
+            </IconButton> */}
+          </Card>
           <Menu />
         </MuiDrawer>
       )}
