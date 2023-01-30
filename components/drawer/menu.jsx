@@ -27,13 +27,7 @@ import Agenda from "./agenda";
 export default function Menu() {
   const { asPath } = useRouter();
   const { isLoading, openAgendaDialog } = useCommonContext();
-  const { agendas, statuses, toggleEventStatuses } = useAgendaContext();
-
-  function handleCheckedStatus(status) {
-    return function (_, checked) {
-      toggleEventStatuses(status, checked);
-    };
-  }
+  const { agendas } = useAgendaContext();
 
   return (
     <Box sx={{ overflowY: "auto" }}>
@@ -107,21 +101,6 @@ export default function Menu() {
           <Skeleton animation="wave" height="40px" width="50%" />
           <Skeleton animation="wave" height="40px" width="50%" />
           <Skeleton animation="wave" height="40px" width="50%" />
-        </Box>
-      )}
-
-      {agendas.length > 0 && (
-        <Box sx={{ p: 2 }}>
-          <FormGroup>
-            {statuses.map((status, i) => (
-              <FormControlLabel
-                key={i}
-                onChange={handleCheckedStatus(status)}
-                control={<Checkbox checked={status.checked} />}
-                label={status.title}
-              />
-            ))}
-          </FormGroup>
         </Box>
       )}
     </Box>

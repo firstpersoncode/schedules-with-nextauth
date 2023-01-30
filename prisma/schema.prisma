@@ -110,46 +110,6 @@ model Label {
   @@map("labels")
 }
 
-
-enum EventStatus {
-  TODO
-  INPROGRESS
-  COMPLETED
-}
-
-enum EventRepeat {
-  DAILY
-  WEEKLY
-  MONTHLY
-}
-
-model Event {
-  id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  title String
-  start DateTime
-  end DateTime
-  description String?
-  
-  status Status @relation(fields: [statusId], references: [id])
-  statusId String @db.ObjectId
-
-  repeat EventRepeat?
-  cancelledAt DateTime[]
-
-  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
-  agendaId String @db.ObjectId
-
-  labels Label[] @relation(fields: [labelIds], references: [id])
-  labelIds String[] @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
- archived Boolean @default(false)
-
- @@map("events")
-}
-
 enum StatusType {
   TODO
   INPROGRESS
@@ -174,5 +134,38 @@ model Status {
   @@map("statuses")
 }
 
+
+enum EventRepeat {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model Event {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  start DateTime
+  end DateTime
+  description String?
+
+  status Status @relation(fields: [statusId], references: [id])
+  statusId String @db.ObjectId
+
+  repeat EventRepeat?
+  cancelledAt DateTime[]
+
+  agenda Agenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId String @db.ObjectId
+
+  labels Label[] @relation(fields: [labelIds], references: [id])
+  labelIds String[] @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+ archived Boolean @default(false)
+
+ @@map("events")
+}
 
 

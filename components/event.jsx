@@ -30,6 +30,7 @@ export default function Event() {
     agenda: activeAgenda,
     agendas,
     getAgendaByEvent,
+    getStatusesByAgenda,
     closeEventDialog,
     slot,
     event,
@@ -37,7 +38,7 @@ export default function Event() {
     updateEvent,
     deleteEvent,
     cancelEvent,
-    statuses,
+    // statuses,
   } = useAgendaContext();
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
@@ -59,6 +60,10 @@ export default function Event() {
     return activeAgenda || getAgendaByEvent(event);
   }, [activeAgenda, event, getAgendaByEvent]);
 
+  const statuses = useMemo(() => {
+    return getStatusesByAgenda(state.agenda);
+  }, [state.agenda, getStatusesByAgenda]);
+
   useEffect(() => {
     if (event?.id) {
       setState((v) => ({
@@ -71,8 +76,14 @@ export default function Event() {
         status: event.status,
         repeat: event.repeat,
       }));
+    } else {
+      const status = statuses.filter((s) => s.type === "TODO")[0];
+      setState((v) => ({
+        ...v,
+        status,
+      }));
     }
-  }, [event]);
+  }, [event, statuses]);
 
   useEffect(() => {
     if (agenda?.id) {
@@ -105,12 +116,12 @@ export default function Event() {
   }, [slot]);
 
   useEffect(() => {
-    if (event?.id) {
+    if (event?.id && state.status) {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
-      if (event.status !== state.status) {
+      if (event.status.type !== state.status.type) {
         const now = new Date();
-        if (state.status === "COMPLETED") {
+        if (state.status.type === "COMPLETED") {
           if (isAfter(eventStart, now)) {
             const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
             setState((v) => ({
@@ -180,12 +191,23 @@ export default function Event() {
     };
   }
 
+  function handleSelectStatus(_, status) {
+    setState((prev) => {
+      return {
+        ...prev,
+        status,
+      };
+    });
+    setErrors((v) => ({ ...v, status: undefined }));
+  }
+
   function handleSelectAgenda(_, agenda) {
     setState((prev) => {
       return {
         ...prev,
         agenda,
         labels: [],
+        status: null,
       };
     });
     setErrors((v) => ({ ...v, agenda: undefined }));
@@ -216,6 +238,7 @@ export default function Event() {
     let errors = {};
     setErrors(errors);
     if (!event?.id && !state.agenda) errors.agenda = "Required";
+    if (!state.status) errors.status = "Required";
     if (!state.title) errors.title = "Required";
     if (!state.start) errors.start = "Required";
     if (!state.end) errors.end = "Required";
@@ -227,17 +250,6 @@ export default function Event() {
       errors.start = "Invalid date range, start should be lower than ends";
       errors.end = "Invalid date range, ends should be greater than start";
     }
-    // if (
-    //   !event?.id &&
-    //   state.start &&
-    //   state.end &&
-    //   state.agenda &&
-    //   !validateEventStartEndWithinAgenda(state.start, state.end, state.agenda)
-    // ) {
-    //   errors.start =
-    //     "Invalid date range, should start within the agenda timeline";
-    //   errors.end = "Invalid date range, should ends within the agenda timeline";
-    // }
 
     setErrors(errors);
     return errors;
@@ -341,7 +353,7 @@ export default function Event() {
           start: state.start,
           end: state.end,
           labels: state.labels,
-          status: "TODO",
+          status: state.status,
           agenda: state.agenda,
           repeat: state.repeat,
           cancelledAt: [],
@@ -360,43 +372,51 @@ export default function Event() {
           {loading && <LinearProgress />}
 
           <Box sx={{ p: 2 }}>
-            {event?.id && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  mb: 4,
-                }}
-              >
-                <TextField
-                  required
-                  select
-                  label="Status"
-                  value={state.status || ""}
-                  onChange={handleChange("status")}
-                  error={Boolean(errors.status)}
-                  helperText={errors.status}
-                >
-                  {statuses.map((option, i) => (
-                    <MenuItem key={i} value={option.value}>
-                      {option.title}
-                    </MenuItem>
-                  ))}
-                </TextField>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                mb: 4,
+              }}
+            >
+              <Autocomplete
+                required
+                disabled={!state.agenda?.id}
+                value={state.status || null}
+                options={statuses}
+                getOptionLabel={(o) => o.title}
+                getOptionDisabled={(o) => !event?.id && o.type !== "TODO"}
+                onChange={handleSelectStatus}
+                disableClearable
+                blurOnSelect
+                fullWidth
+                sx={{ width: "50%" }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Status"
+                    variant="outlined"
+                    error={Boolean(errors.status)}
+                    helperText={errors.status}
+                  />
+                )}
+              />
+
+              {event?.id && (
                 <Tooltip title="Delete">
                   <IconButton disabled={loading} onClick={handleDelete}>
                     <Delete />
                   </IconButton>
                 </Tooltip>
-              </Box>
-            )}
+              )}
+            </Box>
 
             <Box
               sx={{
                 mb: 2,
                 display: "flex",
-                gap: 2,
+                gap: 1,
                 flexDirection: { xs: "column", lg: "row" },
               }}
             >
@@ -477,7 +497,9 @@ export default function Event() {
                   label="Start"
                   value={state.start}
                   onChange={handleDateChange("start")}
-                  disabled={Boolean(state.status && state.status !== "TODO")}
+                  disabled={Boolean(
+                    state.status && state.status.type !== "TODO"
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -494,7 +516,9 @@ export default function Event() {
                   label="End"
                   value={state.end}
                   onChange={handleDateChange("end")}
-                  disabled={Boolean(state.status && state.status !== "TODO")}
+                  disabled={Boolean(
+                    state.status && state.status.type !== "TODO"
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}

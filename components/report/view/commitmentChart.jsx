@@ -109,7 +109,7 @@ export default function CommitmentChart({ agenda }) {
       });
 
       if (type === "completed")
-        events = events.filter((e) => e.status === "COMPLETED");
+        events = events.filter((e) => e.status.type === "COMPLETED");
 
       return events.length;
     },

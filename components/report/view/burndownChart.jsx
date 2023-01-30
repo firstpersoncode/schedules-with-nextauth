@@ -125,7 +125,7 @@ export default function BurnDownChart({ agenda }) {
       const data = dateInterval.arr.map((date) => {
         return eventsByLabel.filter((e) => {
           return (
-            e.status === "COMPLETED" &&
+            e.status.type === "COMPLETED" &&
             isWithinInterval(new Date(e.end), {
               start: new Date(dateInterval.arr[0]),
               end: new Date(date),

@@ -231,7 +231,8 @@ const useAgenda = () => {
   }
 
   const getStatusesByAgenda = useCallback(
-    (agenda) => state.statuses.filter((s) => s.agendaId === agenda.id),
+    (agenda) =>
+      state.statuses.filter((s) => agenda?.id && s.agendaId === agenda.id),
     [state.statuses]
   );
 

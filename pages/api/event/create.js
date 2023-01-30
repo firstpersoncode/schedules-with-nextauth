@@ -1,8 +1,6 @@
 import { getSession } from "next-auth/react";
 import { makeDBConnection } from "prisma/db";
-import validateEventStartEnd, {
-  validateEventStartEndWithinAgenda,
-} from "utils/validateEventStartEnd";
+import validateEventStartEnd from "utils/validateEventStartEnd";
 
 export default async function create(req, res) {
   if (req.method !== "POST") res.status(405).send();
@@ -18,7 +16,7 @@ export default async function create(req, res) {
       end,
       agendaId,
       labels,
-      status,
+      statusId,
       repeat,
       cancelledAt,
     } = req.body;
@@ -46,9 +44,9 @@ export default async function create(req, res) {
           description,
           start,
           end,
-          agenda: { connect: { id: agendaId } },
+          agendaId: agendaId,
           labelIds: labels.map((l) => l.id),
-          status,
+          statusId,
           repeat,
           cancelledAt,
         },

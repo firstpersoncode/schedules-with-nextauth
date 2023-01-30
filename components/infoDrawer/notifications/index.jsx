@@ -46,7 +46,9 @@ export default function Notifications() {
         //     isAfter(now, new Date(e.start)) &&
         //     isBefore(now, new Date(e.end))
         // )
-        .filter((e) => e.status === "TODO" && isAfter(now, new Date(e.start)))
+        .filter(
+          (e) => e.status.type === "TODO" && isAfter(now, new Date(e.start))
+        )
         .sort((a, b) => new Date(b.start) - new Date(a.start));
 
       setMissedEvents(data);
@@ -60,7 +62,9 @@ export default function Notifications() {
     incomingChecker.current = setInterval(() => {
       const now = new Date();
       const data = events
-        .filter((e) => e.status === "TODO" && isBefore(now, new Date(e.start)))
+        .filter(
+          (e) => e.status.type === "TODO" && isBefore(now, new Date(e.start))
+        )
         .sort((a, b) => new Date(a.start) - new Date(b.start));
 
       setInComingEvents(data);

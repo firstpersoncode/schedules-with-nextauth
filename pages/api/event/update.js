@@ -1,8 +1,6 @@
 import { getSession } from "next-auth/react";
 import { makeDBConnection } from "prisma/db";
-import validateEventStartEnd, {
-  validateEventStartEndWithinAgenda,
-} from "utils/validateEventStartEnd";
+import validateEventStartEnd from "utils/validateEventStartEnd";
 
 export default async function update(req, res) {
   if (req.method !== "PUT") res.status(405).send();
@@ -11,7 +9,7 @@ export default async function update(req, res) {
     const session = await getSession({ req });
     if (!session) throw new Error("Session not found");
 
-    const { id, title, description, start, end, labels, status } = req.body;
+    const { id, title, description, start, end, labels, statusId } = req.body;
 
     if (!validateEventStartEnd(start, end))
       throw new Error(
@@ -19,24 +17,6 @@ export default async function update(req, res) {
       );
 
     await makeDBConnection(async (db) => {
-      // const currEvent = await db.event.findUnique({
-      //   where: { id },
-      //   include: {
-      //     agenda: true,
-      //   },
-      // });
-
-      // if (!currEvent) throw new Error("Event not found");
-
-      // const { agenda } = currEvent;
-
-      // if (!agenda) throw new Error("Agenda not found");
-
-      // if (!validateEventStartEndWithinAgenda(start, end, agenda))
-      //   throw new Error(
-      //     "Event should start and ends within the agenda timeline"
-      //   );
-
       await db.event.update({
         where: {
           id,
@@ -47,7 +27,7 @@ export default async function update(req, res) {
           start,
           end,
           labelIds: labels.map((l) => l.id),
-          status,
+          statusId,
         },
       });
     });

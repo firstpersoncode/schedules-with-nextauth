@@ -18,17 +18,18 @@ function Chart({ status, events, labels }) {
   const eventsByStatus = useMemo(() => {
     const now = new Date();
 
-    if (status.value === "MISSED")
+    if (status.type === "MISSED")
       return events.filter(
-        (e) => e.status === "TODO" && isAfter(now, new Date(e.start))
+        (e) => e.status.type === "TODO" && isAfter(now, new Date(e.start))
       );
     else
       return events.filter((e) => {
-        if (e.status === status.value) {
-          if (e.status === "TODO") return isBefore(now, new Date(e.start));
-          else return true;
-        }
-        return false;
+        // if (e.status.type === status.type) {
+        //   if (e.status.type === "TODO") return isBefore(now, new Date(e.start));
+        //   else return true;
+        // }
+        // return false;
+        return e.status.id === status.id;
       });
   }, [events, status]);
 
@@ -117,10 +118,12 @@ export default function ProgressChart({ agenda }) {
   }, [labels, agenda]);
 
   const checkedStatuses = useMemo(() => {
-    const s = statuses.filter((s) => s.checked && s.value !== "INPROGRESS");
-    s.push({ title: "Missed", value: "MISSED", checked: true });
+    const s = statuses
+      .filter((s) => s.agendaId === agenda.id)
+      .filter((s) => s.checked);
+    s.push({ title: "Missed", type: "MISSED", checked: true });
     return s;
-  }, [statuses]);
+  }, [statuses, agenda]);
 
   function handleSelectAgenda() {
     selectAgenda(agenda);

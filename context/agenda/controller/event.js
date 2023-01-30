@@ -10,20 +10,26 @@ export const repeatOptions = [
   { title: "Monthly", value: "MONTHLY" },
 ];
 
-const statuses = [
-  { title: "To Do", value: "TODO", checked: true },
-  { title: "In Progress", value: "INPROGRESS", checked: true },
-  { title: "Completed", value: "COMPLETED", checked: true },
-];
+// const statuses = [
+//   { title: "To Do", value: "TODO", checked: true },
+//   { title: "In Progress", value: "INPROGRESS", checked: true },
+//   { title: "Completed", value: "COMPLETED", checked: true },
+// ];
 
 const initialState = {
   slot: null,
   events: [],
   event: null,
-  statuses,
+  // statuses,
 };
 
-const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
+const useEvent = ({
+  selectAgenda,
+  getAgendaByEvent,
+  agendas,
+  labels,
+  statuses,
+}) => {
   const {
     setIsLoading,
     openEventDialog: openEvent,
@@ -76,7 +82,7 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
 
     const checkedAgendas = agendas.filter((a) => a.checked);
     const checkedLabels = labels.filter((l) => l.checked);
-    const checkedStatuses = state.statuses.filter((s) => s.checked);
+    const checkedStatuses = statuses.filter((s) => s.checked);
 
     events.forEach((event) => {
       if (event.repeat) {
@@ -94,11 +100,11 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
           return checkedLabels.find((l) => !l.id && l.agendaId === e.agendaId);
         return checkedLabels.find((l) => e.labels.find((el) => el.id === l.id));
       })
-      .filter((e) => checkedStatuses.find((s) => s.value === e.status));
+      .filter((e) => checkedStatuses.find((s) => s.id === e.status.id));
   }, [
     state.events,
-    state.statuses,
     duplicateRepeatedEvent,
+    statuses,
     agendas,
     labels,
     getAgendaByEvent,
@@ -111,18 +117,20 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     }));
   }, []);
 
-  async function addEvent({ agenda, ...event }) {
+  async function addEvent({ agenda, status, ...event }) {
     setIsLoading(true);
     try {
       const res = await axios.post("/api/event/create", {
         ...event,
         agendaId: agenda.id,
+        statusId: status.id,
       });
 
       const newEventId = res.data?.event;
       const newEvent = {
         id: newEventId,
         agendaId: agenda.id,
+        status,
         ...event,
       };
 
@@ -139,12 +147,12 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     setIsLoading(false);
   }
 
-  async function updateEvent(event) {
+  async function updateEvent({ status, ...event }) {
     setIsLoading(true);
     try {
-      await axios.put("/api/event/update", event);
+      await axios.put("/api/event/update", { ...event, statusId: status.id });
       const currEvents = state.events.map((e) => {
-        if (e.id === event.id) e = { ...e, ...event };
+        if (e.id === event.id) e = { ...e, ...event, status };
         return e;
       });
 
@@ -222,18 +230,6 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     closeEvent();
   }
 
-  function toggleEventStatuses(status, checked) {
-    const currStatuses = state.statuses.map((s) => {
-      if (s.value === status.value) {
-        s.checked = checked;
-      }
-
-      return s;
-    });
-
-    setState((v) => ({ ...v, statuses: currStatuses }));
-  }
-
   return {
     ...state,
     getEvents,
@@ -245,7 +241,6 @@ const useEvent = ({ selectAgenda, getAgendaByEvent, agendas, labels }) => {
     cancelEvent,
     openEventDialog,
     closeEventDialog,
-    toggleEventStatuses,
   };
 };
 
