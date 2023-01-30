@@ -97,10 +97,10 @@ const useEvent = ({
 
     res.forEach((event) => {
       if (event.repeat) {
-        events = events.filter((e) => e.id !== event.id);
+        res = res.filter((e) => e.id !== event.id);
         const agenda = getAgendaByEvent(event);
         const duplicates = duplicateRepeatedEvent(agenda.end, event);
-        events = [...events, ...duplicates];
+        res = [...res, ...duplicates];
       }
     });
 
