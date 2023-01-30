@@ -10,7 +10,8 @@ const useController = () => {
   const { isReady, setIsLoading } = useCommonContext();
   const agendaState = useAgenda();
   const eventState = useEvent({ ...agendaState });
-  const { setAgendas, selectAgenda, setLabels, setStatuses } = agendaState;
+  const { setAgendaOptions, setAgendas, selectAgenda, setLabels, setStatuses } =
+    agendaState;
   const { setEvents } = eventState;
 
   useEffect(() => {
@@ -46,8 +47,7 @@ const useController = () => {
           end: new Date(e.end),
         }));
 
-        setAgendas(agendas);
-        selectAgenda(agendas.length ? agendas[0] : null);
+        setAgendaOptions(agendas);
         setStatuses(statuses);
         setLabels(labels);
         setEvents(events);
@@ -59,8 +59,7 @@ const useController = () => {
   }, [
     isReady,
     setIsLoading,
-    setAgendas,
-    selectAgenda,
+    setAgendaOptions,
     setLabels,
     setStatuses,
     setEvents,

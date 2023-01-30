@@ -3,6 +3,7 @@ import axios from "axios";
 import { useCommonContext } from "context/common";
 
 const initialState = {
+  agendaOptions: [],
   agendas: [],
   agenda: null,
   labels: [],
@@ -25,6 +26,37 @@ const useAgenda = () => {
     },
     [state.agendas]
   );
+
+  const setAgendaOptions = useCallback((agendaOptions) => {
+    setState((v) => ({
+      ...v,
+      agendaOptions,
+    }));
+  }, []);
+
+  function selectAgendaOption(agenda) {
+    const currAgendas = [...state.agendas];
+    currAgendas.push({ ...agenda, checked: true });
+    const currAgendaOptions = state.agendaOptions.filter(
+      (o) => o.id !== agenda.id
+    );
+    setState((v) => ({
+      ...v,
+      agendas: currAgendas,
+      agendaOptions: currAgendaOptions,
+    }));
+  }
+
+  function unSelectAgendaOption(agenda) {
+    const currAgendas = state.agendas.filter((a) => a.id !== agenda.id);
+    const currAgendaOptions = state.agendaOptions;
+    currAgendaOptions.push(agenda);
+    setState((v) => ({
+      ...v,
+      agendas: currAgendas,
+      agendaOptions: currAgendaOptions,
+    }));
+  }
 
   const setAgendas = useCallback((agendas) => {
     setState((v) => ({
@@ -258,6 +290,9 @@ const useAgenda = () => {
   return {
     ...state,
     getAgendaByEvent,
+    setAgendaOptions,
+    selectAgendaOption,
+    unSelectAgendaOption,
     setAgendas,
     selectAgenda,
     toggleCheckedAgenda,

@@ -84,7 +84,16 @@ const useEvent = ({
     const checkedLabels = labels.filter((l) => l.checked);
     const checkedStatuses = statuses.filter((s) => s.checked);
 
-    events.forEach((event) => {
+    const res = events
+      .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
+      .filter((e) => {
+        if (!e.labels.length)
+          return checkedLabels.find((l) => !l.id && l.agendaId === e.agendaId);
+        return checkedLabels.find((l) => e.labels.find((el) => el.id === l.id));
+      })
+      .filter((e) => checkedStatuses.find((s) => s.id === e.status.id));
+
+    res.forEach((event) => {
       if (event.repeat) {
         events = events.filter((e) => e.id !== event.id);
         const agenda = getAgendaByEvent(event);
@@ -93,14 +102,7 @@ const useEvent = ({
       }
     });
 
-    return events
-      .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
-      .filter((e) => {
-        if (!e.labels.length)
-          return checkedLabels.find((l) => !l.id && l.agendaId === e.agendaId);
-        return checkedLabels.find((l) => e.labels.find((el) => el.id === l.id));
-      })
-      .filter((e) => checkedStatuses.find((s) => s.id === e.status.id));
+    return res;
   }, [
     state.events,
     duplicateRepeatedEvent,

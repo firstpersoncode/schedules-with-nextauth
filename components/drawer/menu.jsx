@@ -1,18 +1,18 @@
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   Box,
   Divider,
   Button,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Skeleton,
+  Autocomplete,
   Tooltip,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  TextField,
+  LinearProgress,
 } from "@mui/material";
 import {
   Add,
@@ -27,7 +27,16 @@ import Agenda from "./agenda";
 export default function Menu() {
   const { asPath } = useRouter();
   const { isLoading, openAgendaDialog } = useCommonContext();
-  const { agendas } = useAgendaContext();
+  const { agendas, agendaOptions, selectAgendaOption } = useAgendaContext();
+
+  const [inputValue, setInputValue] = useState("");
+  function handleInputChange(e) {
+    setInputValue(e?.target?.value || "");
+  }
+  function handleSelectAgenda(_, agenda) {
+    selectAgendaOption(agenda);
+    setInputValue("");
+  }
 
   return (
     <Box sx={{ overflowY: "auto" }}>
@@ -75,34 +84,29 @@ export default function Menu() {
 
       <Divider />
 
-      {isLoading && !agendas.length && (
-        <Box sx={{ p: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              py: 1,
-            }}
-          >
-            <Skeleton animation="wave" height="40px" width="7%" />
-            <Skeleton animation="wave" height="40px" width="93%" />
-          </Box>
-          <Skeleton animation="wave" height="40px" width="50%" />
-        </Box>
-      )}
+      <Box sx={{ p: 2 }}>
+        {isLoading && <LinearProgress />}
+        <Autocomplete
+          options={agendaOptions}
+          getOptionLabel={(o) => o?.title || ""}
+          onChange={handleSelectAgenda}
+          onInputChange={handleInputChange}
+          disableClearable
+          blurOnSelect
+          fullWidth
+          value={null}
+          inputValue={inputValue}
+          renderInput={(params) => (
+            <TextField {...params} label="Agenda" variant="outlined" />
+          )}
+        />
+      </Box>
+
+      <Divider />
 
       {agendas.map((agenda, i) => (
         <Agenda key={i} agenda={agenda} />
       ))}
-
-      {isLoading && !agendas.length && (
-        <Box sx={{ p: 2 }}>
-          <Skeleton animation="wave" height="40px" width="50%" />
-          <Skeleton animation="wave" height="40px" width="50%" />
-          <Skeleton animation="wave" height="40px" width="50%" />
-        </Box>
-      )}
     </Box>
   );
 }
