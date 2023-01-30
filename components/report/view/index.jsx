@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { Box } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { useReportContext } from "context/report";
 import { useAgendaContext } from "context/agenda";
 
@@ -25,13 +25,18 @@ export default function Report() {
         overflowY: "auto",
       }}
     >
-      {view.value === "progress" &&
-        activeAgendas.map((agenda, i) => (
-          <ProgressChart key={i} agenda={agenda} />
-        ))}
       {view.value === "commitment" && activeAgendas.length > 0 && (
         <CommitmentChart />
       )}
+      {view.value === "progress" &&
+        activeAgendas.map((agenda, i) => (
+          <Box key={i} sx={{ p: 2 }}>
+            <Divider sx={{ my: 1 }}>
+              <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
+            </Divider>
+            <ProgressChart agenda={agenda} />
+          </Box>
+        ))}
       {view.value === "burndown" && activeAgendas.length > 0 && (
         <BurnDownChart />
       )}

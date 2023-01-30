@@ -1,12 +1,5 @@
 import { useMemo } from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  FormControlLabel,
-  Radio,
-  Typography,
-} from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 // import { isAfter, isBefore } from "date-fns";
@@ -16,7 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Chart({ status, events, labels }) {
   const eventsByStatus = useMemo(() => {
-    const now = new Date();
+    // const now = new Date();
 
     // if (status.type === "MISSED")
     //   return events.filter(
@@ -105,13 +98,7 @@ function Chart({ status, events, labels }) {
 }
 
 export default function ProgressChart({ agenda }) {
-  const {
-    agenda: activeAgenda,
-    getEvents,
-    labels,
-    statuses,
-    selectAgenda,
-  } = useAgendaContext();
+  const { getEvents, labels, statuses } = useAgendaContext();
 
   const allEvents = getEvents();
   const agendaEvents = useMemo(
@@ -134,50 +121,27 @@ export default function ProgressChart({ agenda }) {
     return s;
   }, [statuses, agenda]);
 
-  function handleSelectAgenda() {
-    selectAgenda(agenda);
-  }
-
   return (
-    <>
-      <FormControlLabel
-        sx={{ px: 2, mt: 2 }}
-        onChange={handleSelectAgenda}
-        control={
-          <Radio
-            sx={{
-              color: agenda.color,
-              "&.Mui-checked": {
-                color: agenda.color,
-              },
-            }}
-            checked={activeAgenda?.id === agenda.id}
-          />
-        }
-        label={agenda.title}
-      />
-      <Box
-        sx={{
-          width: "100%",
-          overflowX: "auto",
-          display: "flex",
-          alignItems: "stretch",
-          flexWrap: "nowrap",
-          gap: 1,
-          px: 2,
-        }}
-      >
-        {agendaEvents.length > 0 &&
-          checkedStatuses.map((status, i) => (
-            <Box key={i} sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
-              <Chart
-                status={status}
-                events={agendaEvents}
-                labels={agendaLabels}
-              />
-            </Box>
-          ))}
-      </Box>
-    </>
+    <Box
+      sx={{
+        width: "100%",
+        overflowX: "auto",
+        display: "flex",
+        alignItems: "stretch",
+        flexWrap: "nowrap",
+        gap: 1,
+      }}
+    >
+      {agendaEvents.length > 0 &&
+        checkedStatuses.map((status, i) => (
+          <Box key={i} sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
+            <Chart
+              status={status}
+              events={agendaEvents}
+              labels={agendaLabels}
+            />
+          </Box>
+        ))}
+    </Box>
   );
 }

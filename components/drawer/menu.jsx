@@ -46,7 +46,7 @@ export default function Menu() {
             <ListItemIcon>
               <CalendarMonth />
             </ListItemIcon>
-            <ListItemText primary="Calendar" />
+            <ListItemText sx={{ color: "#666" }} primary="Calendar" />
           </ListItemButton>
         </Link>
         <Link href="/board">
@@ -54,7 +54,7 @@ export default function Menu() {
             <ListItemIcon>
               <TableChart />
             </ListItemIcon>
-            <ListItemText primary="Board" />
+            <ListItemText sx={{ color: "#666" }} primary="Board" />
           </ListItemButton>
         </Link>
         <Link href="/report">
@@ -62,7 +62,7 @@ export default function Menu() {
             <ListItemIcon>
               <Assessment />
             </ListItemIcon>
-            <ListItemText primary="Report" />
+            <ListItemText sx={{ color: "#666" }} primary="Report" />
           </ListItemButton>
         </Link>
       </List>
