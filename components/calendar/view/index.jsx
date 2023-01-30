@@ -15,8 +15,6 @@ export default function View() {
   return (
     <Box
       sx={{
-        display: "flex",
-        pt: "40px",
         "& .rbc-timeslot-group": { minHeight: 60 },
         "& .rbc-label": { fontSize: 10 },
         "& .rbc-event-label": { fontSize: 10 },
@@ -33,7 +31,8 @@ export default function View() {
           className={`${view.value}View`}
           sx={{
             flex: 1,
-            height: "calc(100vh - 75px)",
+            pt: "40px",
+            height: "calc(100vh - 35px)",
             overflow: "hidden",
           }}
         >
@@ -45,8 +44,9 @@ export default function View() {
         <Box
           sx={{
             flex: 1,
+            pt: "40px",
             display: "flex",
-            height: "calc(100vh - 75px)",
+            height: "calc(100vh - 35px)",
             overflow: "hidden",
           }}
         >
