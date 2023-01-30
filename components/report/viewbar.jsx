@@ -24,17 +24,6 @@ export default function Viewbar() {
     >
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Tooltip title="Progress">
-          <Button
-            sx={{ borderRadius: 0 }}
-            fullWidth
-            size="small"
-            variant={view.value === "progress" ? "contained" : undefined}
-            onClick={handleSelectView("progress")}
-          >
-            <DonutLarge />
-          </Button>
-        </Tooltip>
         <Tooltip title="Commitment">
           <Button
             sx={{ borderRadius: 0 }}
@@ -46,6 +35,19 @@ export default function Viewbar() {
             <BarChart />
           </Button>
         </Tooltip>
+
+        <Tooltip title="Progress">
+          <Button
+            sx={{ borderRadius: 0 }}
+            fullWidth
+            size="small"
+            variant={view.value === "progress" ? "contained" : undefined}
+            onClick={handleSelectView("progress")}
+          >
+            <DonutLarge />
+          </Button>
+        </Tooltip>
+
         <Tooltip title="Burndown">
           <Button
             sx={{ borderRadius: 0 }}

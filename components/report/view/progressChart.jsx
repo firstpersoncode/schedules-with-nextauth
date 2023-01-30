@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import { isAfter, isBefore } from "date-fns";
+// import { isAfter, isBefore } from "date-fns";
 import { useAgendaContext } from "context/agenda";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -18,19 +18,28 @@ function Chart({ status, events, labels }) {
   const eventsByStatus = useMemo(() => {
     const now = new Date();
 
-    if (status.type === "MISSED")
-      return events.filter(
-        (e) => e.status.type === "TODO" && isAfter(now, new Date(e.start))
-      );
-    else
-      return events.filter((e) => {
-        // if (e.status.type === status.type) {
-        //   if (e.status.type === "TODO") return isBefore(now, new Date(e.start));
-        //   else return true;
-        // }
-        // return false;
-        return e.status.id === status.id;
-      });
+    // if (status.type === "MISSED")
+    //   return events.filter(
+    //     (e) => e.status.type === "TODO" && isAfter(now, new Date(e.start))
+    //   );
+    // else
+    //   return events.filter((e) => {
+    //     // if (e.status.type === status.type) {
+    //     //   if (e.status.type === "TODO") return isBefore(now, new Date(e.start));
+    //     //   else return true;
+    //     // }
+    //     // return false;
+    //     return e.status.id === status.id;
+    //   });
+
+    return events.filter((e) => {
+      // if (e.status.type === status.type) {
+      //   if (e.status.type === "TODO") return isBefore(now, new Date(e.start));
+      //   else return true;
+      // }
+      // return false;
+      return e.status.id === status.id;
+    });
   }, [events, status]);
 
   const eventsByLabels = useMemo(
@@ -121,7 +130,7 @@ export default function ProgressChart({ agenda }) {
     const s = statuses
       .filter((s) => s.agendaId === agenda.id)
       .filter((s) => s.checked);
-    s.push({ title: "Missed", type: "MISSED", checked: true });
+    // s.push({ title: "Missed", type: "MISSED", checked: true });
     return s;
   }, [statuses, agenda]);
 
