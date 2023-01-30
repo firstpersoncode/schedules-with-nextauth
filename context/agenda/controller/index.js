@@ -121,12 +121,12 @@ const useController = (context) => {
                   )
                 )
                 .map((status) => {
-                  const matchLabel = statuses.find(
+                  const matchStatus = statuses.find(
                     (a) => a.id === status.id && a.agendaId === status.agendaId
                   );
 
                   return {
-                    ...matchLabel,
+                    ...matchStatus,
                     checked: status.checked,
                   };
                 })
