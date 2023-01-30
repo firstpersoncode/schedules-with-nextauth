@@ -35,8 +35,7 @@ const useAgenda = () => {
   }, []);
 
   function selectAgendaOption(agenda) {
-    const currAgendas = [...state.agendas];
-    currAgendas.push({ ...agenda, checked: true });
+    const currAgendas = [{ ...agenda, checked: true }, ...state.agendas];
     const currAgendaOptions = state.agendaOptions.filter(
       (o) => o.id !== agenda.id
     );
