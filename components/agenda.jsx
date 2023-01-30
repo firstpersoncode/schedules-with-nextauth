@@ -24,7 +24,14 @@ import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
 import { useAgendaContext } from "context/agenda";
 import { useCommonContext } from "context/common";
 import { useDialog } from "components/dialog";
+import { add } from "date-fns";
 const Dialog = dynamic(() => import("components/dialog"));
+
+const defaultStatuses = [
+  { title: "To Do", type: "TODO" },
+  { title: "In Progress", type: "INPROGRESS" },
+  { title: "Completed", type: "COMPLETED" },
+];
 
 export default function Agenda() {
   const { agendaDialog } = useCommonContext();
@@ -45,9 +52,9 @@ export default function Agenda() {
     title: null,
     description: null,
     start: new Date(),
-    end: null,
+    end: add(new Date(), { months: 1 }),
     labels: [],
-    statuses: [],
+    statuses: defaultStatuses,
     color: getRandomHex(),
   });
 
@@ -75,10 +82,10 @@ export default function Agenda() {
       title: null,
       description: null,
       start: new Date(),
-      end: null,
+      end: add(new Date(), { months: 1 }),
       labels: [],
-      statuses: [],
-      color: state.color,
+      statuses: defaultStatuses,
+      color: getRandomHex(),
     });
   }
 

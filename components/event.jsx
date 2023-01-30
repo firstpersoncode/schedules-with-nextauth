@@ -49,8 +49,8 @@ export default function Event() {
   const [state, setState] = useState({
     title: null,
     description: null,
-    start: null,
-    end: null,
+    start: new Date(),
+    end: add(new Date(), { minutes: 30 }),
     labels: [],
     status: null,
     repeat: null,
@@ -170,8 +170,8 @@ export default function Event() {
     setState({
       title: null,
       description: null,
-      start: null,
-      end: null,
+      start: new Date(),
+      end: add(new Date(), { minutes: 30 }),
       labels: [],
       status: null,
       repeat: null,
