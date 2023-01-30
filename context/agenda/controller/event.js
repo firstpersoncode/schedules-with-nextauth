@@ -91,7 +91,9 @@ const useEvent = ({
           return checkedLabels.find((l) => !l.id && l.agendaId === e.agendaId);
         return checkedLabels.find((l) => e.labels.find((el) => el.id === l.id));
       })
-      .filter((e) => checkedStatuses.find((s) => s.id === e.status.id));
+      .filter(
+        (e) => e.status && checkedStatuses.find((s) => s.id === e.status.id)
+      );
 
     res.forEach((event) => {
       if (event.repeat) {
