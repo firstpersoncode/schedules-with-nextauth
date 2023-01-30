@@ -84,7 +84,7 @@ const useEvent = ({
     const checkedLabels = labels.filter((l) => l.checked);
     const checkedStatuses = statuses.filter((s) => s.checked);
 
-    const res = events
+    let res = events
       .filter((e) => checkedAgendas.find((a) => a.id === e.agendaId))
       .filter((e) => {
         if (!e.labels.length)
