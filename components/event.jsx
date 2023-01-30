@@ -374,46 +374,6 @@ export default function Event() {
           <Box sx={{ p: 2 }}>
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                mb: 4,
-              }}
-            >
-              <Autocomplete
-                required
-                disabled={!state.agenda?.id}
-                value={state.status || null}
-                options={statuses}
-                getOptionLabel={(o) => o.title}
-                getOptionDisabled={(o) => !event?.id && o.type !== "TODO"}
-                onChange={handleSelectStatus}
-                disableClearable
-                blurOnSelect
-                fullWidth
-                sx={{ width: "50%" }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Status"
-                    variant="outlined"
-                    error={Boolean(errors.status)}
-                    helperText={errors.status}
-                  />
-                )}
-              />
-
-              {event?.id && (
-                <Tooltip title="Delete">
-                  <IconButton disabled={loading} onClick={handleDelete}>
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Box>
-
-            <Box
-              sx={{
                 mb: 2,
                 display: "flex",
                 gap: 1,
@@ -533,28 +493,65 @@ export default function Event() {
               </Box>
             </LocalizationProvider>
 
-            <TextField
-              sx={{ mt: 2 }}
-              select
-              fullWidth
-              label={state.repeat ? "Repeat" : "One time"}
-              disabled={Boolean(event?.id)}
-              value={state.repeat || ""}
-              onChange={handleChange("repeat")}
-              error={Boolean(errors.repeat)}
-              helperText={errors.repeat}
+            <Box
+              sx={{
+                mt: 2,
+                display: "flex",
+                gap: 1,
+                flexDirection: { xs: "column", lg: "row" },
+              }}
             >
-              <MenuItem value={null}>One time</MenuItem>
-              {repeatOptions.map((option, i) => (
-                <MenuItem key={i} value={option.value}>
-                  {option.title}
-                </MenuItem>
-              ))}
-            </TextField>
+              <Autocomplete
+                required
+                disabled={!state.agenda?.id}
+                value={state.status || null}
+                options={statuses}
+                getOptionLabel={(o) => o.title}
+                getOptionDisabled={(o) => !event?.id && o.type !== "TODO"}
+                onChange={handleSelectStatus}
+                disableClearable
+                blurOnSelect
+                fullWidth
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Status"
+                    variant="outlined"
+                    error={Boolean(errors.status)}
+                    helperText={errors.status}
+                  />
+                )}
+              />
+
+              <TextField
+                fullWidth
+                select
+                label={state.repeat ? "Repeat" : "One time"}
+                disabled={Boolean(event?.id)}
+                value={state.repeat || ""}
+                onChange={handleChange("repeat")}
+                error={Boolean(errors.repeat)}
+                helperText={errors.repeat}
+              >
+                <MenuItem value={null}>One time</MenuItem>
+                {repeatOptions.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
+                    {option.title}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
           </Box>
         </Box>
 
         <DialogActions>
+          {event?.id && (
+            <Tooltip title="Delete">
+              <IconButton disabled={loading} onClick={handleDelete}>
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          )}
           <Button disabled={loading} onClick={onClose}>
             Cancel
           </Button>

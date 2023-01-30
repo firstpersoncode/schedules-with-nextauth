@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { Delete, Add, Close } from "@mui/icons-material";
+import { Delete, Add } from "@mui/icons-material";
 import { MuiColorInput } from "mui-color-input";
 import getRandomHex from "utils/getRandomHex";
 import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
@@ -287,25 +287,6 @@ export default function Agenda() {
         <Box>
           {loading && <LinearProgress />}
           <Box sx={{ p: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <Typography sx={{ mb: 4, fontWeight: "bold", fontSize: 20 }}>
-                Agenda
-              </Typography>
-              {agenda?.id && (
-                <Tooltip title="Delete">
-                  <IconButton disabled={loading} onClick={handleDelete}>
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Box>
-
             <TextField
               required
               sx={{ mb: 2 }}
@@ -382,67 +363,8 @@ export default function Agenda() {
               helperText={errors.color}
               format="hex"
               isAlphaHidden
-              sx={{ mb: 2, width: "50%" }}
+              sx={{ width: { xs: "100%", lg: "auto" } }}
             />
-
-            <Divider sx={{ mb: 2 }}>Labels</Divider>
-
-            <List sx={{ p: 0 }}>
-              {state.labels.map((label, i) => (
-                <ListItem
-                  key={i}
-                  sx={{
-                    p: 0,
-                    mb: 2,
-                    display: "flex",
-                    gap: 1,
-                    flexDirection: { xs: "column", lg: "row" },
-                  }}
-                >
-                  <Tooltip placement="right" title="Remove">
-                    <IconButton
-                      sx={{ alignSelf: { xs: "flex-end", lg: "unset" } }}
-                      onClick={deleteLabel(i)}
-                    >
-                      <Close />
-                    </IconButton>
-                  </Tooltip>
-                  <TextField
-                    required
-                    label="Label"
-                    value={label.title}
-                    onChange={handleChangeLabel(i)}
-                    fullWidth
-                  />
-                  <MuiColorInput
-                    required
-                    label="Color"
-                    value={label.color}
-                    onChange={handleChangeLabelColor(i)}
-                    format="hex"
-                    fullWidth
-                    isAlphaHidden
-                  />
-                </ListItem>
-              ))}
-
-              {errors.labels && (
-                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
-                  {errors.labels}
-                </Typography>
-              )}
-
-              <Tooltip title="Add label">
-                <Button
-                  variant="outlined"
-                  size="large"
-                  fullWidth
-                  onClick={addLabel}
-                >
-                  <Add />
-                </Button>
-              </Tooltip>
-            </List>
 
             <Divider sx={{ my: 2 }}>Statuses *</Divider>
 
@@ -463,7 +385,7 @@ export default function Agenda() {
                       sx={{ alignSelf: { xs: "flex-end", lg: "unset" } }}
                       onClick={deleteStatus(i)}
                     >
-                      <Close />
+                      <Delete />
                     </IconButton>
                   </Tooltip>
                   <TextField
@@ -505,10 +427,76 @@ export default function Agenda() {
                 </Button>
               </Tooltip>
             </List>
+
+            <Divider sx={{ my: 2 }}>Labels</Divider>
+
+            <List sx={{ p: 0 }}>
+              {state.labels.map((label, i) => (
+                <ListItem
+                  key={i}
+                  sx={{
+                    p: 0,
+                    mb: 2,
+                    display: "flex",
+                    gap: 1,
+                    flexDirection: { xs: "column", lg: "row" },
+                  }}
+                >
+                  <Tooltip placement="right" title="Remove">
+                    <IconButton
+                      sx={{ alignSelf: { xs: "flex-end", lg: "unset" } }}
+                      onClick={deleteLabel(i)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                  <TextField
+                    required
+                    label="Label"
+                    value={label.title}
+                    onChange={handleChangeLabel(i)}
+                    fullWidth
+                  />
+                  <MuiColorInput
+                    required
+                    label="Color"
+                    value={label.color}
+                    onChange={handleChangeLabelColor(i)}
+                    format="hex"
+                    fullWidth
+                    isAlphaHidden
+                  />
+                </ListItem>
+              ))}
+
+              {errors.labels && (
+                <Typography sx={{ fontSize: 12, mb: 2, mx: 2 }} color="error">
+                  {errors.labels}
+                </Typography>
+              )}
+
+              <Tooltip title="Add label">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  onClick={addLabel}
+                >
+                  <Add />
+                </Button>
+              </Tooltip>
+            </List>
           </Box>
         </Box>
 
         <DialogActions>
+          {agenda?.id && (
+            <Tooltip title="Delete">
+              <IconButton disabled={loading} onClick={handleDelete}>
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          )}
           <Button disabled={loading} onClick={onClose}>
             Cancel
           </Button>
