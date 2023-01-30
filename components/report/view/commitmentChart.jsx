@@ -1,11 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  Box,
-  FormControlLabel,
-  Radio,
-  TextField,
-  MenuItem,
-} from "@mui/material";
+import { Box, TextField, MenuItem } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -53,23 +47,36 @@ const options = {
   },
 };
 
-export default function CommitmentChart({ agenda }) {
-  const { agenda: activeAgenda, getEvents, selectAgenda } = useAgendaContext();
+export default function CommitmentChart() {
+  const { agendas, getEvents } = useAgendaContext();
   const [scale, setScale] = useState(scaleOptions[0].value);
 
-  const allEvents = getEvents();
+  const events = getEvents();
 
-  const agendaEvents = useMemo(
-    () => allEvents.filter((e) => e.agendaId === agenda.id),
-    [allEvents, agenda]
-  );
+  // const xevents = useMemo(
+  //   () => allEvents.filter((e) => e.agendaId === agenda.id),
+  //   [allEvents, agenda]
+  // );
 
   const dateInterval = useMemo(() => {
     const arr = [];
-    let startAgenda = new Date(agenda.start);
-    let endAgenda = new Date(agenda.end);
+    const sortedAgendasByStart = agendas
+      .filter((a) => a.checked)
+      .sort((a, b) => {
+        return new Date(a.start) - new Date(b.start);
+      });
+    const sortedAgendasByEnd = agendas
+      .filter((a) => a.checked)
+      .sort((a, b) => {
+        return new Date(a.end) - new Date(b.end);
+      });
 
-    const sortedEventsByStart = agendaEvents.sort((a, b) => {
+    let startAgenda = new Date(sortedAgendasByStart[0].start);
+    let endAgenda = new Date(
+      sortedAgendasByEnd[sortedAgendasByEnd.length - 1].end
+    );
+
+    const sortedEventsByStart = events.sort((a, b) => {
       return new Date(a.start) - new Date(b.start);
     });
     const firstEvent = sortedEventsByStart[0];
@@ -78,7 +85,7 @@ export default function CommitmentChart({ agenda }) {
       : false;
     if (beforeAgenda) startAgenda = firstEvent.start;
 
-    const sortedEventsByEnd = agendaEvents.sort((a, b) => {
+    const sortedEventsByEnd = events.sort((a, b) => {
       return new Date(a.end) - new Date(b.end);
     });
     const lastEvent = sortedEventsByEnd[sortedEventsByEnd.length - 1];
@@ -100,20 +107,20 @@ export default function CommitmentChart({ agenda }) {
       arr,
       labels: arr.map((week) => format(week, "MMM/dd/yyyy hh:mm a")),
     };
-  }, [agenda.start, agenda.end, agendaEvents, scale]);
+  }, [agendas, events, scale]);
 
   const getData = useCallback(
     (type) => (date) => {
-      let events = agendaEvents.filter((e) => {
+      let data = events.filter((e) => {
         return isBefore(new Date(date), new Date(e.end));
       });
 
       if (type === "completed")
-        events = events.filter((e) => e.status.type === "COMPLETED");
+        data = data.filter((e) => e.status.type === "COMPLETED");
 
-      return events.length;
+      return data.length;
     },
-    [agendaEvents]
+    [events]
   );
 
   const data = {
@@ -136,28 +143,8 @@ export default function CommitmentChart({ agenda }) {
     setScale(e.target.value);
   }
 
-  function handleSelectAgenda() {
-    selectAgenda(agenda);
-  }
-
   return (
     <>
-      <FormControlLabel
-        sx={{ px: 2, mt: 2 }}
-        onChange={handleSelectAgenda}
-        control={
-          <Radio
-            sx={{
-              color: agenda.color,
-              "&.Mui-checked": {
-                color: agenda.color,
-              },
-            }}
-            checked={activeAgenda?.id === agenda.id}
-          />
-        }
-        label={agenda.title}
-      />
       <Box sx={{ px: 2, display: "flex", justifyContent: "flex-end" }}>
         <TextField
           select

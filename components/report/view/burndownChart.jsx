@@ -1,11 +1,5 @@
 import { useState, useMemo } from "react";
-import {
-  Box,
-  MenuItem,
-  TextField,
-  Radio,
-  FormControlLabel,
-} from "@mui/material";
+import { Box, MenuItem, TextField } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -54,35 +48,46 @@ const options = {
   },
 };
 
-export default function BurnDownChart({ agenda }) {
-  const {
-    agenda: activeAgenda,
-    labels,
-    getEvents,
-    selectAgenda,
-  } = useAgendaContext();
+export default function BurnDownChart() {
+  const { agendas, labels, getEvents } = useAgendaContext();
   const [scale, setScale] = useState(scaleOptions[0].value);
 
-  const allEvents = getEvents();
-
-  const agendaEvents = useMemo(
-    () => allEvents.filter((e) => e.agendaId === agenda.id),
-    [allEvents, agenda]
+  const events = getEvents();
+  const checkedAgendas = useMemo(
+    () => agendas.filter((a) => a.checked),
+    [agendas]
   );
 
-  const agendaLabels = useMemo(() => {
-    const filteredLabels = labels
-      .filter((e) => e.agendaId === agenda.id)
-      .filter((e) => e.checked);
-    return filteredLabels;
-  }, [labels, agenda]);
+  const checkedLabels = useMemo(() => {
+    return labels
+      .filter(
+        (e) => e.checked && checkedAgendas.find((a) => a.id === e.agendaId)
+      )
+      .map((e) => {
+        if (!e.id) {
+          const agenda = checkedAgendas.find((a) => a.id === e.agendaId);
+          return { ...e, title: `${e.title} - ${agenda.title}` };
+        }
+
+        return e;
+      });
+  }, [labels, checkedAgendas]);
 
   const dateInterval = useMemo(() => {
     const arr = [];
-    let startAgenda = new Date(agenda.start);
-    let endAgenda = new Date(agenda.end);
+    const sortedAgendasByStart = checkedAgendas.sort((a, b) => {
+      return new Date(a.start) - new Date(b.start);
+    });
+    const sortedAgendasByEnd = checkedAgendas.sort((a, b) => {
+      return new Date(a.end) - new Date(b.end);
+    });
 
-    const sortedEventsByStart = agendaEvents.sort((a, b) => {
+    let startAgenda = new Date(sortedAgendasByStart[0].start);
+    let endAgenda = new Date(
+      sortedAgendasByEnd[sortedAgendasByEnd.length - 1].end
+    );
+
+    const sortedEventsByStart = events.sort((a, b) => {
       return new Date(a.start) - new Date(b.start);
     });
     const firstEvent = sortedEventsByStart[0];
@@ -91,7 +96,7 @@ export default function BurnDownChart({ agenda }) {
       : false;
     if (beforeAgenda) startAgenda = firstEvent.start;
 
-    const sortedEventsByEnd = agendaEvents.sort((a, b) => {
+    const sortedEventsByEnd = events.sort((a, b) => {
       return new Date(a.end) - new Date(b.end);
     });
     const lastEvent = sortedEventsByEnd[sortedEventsByEnd.length - 1];
@@ -113,12 +118,12 @@ export default function BurnDownChart({ agenda }) {
       arr,
       labels: arr.map((week) => format(week, "MMM/dd/yyyy hh:mm a")),
     };
-  }, [agenda.start, agenda.end, agendaEvents, scale]);
+  }, [checkedAgendas, events, scale]);
 
   const datasets = useMemo(() => {
-    return agendaLabels.map((label) => {
-      const eventsByLabel = agendaEvents.filter((e) => {
-        if (!label.id) return !e.labels.length;
+    return checkedLabels.map((label) => {
+      const eventsByLabel = events.filter((e) => {
+        if (!label.id) return label.agendaId === e.agendaId && !e.labels.length;
         return e.labels.find((l) => l.id === label.id);
       });
 
@@ -141,7 +146,7 @@ export default function BurnDownChart({ agenda }) {
         backgroundColor: label.color,
       };
     });
-  }, [dateInterval, agendaEvents, agendaLabels]);
+  }, [dateInterval, events, checkedLabels]);
 
   const data = {
     labels: dateInterval.labels,
@@ -152,28 +157,8 @@ export default function BurnDownChart({ agenda }) {
     setScale(e.target.value);
   }
 
-  function handleSelectAgenda() {
-    selectAgenda(agenda);
-  }
-
   return (
     <>
-      <FormControlLabel
-        sx={{ px: 2, mt: 2 }}
-        onChange={handleSelectAgenda}
-        control={
-          <Radio
-            sx={{
-              color: agenda.color,
-              "&.Mui-checked": {
-                color: agenda.color,
-              },
-            }}
-            checked={activeAgenda?.id === agenda.id}
-          />
-        }
-        label={agenda.title}
-      />
       <Box sx={{ px: 2, display: "flex", justifyContent: "flex-end" }}>
         <TextField
           select
