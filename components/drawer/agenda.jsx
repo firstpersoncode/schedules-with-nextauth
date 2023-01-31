@@ -7,7 +7,6 @@ import {
   ExpandLess,
   ExpandMore,
   MoreVert,
-  Task,
 } from "@mui/icons-material";
 import {
   Box,
@@ -41,7 +40,6 @@ export default function Agenda({ agenda }) {
     toggleCollapsedAgenda,
     toggleCheckedStatus,
     openAgendaDialog,
-    openEventDialog,
     unSelectAgendaOption,
     deleteAgenda,
     deleteEventsByAgenda,
@@ -70,11 +68,6 @@ export default function Agenda({ agenda }) {
 
   function handleClickEditAgenda() {
     openAgendaDialog(agenda);
-    toggleMore();
-  }
-
-  function handleOpenEventDialog() {
-    openEventDialog(null, null, agenda);
     toggleMore();
   }
 
@@ -160,11 +153,6 @@ export default function Agenda({ agenda }) {
           <ListItemButton onClick={handleClickEditAgenda}>
             <Tooltip placement="left" title="Edit">
               <Edit />
-            </Tooltip>
-          </ListItemButton>
-          <ListItemButton onClick={handleOpenEventDialog}>
-            <Tooltip placement="left" title="Add event">
-              <Task />
             </Tooltip>
           </ListItemButton>
           <ListItemButton onClick={handleDelete}>
