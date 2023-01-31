@@ -56,7 +56,7 @@ export default function DateCellWrapper({ children, ...props }) {
                 border: "2px solid #000",
               }
             : {
-                border: "1px solid #CCC",
+                borderRight: "1px solid #CCC",
               }),
         }}
       >
