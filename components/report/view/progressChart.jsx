@@ -122,7 +122,7 @@ export default function ProgressChart({ agenda }) {
   }, [statuses, agenda]);
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <Divider sx={{ my: 1 }}>
         <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
       </Divider>
@@ -134,6 +134,7 @@ export default function ProgressChart({ agenda }) {
           alignItems: "stretch",
           flexWrap: "nowrap",
           gap: 1,
+          p: 2,
         }}
       >
         {agendaEvents.length > 0 &&
@@ -147,6 +148,6 @@ export default function ProgressChart({ agenda }) {
             </Box>
           ))}
       </Box>
-    </Box>
+    </>
   );
 }
