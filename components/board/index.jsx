@@ -7,7 +7,6 @@ import Meta from "components/meta";
 
 import Toolbar from "./toolbar";
 import View from "./view";
-import Viewbar from "./viewbar";
 
 const Drawer = dynamic(() => import("components/drawer"));
 const InfoDrawer = dynamic(() => import("components/infoDrawer"));
@@ -37,7 +36,6 @@ function BoardLayout() {
         >
           <Toolbar />
           <View />
-          <Viewbar />
         </Box>
         {infoDrawer && <InfoDrawer />}
       </Box>
@@ -49,10 +47,10 @@ function BoardLayout() {
 
 export default function Board() {
   return (
-    <BoardContextProvider>
-      <AgendaContextProvider>
+    <AgendaContextProvider>
+      <BoardContextProvider>
         <BoardLayout />
-      </AgendaContextProvider>
-    </BoardContextProvider>
+      </BoardContextProvider>
+    </AgendaContextProvider>
   );
 }

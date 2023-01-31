@@ -49,10 +49,10 @@ function CalendarLayout() {
 
 export default function Calendar() {
   return (
-    <CalendarContextProvider>
-      <AgendaContextProvider>
+    <AgendaContextProvider>
+      <CalendarContextProvider>
         <CalendarLayout />
-      </AgendaContextProvider>
-    </CalendarContextProvider>
+      </CalendarContextProvider>
+    </AgendaContextProvider>
   );
 }

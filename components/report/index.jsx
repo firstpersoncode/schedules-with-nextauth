@@ -49,10 +49,10 @@ function ReportLayout() {
 
 export default function Report() {
   return (
-    <ReportContextProvider>
-      <AgendaContextProvider>
+    <AgendaContextProvider>
+      <ReportContextProvider>
         <ReportLayout />
-      </AgendaContextProvider>
-    </ReportContextProvider>
+      </ReportContextProvider>
+    </AgendaContextProvider>
   );
 }

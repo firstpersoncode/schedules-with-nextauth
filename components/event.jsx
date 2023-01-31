@@ -16,8 +16,9 @@ import {
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { Delete } from "@mui/icons-material";
-import { add, differenceInMinutes, isAfter, isBefore, sub } from "date-fns";
+import { add, isAfter, isBefore } from "date-fns";
 import validateEventStartEnd from "utils/validateEventStartEnd";
+import updateEventScheduleByStatus from "utils/updateEventScheduleByStatus";
 import { useCommonContext } from "context/common";
 import { useAgendaContext } from "context/agenda";
 import { repeats, repeatOptions } from "context/agenda/controller/event";
@@ -117,49 +118,12 @@ export default function Event() {
 
   useEffect(() => {
     if (event?.id && state.status) {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      if (event.status.type !== state.status.type) {
-        const now = new Date();
-        if (state.status.type === "COMPLETED") {
-          if (isAfter(eventStart, now)) {
-            const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
-            setState((v) => ({
-              ...v,
-              start: sub(now, { minutes: durationInMinutes }),
-              end: now,
-            }));
-          } else {
-            const durationInMinutes = differenceInMinutes(now, eventStart);
-            setState((v) => ({
-              ...v,
-              start: eventStart,
-              end: add(eventStart, { minutes: durationInMinutes }),
-            }));
-          }
-        } else {
-          if (isBefore(eventEnd, now)) {
-            const durationInMinutes = differenceInMinutes(eventEnd, eventStart);
-            setState((v) => ({
-              ...v,
-              start: now,
-              end: add(now, { minutes: durationInMinutes }),
-            }));
-          } else {
-            setState((v) => ({
-              ...v,
-              start: now,
-              end: eventEnd,
-            }));
-          }
-        }
-      } else {
-        setState((v) => ({
-          ...v,
-          start: eventStart,
-          end: eventEnd,
-        }));
-      }
+      const res = updateEventScheduleByStatus(event, state.status);
+      setState((v) => ({
+        ...v,
+        start: res.start,
+        end: res.end,
+      }));
     }
   }, [state.status, event]);
 
