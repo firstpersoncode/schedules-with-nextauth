@@ -38,6 +38,7 @@ export default function Agenda({ agenda }) {
     getLabelsByAgenda,
     toggleCheckedLabel,
     getStatusesByAgenda,
+    toggleCollapsedAgenda,
     toggleCheckedStatus,
     openAgendaDialog,
     openEventDialog,
@@ -48,13 +49,12 @@ export default function Agenda({ agenda }) {
 
   const labels = getLabelsByAgenda(agenda);
   const statuses = getStatusesByAgenda(agenda);
-  const [open, setOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
   function toggleOpen() {
-    setOpen(!open);
+    toggleCollapsedAgenda(agenda, !agenda.collapsed);
   }
 
   function toggleMore(e) {
@@ -175,7 +175,7 @@ export default function Agenda({ agenda }) {
         </List>
       </Popover>
 
-      <Collapse in={open}>
+      <Collapse in={!agenda.collapsed}>
         <Box
           sx={{
             px: 2,

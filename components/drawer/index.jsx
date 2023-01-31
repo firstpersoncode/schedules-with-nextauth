@@ -25,9 +25,11 @@ export default function Drawer() {
             onOpen={toggleDrawer}
             sx={{
               width: "80%",
+              height: "100vh",
               "& .MuiDrawer-paper": {
                 width: "80%",
                 boxSizing: "border-box",
+                height: "100%",
               },
             }}
           >
@@ -51,9 +53,11 @@ export default function Drawer() {
         <MuiDrawer
           sx={{
             width: drawerWidth,
+            height: "100vh",
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
+              height: "100%",
             },
           }}
           variant="permanent"

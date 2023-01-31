@@ -75,6 +75,7 @@ const useController = (context) => {
                   return {
                     ...matchAgenda,
                     checked: agenda.checked,
+                    collapsed: agenda.collapsed,
                   };
                 })
             );
@@ -153,7 +154,13 @@ const useController = (context) => {
     if (ctx.agendaReady) {
       localStorage.setItem(
         "agenda.agendas",
-        JSON.stringify(agendas.map((a) => ({ id: a.id, checked: a.checked })))
+        JSON.stringify(
+          agendas.map((a) => ({
+            id: a.id,
+            checked: a.checked,
+            collapsed: a.collapsed,
+          }))
+        )
       );
 
       localStorage.setItem(

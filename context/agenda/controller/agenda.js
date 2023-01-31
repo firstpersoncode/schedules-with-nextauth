@@ -71,6 +71,18 @@ const useAgenda = () => {
     }));
   }, []);
 
+  function toggleCollapsedAgenda(agenda, collapsed) {
+    const currAgendas = state.agendas.map((a) => {
+      if (a.id === agenda.id) {
+        a.collapsed = collapsed;
+      }
+
+      return a;
+    });
+
+    setState((v) => ({ ...v, agendas: currAgendas }));
+  }
+
   function toggleCheckedAgenda(agenda, checked) {
     const currAgendas = state.agendas.map((a) => {
       if (a.id === agenda.id) {
@@ -296,6 +308,7 @@ const useAgenda = () => {
     unSelectAgendaOption,
     setAgendas,
     selectAgenda,
+    toggleCollapsedAgenda,
     toggleCheckedAgenda,
     addAgenda,
     updateAgenda,
