@@ -144,8 +144,8 @@ export default function CommitmentChart() {
   }
 
   return (
-    <>
-      <Box sx={{ px: 2, display: "flex", justifyContent: "flex-end" }}>
+    <Box sx={{ p: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <TextField
           select
           label="Scale"
@@ -164,6 +164,6 @@ export default function CommitmentChart() {
           <Bar options={options} data={data} />;
         </Box>
       </Box>
-    </>
+    </Box>
   );
 }

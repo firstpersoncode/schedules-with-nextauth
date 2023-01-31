@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography, Divider } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 // import { isAfter, isBefore } from "date-fns";
@@ -122,26 +122,31 @@ export default function ProgressChart({ agenda }) {
   }, [statuses, agenda]);
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        overflowX: "auto",
-        display: "flex",
-        alignItems: "stretch",
-        flexWrap: "nowrap",
-        gap: 1,
-      }}
-    >
-      {agendaEvents.length > 0 &&
-        checkedStatuses.map((status, i) => (
-          <Box key={i} sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
-            <Chart
-              status={status}
-              events={agendaEvents}
-              labels={agendaLabels}
-            />
-          </Box>
-        ))}
+    <Box sx={{ p: 2 }}>
+      <Divider sx={{ my: 1 }}>
+        <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
+      </Divider>
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+          display: "flex",
+          alignItems: "stretch",
+          flexWrap: "nowrap",
+          gap: 1,
+        }}
+      >
+        {agendaEvents.length > 0 &&
+          checkedStatuses.map((status, i) => (
+            <Box key={i} sx={{ flex: 1, minWidth: { xs: "90%", lg: "30%" } }}>
+              <Chart
+                status={status}
+                events={agendaEvents}
+                labels={agendaLabels}
+              />
+            </Box>
+          ))}
+      </Box>
     </Box>
   );
 }

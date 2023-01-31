@@ -147,8 +147,6 @@ export default function Agenda({ agenda }) {
         </Tooltip>
       </Box>
 
-      <Divider />
-
       <Popover
         open={more}
         anchorEl={anchorEl}
@@ -199,10 +197,10 @@ export default function Agenda({ agenda }) {
           <Tooltip title="Display">
             <FormControlLabel
               sx={{
-                "& .Mui-checked": {
+                "& .MuiButtonBase-root.Mui-checked": {
                   color: agenda.color,
                 },
-                "& .Mui-checked+.MuiSwitch-track": {
+                "& .MuiButtonBase-root.Mui-checked+.MuiSwitch-track": {
                   backgroundColor: agenda.color,
                 },
               }}
@@ -276,7 +274,8 @@ export default function Agenda({ agenda }) {
           </Box>
         )}
       </Collapse>
-      <Box sx={{ height: 2, backgroundColor: agenda.color }} />
+      {/* <Box sx={{ height: 2, backgroundColor: agenda.color }} /> */}
+      <Divider />
 
       {dialog && (
         <Dialog dialog={dialog} onClose={handleCloseDialog}>

@@ -70,21 +70,6 @@ export default function Menu() {
       <Divider />
 
       <Box sx={{ p: 2 }}>
-        <Tooltip title="Add agenda">
-          <Button
-            variant="contained"
-            fullWidth
-            startIcon={<Add />}
-            onClick={openAgendaDialog}
-          >
-            Agenda
-          </Button>
-        </Tooltip>
-      </Box>
-
-      <Divider />
-
-      <Box sx={{ p: 2 }}>
         {isLoading && <LinearProgress />}
         <Autocomplete
           options={agendaOptions}
@@ -96,10 +81,27 @@ export default function Menu() {
           fullWidth
           value={null}
           inputValue={inputValue}
+          sx={{ mb: 1 }}
           renderInput={(params) => (
-            <TextField {...params} label="Agenda" variant="outlined" />
+            <TextField
+              {...params}
+              size="small"
+              label="Agenda"
+              variant="outlined"
+            />
           )}
         />
+
+        <Tooltip title="Add agenda">
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<Add />}
+            onClick={openAgendaDialog}
+          >
+            Agenda
+          </Button>
+        </Tooltip>
       </Box>
 
       <Divider />
