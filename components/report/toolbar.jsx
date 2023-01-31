@@ -1,10 +1,10 @@
-import { Box, IconButton, Card, LinearProgress } from "@mui/material";
+import { Box, IconButton, Card, LinearProgress, Tooltip } from "@mui/material";
 
-import { Menu } from "@mui/icons-material";
+import { Menu, Info } from "@mui/icons-material";
 import { useCommonContext } from "context/common";
 
 export default function Toolbar() {
-  const { isLoading, toggleDrawer } = useCommonContext();
+  const { isLoading, toggleDrawer, toggleInfoDrawer } = useCommonContext();
 
   return (
     <Card
@@ -15,7 +15,6 @@ export default function Toolbar() {
         width: { xs: "100vw", lg: "80vw" },
         top: 0,
         right: 0,
-        height: 40,
       }}
     >
       <Box
@@ -33,6 +32,12 @@ export default function Toolbar() {
         >
           <Menu />
         </IconButton>
+        <Box sx={{ flex: 1 }} />
+        <Tooltip placement="left" title="Info">
+          <IconButton onClick={toggleInfoDrawer}>
+            <Info />
+          </IconButton>
+        </Tooltip>
       </Box>
       {isLoading && <LinearProgress />}
     </Card>

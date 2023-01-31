@@ -67,7 +67,6 @@ export default function Toolbar() {
         width: { xs: "100vw", lg: "80vw" },
         top: 0,
         right: 0,
-        height: 40,
       }}
     >
       <Box
