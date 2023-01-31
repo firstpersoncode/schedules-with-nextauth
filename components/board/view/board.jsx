@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Stack } from "@mui/material";
+import { Stack, Divider, Typography, Box } from "@mui/material";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useAgendaContext } from "context/agenda";
 import updateEventScheduleByStatus from "utils/updateEventScheduleByStatus";
@@ -107,7 +107,10 @@ export default function Board({ agenda }) {
   }
 
   return (
-    <>
+    <Box sx={{ p: 2 }}>
+      <Divider sx={{ my: 1 }}>
+        <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
+      </Divider>
       <DragDropContext onDragEnd={onDragEnd}>
         <Stack
           direction="row"
@@ -123,6 +126,6 @@ export default function Board({ agenda }) {
       </DragDropContext>
 
       {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
-    </>
+    </Box>
   );
 }
