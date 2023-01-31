@@ -123,7 +123,7 @@ export default function ProgressChart({ agenda }) {
 
   return (
     <>
-      <Divider sx={{ my: 1 }}>
+      <Divider sx={{ my: 1 }} textAlign="left">
         <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
       </Divider>
       <Box
