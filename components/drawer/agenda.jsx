@@ -132,7 +132,7 @@ export default function Agenda({ agenda }) {
         </Typography>
         <Tooltip title="Collapse">
           <IconButton onClick={toggleOpen} size="small">
-            {open ? <ExpandLess /> : <ExpandMore />}
+            {!agenda.collapsed ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
         </Tooltip>
         <Tooltip title="Remove">
