@@ -95,14 +95,6 @@ export default function Menu() {
   return (
     <Box sx={{ height: "100%", overflowY: "auto" }}>
       <List sx={{ m: 0, p: 0 }}>
-        <Link href="/calendar">
-          <ListItemButton selected={asPath === "/calendar"}>
-            <ListItemIcon>
-              <CalendarMonth />
-            </ListItemIcon>
-            <ListItemText sx={{ color: "#666" }} primary="Calendar" />
-          </ListItemButton>
-        </Link>
         <Link href="/board">
           <ListItemButton selected={asPath === "/board"}>
             <ListItemIcon>
@@ -111,6 +103,16 @@ export default function Menu() {
             <ListItemText sx={{ color: "#666" }} primary="Board" />
           </ListItemButton>
         </Link>
+
+        <Link href="/calendar">
+          <ListItemButton selected={asPath === "/calendar"}>
+            <ListItemIcon>
+              <CalendarMonth />
+            </ListItemIcon>
+            <ListItemText sx={{ color: "#666" }} primary="Calendar" />
+          </ListItemButton>
+        </Link>
+
         <Link href="/report">
           <ListItemButton selected={asPath === "/report"}>
             <ListItemIcon>
@@ -146,7 +148,7 @@ export default function Menu() {
           )}
         />
 
-        <Tooltip title="Add agenda">
+        <Tooltip title="Create Agenda">
           <Button
             variant="contained"
             fullWidth
