@@ -1,16 +1,34 @@
 import { useState, useMemo, useEffect } from "react";
-import { Stack, Divider, Typography, Box } from "@mui/material";
+import {
+  Stack,
+  Divider,
+  Typography,
+  Box,
+  Button,
+  Tooltip,
+} from "@mui/material";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useAgendaContext } from "context/agenda";
 import updateEventScheduleByStatus from "utils/updateEventScheduleByStatus";
 import Dialog, { useDialog } from "components/dialog";
 import Column from "./column";
+import { Add } from "@mui/icons-material";
 
 export default function Board({ agenda }) {
   const { dialog, handleOpenDialog, handleCloseDialog } = useDialog();
 
-  const { statuses, getEvents, addEvent, updateEvent, cancelEvent } =
-    useAgendaContext();
+  const {
+    statuses,
+    getEvents,
+    addEvent,
+    updateEvent,
+    cancelEvent,
+    openEventDialog,
+  } = useAgendaContext();
+
+  function handleAddEvent() {
+    openEventDialog(null, null, agenda);
+  }
 
   const agendaStatuses = useMemo(
     () => statuses.filter((s) => s.agendaId === agenda.id),
@@ -107,25 +125,39 @@ export default function Board({ agenda }) {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <Divider sx={{ my: 1 }}>
         <Typography sx={{ fontSize: 24 }}>{agenda.title}</Typography>
       </Divider>
+      <Box sx={{ px: 2 }}>
+        <Tooltip title="Create Event">
+          <Button
+            sx={{ my: 1 }}
+            variant="contained"
+            onClick={handleAddEvent}
+            size="small"
+          >
+            <Add />
+          </Button>
+        </Tooltip>
+      </Box>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            minWidth: 700,
-          }}
-        >
-          {columns.map((column, i) => (
-            <Column key={column.id} agenda={agenda} column={column} />
-          ))}
-        </Stack>
+        <Box sx={{ p: 2, width: "100%", overflowX: "auto" }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              minWidth: 700,
+            }}
+          >
+            {columns.map((column, i) => (
+              <Column key={column.id} agenda={agenda} column={column} />
+            ))}
+          </Stack>
+        </Box>
       </DragDropContext>
 
       {dialog && <Dialog dialog={dialog} onClose={handleCloseDialog} />}
-    </Box>
+    </>
   );
 }
