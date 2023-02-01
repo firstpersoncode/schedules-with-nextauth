@@ -123,19 +123,22 @@ export default function Agenda({ agenda }) {
         <Typography onClick={toggleOpen} sx={{ flex: 1, cursor: "pointer" }}>
           {agenda.title}
         </Typography>
+
+        <Tooltip title="More">
+          <IconButton onClick={toggleMore} size="small">
+            <MoreVert sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
+
         <Tooltip title="Collapse">
           <IconButton onClick={toggleOpen} size="small">
             {!agenda.collapsed ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
         </Tooltip>
+
         <Tooltip title="Remove">
           <IconButton size="small" onClick={handleUnSelectAgenda}>
             <Close sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="More">
-          <IconButton onClick={toggleMore} size="small">
-            <MoreVert sx={{ fontSize: 16 }} />
           </IconButton>
         </Tooltip>
       </Box>

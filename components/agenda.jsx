@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { Delete, Add } from "@mui/icons-material";
+import { Delete, Add, Close } from "@mui/icons-material";
 import { MuiColorInput } from "mui-color-input";
 import getRandomHex from "utils/getRandomHex";
 import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
@@ -293,7 +293,25 @@ export default function Agenda() {
       <MuiDialog fullWidth maxWidth="md" open={open} onClose={onClose}>
         <Box>
           {loading && <LinearProgress />}
+
           <Box sx={{ p: 2 }}>
+            <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
+              <Box>
+                {agenda?.id && (
+                  <Tooltip title="Delete">
+                    <IconButton disabled={loading} onClick={handleDelete}>
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Tooltip title="Close">
+                  <IconButton disabled={loading} onClick={onClose}>
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+
             <TextField
               required
               sx={{ mb: 2 }}
@@ -497,13 +515,6 @@ export default function Agenda() {
         </Box>
 
         <DialogActions>
-          {agenda?.id && (
-            <Tooltip title="Delete">
-              <IconButton disabled={loading} onClick={handleDelete}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          )}
           <Button disabled={loading} onClick={onClose}>
             Cancel
           </Button>

@@ -262,27 +262,31 @@ export default function Write({
 
   return (
     <>
-      {event?.id && (
-        <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
+      <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
+        {event?.id ? (
           <Tooltip title="Back">
             <IconButton onClick={toggleWrite}>
               <ChevronLeft />
             </IconButton>
           </Tooltip>
-          <Box>
+        ) : (
+          <Box sx={{ flex: 1 }} />
+        )}
+        <Box>
+          {event?.id && (
             <Tooltip title="Delete">
               <IconButton disabled={loading} onClick={handleDelete}>
                 <Delete />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Close">
-              <IconButton disabled={loading} onClick={handleClose}>
-                <Close />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          )}
+          <Tooltip title="Close">
+            <IconButton disabled={loading} onClick={handleClose}>
+              <Close />
+            </IconButton>
+          </Tooltip>
         </Box>
-      )}
+      </Box>
       <Box
         sx={{
           mb: 2,
