@@ -144,6 +144,7 @@ const useEvent = ({
       setState((v) => ({
         ...v,
         events: currEvents,
+        event: newEvent,
       }));
     } catch (err) {
       console.error(err);
@@ -163,6 +164,7 @@ const useEvent = ({
       setState((v) => ({
         ...v,
         events: currEvents,
+        event: { ...state.event, ...event, status },
       }));
     } catch (err) {
       console.error(err);

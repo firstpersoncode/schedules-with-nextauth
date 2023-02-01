@@ -97,25 +97,11 @@ export default function Board({ agenda }) {
         });
 
         await addEvent({
-          title: updatedEvent.title,
-          description: updatedEvent.description,
-          start: updatedEvent.start,
-          end: updatedEvent.end,
-          labels: updatedEvent.labels,
-          agenda: updatedEvent.agenda,
-          status: updatedEvent.status,
+          ...updatedEvent,
           cancelledAt: [],
         });
       } else {
-        await updateEvent({
-          id: updatedEvent.id,
-          title: updatedEvent.title,
-          description: updatedEvent.description,
-          start: updatedEvent.start,
-          end: updatedEvent.end,
-          labels: updatedEvent.labels,
-          status: updatedEvent.status,
-        });
+        await updateEvent(updatedEvent);
       }
 
       setColumns(updatedColumns);
