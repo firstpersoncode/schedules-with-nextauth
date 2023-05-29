@@ -104,8 +104,8 @@ export default function Menu() {
           </ListItemButton>
         </Link>
 
-        <Link href="/calendar">
-          <ListItemButton selected={asPath === "/calendar"}>
+        <Link href="/">
+          <ListItemButton selected={asPath === "/"}>
             <ListItemIcon>
               <CalendarMonth />
             </ListItemIcon>

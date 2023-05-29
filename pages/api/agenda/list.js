@@ -1,18 +1,21 @@
-import { getSession } from "next-auth/react";
+import { isAfter } from "date-fns";
 import { makeDBConnection } from "prisma/db";
 
 export default async function list(req, res) {
-  if (req.method !== "GET") res.status(405).send();
+  if (req.method !== "GET") return res.status(405).send();
+
+  const token = req.headers["x-token"];
+  if (!token) return res.status(401).send();
 
   try {
-    const session = await getSession({ req });
-    if (!session) throw new Error("Session not found");
-    const userId = session.user.id;
     const data = await makeDBConnection(async (db) => {
+      const validToken = await db.token.findUnique({ where: { key: token } });
+      if (!validToken) return { error: "invalid token" };
+      else if (isAfter(new Date(), new Date(validToken.expiredAt)))
+        return { error: "invalid token" };
+
       const agendas = await db.agenda.findMany({
-        where: {
-          userIds: { has: userId },
-        },
+        where: { ownerId: validToken.id },
         include: {
           labels: true,
           statuses: true,
@@ -31,6 +34,8 @@ export default async function list(req, res) {
 
       return { agendas, events };
     });
+
+    if (data.error) throw new Error(data.error);
 
     res.status(200).json(data);
   } catch (err) {

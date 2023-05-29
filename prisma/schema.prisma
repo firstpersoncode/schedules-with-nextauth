@@ -7,69 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
+model RequestToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.String
-  access_token       String? @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.String
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String  @db.ObjectId
-
+  email     String
   createdAt DateTime @default(now())
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
+  @@map("requestTokens")
 }
 
-model Session {
+model Token {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  expires      DateTime
+  email     String
+  key       String  @unique
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String  @db.ObjectId
-
-   @@map("sessions")
-}
-
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String  @unique
-  password  String?
-  name      String?
-  emailVerified DateTime?
-  image         String?
-
-  accounts      Account[]
-  sessions      Session[]
-
-  agendas Agenda[] @relation(fields: [agendaIds], references: [id])
-  agendaIds String[] @db.ObjectId
+  agenda Agenda[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  expiredAt DateTime
   deletedAt DateTime?
-  archived Boolean @default(false)
-
-  @@map("users")
-}
-
-model VerificationToken {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verificationtokens")
+  @@map("tokens")
 }
 
 model Agenda {
@@ -79,14 +35,14 @@ model Agenda {
   end DateTime
   description String?
 
+  owner Token  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String @db.ObjectId
+
   color String?
 
   events Event[]
   labels Label[]
   statuses Status[]
-
-  users User[] @relation(fields: [userIds], references: [id])
-  userIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

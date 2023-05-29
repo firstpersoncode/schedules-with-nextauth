@@ -1,6 +1,5 @@
+import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
-import useUserAgent from "hooks/useUserAgent";
-import useIsMobile from "hooks/useIsMobile";
 
 export const initialContext = {
   userAgent: "",
@@ -10,13 +9,13 @@ export const initialContext = {
   eventDialog: false,
   drawer: false,
   infoDrawer: false,
+  token: true,
 };
 
-const useController = (context) => {
-  const [ctx, setContext] = useState(context);
+const mobileSize = 992;
 
-  const ua = useUserAgent(ctx.userAgent);
-  const isMobile = useIsMobile(ua.isMobile);
+const useController = () => {
+  const [ctx, setContext] = useState(initialContext);
 
   const setIsLoading = useCallback((isLoading) => {
     setContext((v) => ({
@@ -62,12 +61,42 @@ const useController = (context) => {
   }
 
   useEffect(() => {
-    setContext((v) => ({ ...v, isClientSide: true }));
+    setContext((v) => ({
+      ...v,
+      isClientSide: true,
+      isMobile: window.innerWidth <= mobileSize,
+    }));
   }, []);
+
+  useEffect(() => {
+    if (!ctx.isClientSide) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) setContext((v) => ({ ...v, token }));
+    else {
+      (async () => {
+        try {
+          const resp = await axios.post("/api/token/validate", { key: token });
+          if (!resp?.data?.key) throw new Error("invalid token");
+          setContext((v) => ({ ...v, token: resp.data.key }));
+        } catch (err) {
+          console.error(err);
+        }
+      })();
+    }
+
+    window.addEventListener("resize", handleWindowSizeChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange);
+    };
+  }, [ctx.isClientSide]);
+
+  function handleWindowSizeChange(e) {
+    setContext((v) => ({ ...v, isMobile: e.target.innerWidth <= mobileSize }));
+  }
 
   return {
     ...ctx,
-    isMobile,
     setIsLoading,
     openAgendaDialog,
     closeAgendaDialog,
@@ -75,6 +104,7 @@ const useController = (context) => {
     closeEventDialog,
     toggleDrawer,
     toggleInfoDrawer,
+    setContext,
   };
 };
 

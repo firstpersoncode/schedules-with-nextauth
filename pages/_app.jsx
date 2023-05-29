@@ -4,6 +4,7 @@ import "styles/globals.scss";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { Box, LinearProgress } from "@mui/material";
+import CommonContextProvider from "context/common";
 
 export default function _App({ Component, pageProps }) {
   const { locale, asPath, events: RouterEvents } = useRouter();
@@ -50,7 +51,9 @@ export default function _App({ Component, pageProps }) {
           <LinearProgress />
         </Box>
       )}
-      <Component {...pageProps} key={asPath} />
+      <CommonContextProvider>
+        <Component {...pageProps} key={asPath} />
+      </CommonContextProvider>
     </>
   );
 }

@@ -38,7 +38,7 @@ export default function Card({ event, index }) {
                   />
                 ))}
               </Box>
-              <Typography
+              {/* <Typography
                 sx={{
                   color: "text.secondary",
                   fontSize: 11,
@@ -46,7 +46,7 @@ export default function Card({ event, index }) {
                 }}
               >
                 {formatDateRange(event.start, event.end)}
-              </Typography>
+              </Typography> */}
             </MuiCard>
           </Box>
         );

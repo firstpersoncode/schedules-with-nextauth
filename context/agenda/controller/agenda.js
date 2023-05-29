@@ -101,7 +101,9 @@ const useAgenda = () => {
   async function addAgenda(agenda) {
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/agenda/create", agenda);
+      const res = await axios.post("/api/agenda/create", agenda, {
+        headers: { "x-token": localStorage.getItem("token") },
+      });
       const newAgenda = res.data?.agenda;
       newAgenda.start = new Date(newAgenda.start);
       newAgenda.end = new Date(newAgenda.end);
@@ -139,7 +141,9 @@ const useAgenda = () => {
   async function updateAgenda(agenda) {
     setIsLoading(true);
     try {
-      const res = await axios.put("/api/agenda/update", agenda);
+      const res = await axios.put("/api/agenda/update", agenda, {
+        headers: { "x-token": localStorage.getItem("token") },
+      });
       const updatedAgenda = res.data?.agenda;
       updatedAgenda.start = new Date(updatedAgenda.start);
       updatedAgenda.end = new Date(updatedAgenda.end);
@@ -216,7 +220,9 @@ const useAgenda = () => {
   async function deleteAgenda(agenda) {
     setIsLoading(true);
     try {
-      await axios.delete(`/api/agenda/delete?agendaId=${agenda.id}`);
+      await axios.delete(`/api/agenda/delete?agendaId=${agenda.id}`, {
+        headers: { "x-token": localStorage.getItem("token") },
+      });
 
       const currAgendas = state.agendas.filter((e) => e.id !== agenda.id);
       const currLabels = state.labels.filter((e) => e.agendaId !== agenda.id);

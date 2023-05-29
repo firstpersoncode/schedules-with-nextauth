@@ -1,14 +1,12 @@
-import { getSession } from "next-auth/react";
+import { isAfter } from "date-fns";
 import { makeDBConnection } from "prisma/db";
 import validateAgendaStartEnd from "utils/validateAgendaStartEnd";
 
 export default async function update(req, res) {
-  if (req.method !== "PUT") res.status(405).send();
-
+  if (req.method !== "PUT") return res.status(405).send();
+  const token = req.headers["x-token"];
+  if (!token) return res.status(401).send();
   try {
-    const session = await getSession({ req });
-    if (!session) throw new Error("Session not found");
-
     const { id, title, description, start, end, labels, statuses, color } =
       req.body;
 
@@ -31,6 +29,11 @@ export default async function update(req, res) {
       );
 
     const data = await makeDBConnection(async (db) => {
+      const validToken = await db.token.findUnique({ where: { key: token } });
+      if (!validToken) return { error: "invalid token" };
+      else if (isAfter(new Date(), new Date(validToken.expiredAt)))
+        return { error: "invalid token" };
+
       const currAgenda = await db.agenda.findUnique({
         where: { id },
         include: { labels: true, statuses: true },
@@ -122,6 +125,8 @@ export default async function update(req, res) {
         include: { labels: true, statuses: true },
       });
     });
+
+    if (data.error) throw new Error(data.error);
 
     res.status(200).json({
       message: "Agenda updated successfully!",

@@ -124,11 +124,15 @@ const useEvent = ({
   async function addEvent({ agenda, status, ...event }) {
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/event/create", {
-        ...event,
-        agendaId: agenda.id,
-        statusId: status.id,
-      });
+      const res = await axios.post(
+        "/api/event/create",
+        {
+          ...event,
+          agendaId: agenda.id,
+          statusId: status.id,
+        },
+        { headers: { "x-token": localStorage.getItem("token") } }
+      );
 
       const newEventId = res.data?.event;
       const newEvent = {
@@ -155,7 +159,11 @@ const useEvent = ({
   async function updateEvent({ status, ...event }) {
     setIsLoading(true);
     try {
-      await axios.put("/api/event/update", { ...event, statusId: status.id });
+      await axios.put(
+        "/api/event/update",
+        { ...event, statusId: status.id },
+        { headers: { "x-token": localStorage.getItem("token") } }
+      );
       const currEvents = state.events.map((e) => {
         if (e.id === event.id) e = { ...e, ...event, status };
         return e;
@@ -175,7 +183,9 @@ const useEvent = ({
   async function deleteEvent(event) {
     setIsLoading(true);
     try {
-      await axios.delete(`/api/event/delete?eventId=${event.id}`);
+      await axios.delete(`/api/event/delete?eventId=${event.id}`, {
+        headers: { "x-token": localStorage.getItem("token") },
+      });
 
       const currEvents = state.events.filter((e) => e.id !== event.id);
 
@@ -200,7 +210,9 @@ const useEvent = ({
   async function cancelEvent(event) {
     setIsLoading(true);
     try {
-      await axios.put("/api/event/cancel", event);
+      await axios.put("/api/event/cancel", event, {
+        headers: { "x-token": localStorage.getItem("token") },
+      });
       const currEvents = state.events.map((e) => {
         if (e.id === event.id) e = { ...e, ...event };
         return e;

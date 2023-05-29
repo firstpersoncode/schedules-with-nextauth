@@ -32,7 +32,9 @@ const useController = (context) => {
       try {
         const statuses = [];
         const labels = [];
-        const res = await axios.get("/api/agenda/list");
+        const res = await axios.get("/api/agenda/list", {
+          headers: { "x-token": localStorage.getItem("token") },
+        });
         const agendas = res.data?.agendas.map((a) => {
           statuses.push(...a.statuses.map((s) => ({ ...s, checked: true })));
           labels.push({
